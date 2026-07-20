@@ -2,8 +2,8 @@
 
 import { useId, type ReactNode } from 'react';
 import { Overlay } from './Overlay';
-import { Icon } from '@/components/Icon/Icon';
-import { Heading } from '@/components/typography/Typography';
+import { Icon } from '@/components/ui/Icon';
+import { Heading } from '@/components/ui/Typography';
 import styles from './Dialog.module.css';
 
 type ModalProps = {

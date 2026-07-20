@@ -6,9 +6,9 @@ import { useReducedMotion } from 'motion/react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from '@/lib/motion/gsap';
 import { Link } from '@/i18n/navigation';
-import { Container } from '@/components/primitives/Container';
+import { Container } from '@/components/layout/Container';
 import { navItems } from '@/lib/config/nav';
-import { Icon } from '@/components/Icon/Icon';
+import { Icon } from '@/components/ui/Icon';
 import { Logo } from './Logo';
 import styles from './Footer.module.css';
 

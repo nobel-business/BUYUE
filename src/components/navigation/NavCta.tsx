@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { Icon } from '@/components/Icon/Icon';
+import { Icon } from '@/components/ui/Icon';
 import { Magnetic } from '@/lib/motion/Magnetic';
 import { contactItem } from '@/lib/config/nav';
 import styles from './NavCta.module.css';

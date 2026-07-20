@@ -1,21 +1,21 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { localeAlternates } from '@/lib/config/seo';
-import { Section } from '@/components/primitives/Section';
-import { Container } from '@/components/primitives/Container';
-import { Grid } from '@/components/primitives/Grid';
-import { Stack } from '@/components/primitives/Stack';
-import { Heading, Text } from '@/components/typography/Typography';
-import { Card } from '@/components/Card/Card';
-import type { AccordionItem } from '@/components/Accordion/Accordion';
-import { FaqSection } from '@/components/faq/FaqSection';
+import { Section } from '@/components/layout/Section';
+import { Container } from '@/components/layout/Container';
+import { Grid } from '@/components/layout/Grid';
+import { Stack } from '@/components/layout/Stack';
+import { Heading, Text } from '@/components/ui/Typography';
+import { Card } from '@/components/ui/Card';
+import type { AccordionItem } from '@/components/ui/Accordion';
+import { FaqSection } from '@/components/sections/faq/FaqSection';
 import { SceneReveal } from '@/lib/motion/SceneReveal';
-import { TiltCard } from '@/components/about/TiltCard';
-import { ScrollDivider } from '@/components/about/ScrollDivider';
-import { AboutProgress } from '@/components/about/AboutProgress';
-import { AboutCinematicIntro } from '@/components/about/AboutCinematicIntro';
-import { ValuesScene } from '@/components/about/ValuesScene';
-import { VisionMissionConnector } from '@/components/about/VisionMissionConnector';
+import { TiltCard } from '@/components/sections/about/TiltCard';
+import { ScrollDivider } from '@/components/sections/about/ScrollDivider';
+import { AboutProgress } from '@/components/sections/about/AboutProgress';
+import { AboutCinematicIntro } from '@/components/sections/about/AboutCinematicIntro';
+import { ValuesScene } from '@/components/sections/about/ValuesScene';
+import { VisionMissionConnector } from '@/components/sections/about/VisionMissionConnector';
 
 type PageParams = { params: Promise<{ locale: string }> };
 

@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { localeAlternates } from '@/lib/config/seo';
-import { Section } from '@/components/primitives/Section';
-import { Container } from '@/components/primitives/Container';
-import { Stack } from '@/components/primitives/Stack';
-import { Heading } from '@/components/typography/Typography';
-import type { AccordionItem } from '@/components/Accordion/Accordion';
-import { FaqSection } from '@/components/faq/FaqSection';
-import { ServicesStack } from '@/components/services/ServicesStack';
+import { Section } from '@/components/layout/Section';
+import { Container } from '@/components/layout/Container';
+import { Stack } from '@/components/layout/Stack';
+import { Heading } from '@/components/ui/Typography';
+import type { AccordionItem } from '@/components/ui/Accordion';
+import { FaqSection } from '@/components/sections/faq/FaqSection';
+import { ServicesStack } from '@/components/sections/services/ServicesStack';
 import { TextReveal } from '@/lib/motion/TextReveal';
-import { ReadingParagraphs } from '@/components/about/ReadingParagraphs';
+import { ReadingParagraphs } from '@/components/sections/about/ReadingParagraphs';
 
 type PageParams = { params: Promise<{ locale: string }> };
 
