@@ -148,9 +148,10 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
         // trigger drives the whole fold, and because it starts as the section ENTERS
         // ('top bottom', not 'top top'), the cover peels open across the approach rather
         // than after it — so there is no dead dark scroll before the reveal.
-        // `end: 'bottom bottom'` maps the full .scene track (250vh) onto the timeline;
-        // the stage sticks from ~40% progress (its top reaching the viewport top)
-        // through to release at 100%.
+        // `end: 'bottom bottom'` maps the full .scene track (200vh) onto the timeline;
+        // the stage sticks from ~50% progress (its top reaching the viewport top)
+        // through to release at 100%, where the CLOSE lands — so the cover shuts just
+        // as the section hands off to the (dark) FAQ, with no dark held gap between.
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: el,
@@ -166,8 +167,8 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
               // scroll-progress space and match the card/hold window in the timeline
               // below (totalDuration is normalised to 1).
               const p = self.progress;
-              const lo = 0.7;
-              const hi = 0.85;
+              const lo = 0.77;
+              const hi = 0.86;
               if (p < lo || p > hi) return;
               const idx = Math.min(
                 cards.length - 1,
@@ -179,35 +180,36 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
         });
 
         // The timeline runs in scroll-progress space (totalDuration = 1). The OPEN
-        // occupies the approach (0 → ~0.36, before the stage sticks at ~0.40); title,
-        // cards, hold and close play once the stage is locked full-screen.
+        // occupies the approach (0 → ~0.47, before the stage sticks at ~0.50); title,
+        // cards and hold play while the stage is locked; the CLOSE lands at the very
+        // end so the cover shuts just as the section releases into the FAQ — no dark gap.
 
         // OPEN — the cover peels from the first pixel the section enters (power2.out
         // moves immediately, no flat/static-dark start), lifting off the page as it
         // opens, and completes just before the stage locks to the viewport.
         tl.to(
           cover,
-          { rotateY: openDeg, z: 60, yPercent: -2, ease: 'power2.out', duration: 0.36 },
+          { rotateY: openDeg, z: 60, yPercent: -2, ease: 'power2.out', duration: 0.47 },
           0,
         );
         // Crease inner-shadow deepens through the bend, then clears as it flattens.
-        tl.to(shade, { opacity: 0.55, ease: 'power1.inOut', duration: 0.18 }, 0);
-        tl.to(shade, { opacity: 0, ease: 'power1.in', duration: 0.18 }, 0.18);
+        tl.to(shade, { opacity: 0.55, ease: 'power1.inOut', duration: 0.23 }, 0);
+        tl.to(shade, { opacity: 0, ease: 'power1.in', duration: 0.23 }, 0.23);
         // Specular highlight sweeps across the folding edge.
-        tl.to(spec, { autoAlpha: 0.9, duration: 0.06, ease: 'sine.out' }, 0.03);
-        tl.to(spec, { xPercent: specTo, ease: 'sine.inOut', duration: 0.3 }, 0.03);
-        tl.to(spec, { autoAlpha: 0, duration: 0.08, ease: 'sine.in' }, 0.28);
+        tl.to(spec, { autoAlpha: 0.9, duration: 0.07, ease: 'sine.out' }, 0.04);
+        tl.to(spec, { xPercent: specTo, ease: 'sine.inOut', duration: 0.39 }, 0.04);
+        tl.to(spec, { autoAlpha: 0, duration: 0.09, ease: 'sine.in' }, 0.38);
         // Contact shadow beneath the lifting page shrinks toward the spine and fades.
-        tl.to(contact, { opacity: 0, scaleX: 0.3, ease: 'power2.in', duration: 0.36 }, 0);
+        tl.to(contact, { opacity: 0, scaleX: 0.3, ease: 'power2.in', duration: 0.47 }, 0);
 
         // TITLE sets onto the now-locked open page — words rise into place.
         tl.to(
           words,
-          { autoAlpha: 1, yPercent: 0, ease: 'power3.out', duration: 0.1, stagger: 0.03 },
-          0.4,
+          { autoAlpha: 1, yPercent: 0, ease: 'power3.out', duration: 0.09, stagger: 0.03 },
+          0.52,
         );
         // Diamond divider draws outward under the title.
-        tl.to(ornament, { autoAlpha: 1, scaleX: 1, ease: 'power2.out', duration: 0.07 }, 0.44);
+        tl.to(ornament, { autoAlpha: 1, scaleX: 1, ease: 'power2.out', duration: 0.06 }, 0.55);
 
         // CARDS lay down onto the page one by one, with a soft settle.
         tl.to(
@@ -219,15 +221,16 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
             rotate: 0,
             rotationX: 0,
             ease: 'back.out(1.5)',
-            duration: 0.12,
-            stagger: 0.035,
+            duration: 0.11,
+            stagger: 0.03,
           },
-          0.47,
+          0.57,
         );
 
-        // HOLD open + readable (0.70 → 0.85) — the chapter breathes.
+        // HOLD open + readable (0.77 → 0.86) — the chapter breathes.
 
-        // LEAVE — cards lift back off, then the cover closes to the dark world.
+        // LEAVE / CLOSE — cards lift back off, then the cover shuts, finishing right as
+        // the stage releases so the handoff into the dark FAQ carries no dark held gap.
         tl.to(
           cards,
           {
@@ -236,27 +239,27 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
             scale: 0.97,
             rotationX: 12,
             ease: 'power2.in',
-            duration: 0.04,
+            duration: 0.035,
             stagger: 0.02,
           },
-          0.85,
+          0.86,
         );
-        tl.to(words, { autoAlpha: 0, yPercent: -60, ease: 'power2.in', duration: 0.035 }, 0.86);
-        tl.to(contact, { opacity: 0.55, scaleX: 1, ease: 'power2.out', duration: 0.07 }, 0.87);
-        tl.to(shade, { opacity: 0.42, ease: 'power1.inOut', duration: 0.04 }, 0.88);
-        tl.to(shade, { opacity: 0.16, ease: 'power1.in', duration: 0.04 }, 0.94);
+        tl.to(words, { autoAlpha: 0, yPercent: -60, ease: 'power2.in', duration: 0.03 }, 0.87);
+        tl.to(contact, { opacity: 0.55, scaleX: 1, ease: 'power2.out', duration: 0.06 }, 0.88);
+        tl.to(shade, { opacity: 0.42, ease: 'power1.inOut', duration: 0.035 }, 0.88);
+        tl.to(shade, { opacity: 0.16, ease: 'power1.in', duration: 0.035 }, 0.95);
         tl.to(
           spec,
           { autoAlpha: 0.7, xPercent: specFrom, ease: 'sine.inOut', duration: 0.05 },
-          0.87,
+          0.88,
         );
-        tl.to(spec, { autoAlpha: 0, duration: 0.03 }, 0.95);
-        tl.to(cover, { rotateY: 0, z: 0, yPercent: 0, ease: 'power2.inOut', duration: 0.09 }, 0.87);
+        tl.to(spec, { autoAlpha: 0, duration: 0.03 }, 0.96);
+        tl.to(cover, { rotateY: 0, z: 0, yPercent: 0, ease: 'power2.inOut', duration: 0.1 }, 0.88);
 
-        // SETTLE — an empty trailing tween that reserves the final frames as a fully
-        // closed dark cover, so the sticky release at progress 1 is invisible (the
-        // stage detaches on a frame identical to its unstuck, closed state).
-        tl.to({}, { duration: 0.04 }, 0.96);
+        // SETTLE — a short trailing hold so the cover reaches fully-closed a hair before
+        // the sticky release, keeping that release on a closed frame (identical to the
+        // dark tail that scrolls away toward the FAQ).
+        tl.to({}, { duration: 0.02 }, 0.98);
 
         // Reconcile ScrollTrigger with the page-transition ancestor once its blur/lift
         // has settled, so start/end land at the right scroll offsets.
