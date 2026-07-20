@@ -1,7 +1,11 @@
 .scene {
   position: relative;
-  /* Height follows the 100vh stage; ScrollTrigger sizes the pin scroll distance and
-     its spacer, so no manual track height and no leftover empty space. */
+  /* Tall scroll track. The .stage sticks within it (CSS sticky, not a GSAP pin) and
+     a single scrub ScrollTrigger maps this height onto the fold timeline. The section
+     ENTERS this track before it sticks, and that approach drives the cover-open — so
+     there is no dead dark scroll before the reveal. Mobile / reduced-motion collapse
+     this back to auto (below). */
+  min-block-size: 250vh;
 
   /* Deeper, elegant warm palette (brand-derived, never bright). */
   --v-burnt: color-mix(in srgb, var(--color-bonfire-flame) 80%, #2a0d05);
@@ -77,10 +81,13 @@
   --cover-edge-shadow: rgb(120 90 50 / 30%);
 }
 
-/* The stage ScrollTrigger pins (via transform — safe under the page-transition
-   ancestor) with a deep perspective so the cover folds with real book-like depth. */
+/* The stage sticks to the top of the viewport while the .scene track scrolls past
+   (CSS `position: sticky` — proven safe under the page-transition transform ancestor
+   by the Clients scroll-stage, ClientLogoMosaic). Deep perspective so the cover folds
+   with real book-like depth. */
 .stage {
-  position: relative;
+  position: sticky;
+  inset-block-start: 0;
   block-size: 100vh;
   overflow: hidden;
   perspective: 2200px;
