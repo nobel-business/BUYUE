@@ -12,7 +12,6 @@ import { FaqSection } from '@/components/sections/faq/FaqSection';
 import { SceneReveal } from '@/lib/motion/SceneReveal';
 import { TiltCard } from '@/components/sections/about/TiltCard';
 import { ScrollDivider } from '@/components/sections/about/ScrollDivider';
-import { AboutProgress } from '@/components/sections/about/AboutProgress';
 import { AboutCinematicIntro } from '@/components/sections/about/AboutCinematicIntro';
 import { ValuesScene } from '@/components/sections/about/ValuesScene';
 import { VisionMissionConnector } from '@/components/sections/about/VisionMissionConnector';
@@ -52,8 +51,6 @@ export default async function AboutPage({ params }: PageParams) {
 
   return (
     <main id="main-content">
-      <AboutProgress />
-
       {/* Intro — cinematic dark 3D hero (reference layout). Copy verbatim; scroll
           label and tagline are additive bilingual strings. */}
       <AboutCinematicIntro heading={t('intro.heading')} paragraphs={paragraphs} />

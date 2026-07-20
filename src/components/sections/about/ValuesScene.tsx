@@ -158,17 +158,17 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
             trigger: el,
             start: 'top bottom',
             end: 'bottom bottom',
-            // Low catch-up lag: smooths the stepped native wheel (there is no Lenis
-            // smoothing) without the fold visibly trailing the scroll. There is no pin
-            // engage/release boundary to desynchronise against anymore.
-            scrub: 0.5,
+            // Tight catch-up: a small value keeps the reveal tracking the scroll almost
+            // directly (it barely trails the wheel) while still smoothing the stepped
+            // native wheel a touch. Higher values make the peel feel laggy/draggy.
+            scrub: 0.2,
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               // Spotlight walks the cards only during the open HOLD. Bounds are in
               // scroll-progress space and match the card/hold window in the timeline
               // below (totalDuration is normalised to 1).
               const p = self.progress;
-              const lo = 0.77;
+              const lo = 0.7;
               const hi = 0.97;
               if (p < lo || p > hi) return;
               const idx = Math.min(
@@ -180,37 +180,38 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
           },
         });
 
-        // The timeline runs in scroll-progress space (totalDuration = 1). The OPEN
-        // occupies the approach (0 → ~0.47, before the stage sticks at ~0.50); the title
-        // and cards settle once locked, then the lit page holds to the release and
-        // scrolls away into the FAQ — no close-to-dark, so no empty dark exit gap.
+        // The timeline runs in scroll-progress space (totalDuration = 1). The OPEN is a
+        // short, snappy peel right at the start of the approach (0 → ~0.28), so the lit
+        // page is revealed FAST; it then rises to lock (~0.50) where the title and cards
+        // settle, and the lit page holds to the release and scrolls away into the FAQ —
+        // no close-to-dark, so no empty dark exit gap.
 
         // OPEN — the cover peels from the first pixel the section enters (power2.out
-        // moves immediately, no flat/static-dark start), lifting off the page as it
-        // opens, and completes just before the stage locks to the viewport.
+        // moves immediately, no flat/static-dark start) and clears quickly, so the white
+        // page is revealed with a short sweep rather than a long, slow one.
         tl.to(
           cover,
-          { rotateY: openDeg, z: 60, yPercent: -2, ease: 'power2.out', duration: 0.47 },
+          { rotateY: openDeg, z: 60, yPercent: -2, ease: 'power2.out', duration: 0.28 },
           0,
         );
         // Crease inner-shadow deepens through the bend, then clears as it flattens.
-        tl.to(shade, { opacity: 0.55, ease: 'power1.inOut', duration: 0.23 }, 0);
-        tl.to(shade, { opacity: 0, ease: 'power1.in', duration: 0.23 }, 0.23);
+        tl.to(shade, { opacity: 0.55, ease: 'power1.inOut', duration: 0.14 }, 0);
+        tl.to(shade, { opacity: 0, ease: 'power1.in', duration: 0.14 }, 0.14);
         // Specular highlight sweeps across the folding edge.
-        tl.to(spec, { autoAlpha: 0.9, duration: 0.07, ease: 'sine.out' }, 0.04);
-        tl.to(spec, { xPercent: specTo, ease: 'sine.inOut', duration: 0.39 }, 0.04);
-        tl.to(spec, { autoAlpha: 0, duration: 0.09, ease: 'sine.in' }, 0.38);
+        tl.to(spec, { autoAlpha: 0.9, duration: 0.05, ease: 'sine.out' }, 0.02);
+        tl.to(spec, { xPercent: specTo, ease: 'sine.inOut', duration: 0.23 }, 0.02);
+        tl.to(spec, { autoAlpha: 0, duration: 0.05, ease: 'sine.in' }, 0.23);
         // Contact shadow beneath the lifting page shrinks toward the spine and fades.
-        tl.to(contact, { opacity: 0, scaleX: 0.3, ease: 'power2.in', duration: 0.47 }, 0);
+        tl.to(contact, { opacity: 0, scaleX: 0.3, ease: 'power2.in', duration: 0.28 }, 0);
 
-        // TITLE sets onto the now-locked open page — words rise into place.
+        // TITLE sets onto the page as it finishes locking — words rise into place.
         tl.to(
           words,
           { autoAlpha: 1, yPercent: 0, ease: 'power3.out', duration: 0.09, stagger: 0.03 },
-          0.52,
+          0.44,
         );
         // Diamond divider draws outward under the title.
-        tl.to(ornament, { autoAlpha: 1, scaleX: 1, ease: 'power2.out', duration: 0.06 }, 0.55);
+        tl.to(ornament, { autoAlpha: 1, scaleX: 1, ease: 'power2.out', duration: 0.06 }, 0.47);
 
         // CARDS lay down onto the page one by one, with a soft settle.
         tl.to(
@@ -225,10 +226,10 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
             duration: 0.11,
             stagger: 0.03,
           },
-          0.57,
+          0.5,
         );
 
-        // HOLD to release (0.77 → 1.0) — the open, lit chapter holds full-screen and
+        // HOLD to release (0.70 → 1.0) — the open, lit chapter holds full-screen and
         // then simply scrolls away as the FAQ rises. We deliberately do NOT close the
         // cover back to dark: a closed-cover exit left a full viewport of empty dark
         // scrolling past before the FAQ (the reported "gap"). Keeping the lit page —
@@ -238,7 +239,7 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
         // The trailing empty tween only extends the timeline to progress 1 (the sticky
         // release) so the scrub mapping stays correct across the full 200vh track; there
         // is no reverse-fold to animate anymore.
-        tl.to({}, { duration: 0.23 }, 0.77);
+        tl.to({}, { duration: 0.3 }, 0.7);
 
         // Reconcile ScrollTrigger with the page-transition ancestor once its blur/lift
         // has settled, so start/end land at the right scroll offsets.
