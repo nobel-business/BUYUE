@@ -39,6 +39,20 @@ jobs:
 
       # `npm ci` (not `npm install`) — installs strictly from the lockfile and
       # fails loudly if it has drifted from package.json. Vercel runs the same.
+      # .vercelignore uses .gitignore semantics, where a bare name is UNANCHORED
+      # and matches at any depth — `data` silently matched src/lib/data/ and
+      # broke a production build. Fail here instead of on Vercel.
+      - name: Guard .vercelignore
+        run: |
+          hits=$(git ls-files --cached --ignored --exclude-from=.vercelignore \
+                 | grep -E '^(src|public)/' || true)
+          if [ -n "$hits" ]; then
+            echo "::error::.vercelignore excludes files needed to build:"
+            echo "$hits"
+            exit 1
+          fi
+          echo "OK — .vercelignore touches nothing under src/ or public/"
+
       - name: Install dependencies
         run: npm ci
 
