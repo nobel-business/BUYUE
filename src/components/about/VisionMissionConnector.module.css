@@ -1,0 +1,36 @@
+.line {
+  position: absolute;
+  inset-block-start: 50%;
+  /* Physical `left`, not `inset-inline-start`: the centring below uses a physical
+     `translate: -50%`, which does not mirror. Paired with a logical inset the two
+     compound in RTL instead of cancelling, dropping this connector a full width
+     (up to 9rem) left of the gutter — on top of the Vision card. */
+  left: 50%;
+  z-index: 1;
+  inline-size: clamp(4rem, 10vw, 9rem);
+  block-size: 1px;
+  translate: -50% -50%;
+  transform-origin: center;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-bonfire-flame) 55%, transparent) 30%,
+    color-mix(in srgb, var(--color-quilt-gold) 70%, transparent) 50%,
+    color-mix(in srgb, var(--color-bonfire-flame) 55%, transparent) 70%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* Single-column layouts have no gutter to bridge; and reduced motion opts out. */
+@media (max-width: 899px) {
+  .line {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line {
+    display: none;
+  }
+}

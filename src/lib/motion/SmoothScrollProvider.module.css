@@ -1,0 +1,27 @@
+/* Reading-progress bar (Mission: page progress — very thin, smooth, synced).
+   Fixed to the top edge; the inner bar is scaled on the X axis from the reading
+   origin (inline-start), which mirrors correctly for RTL. */
+.progressTrack {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: var(--z-progress);
+  block-size: 3px;
+  pointer-events: none;
+}
+
+.progressBar {
+  display: block;
+  block-size: 100%;
+  inline-size: 100%;
+  background-color: var(--color-action-primary);
+  transform: scaleX(0);
+  transform-origin: left center;
+  /* GPU-friendly + a light smoothing so the fill never reads as steppy. */
+  will-change: transform;
+  transition: transform 80ms linear;
+}
+
+[dir='rtl'] .progressBar {
+  transform-origin: right center;
+}

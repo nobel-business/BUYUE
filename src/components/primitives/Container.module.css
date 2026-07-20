@@ -1,0 +1,23 @@
+.container {
+  inline-size: 100%;
+  margin-inline: auto;
+  padding-inline: var(--container-gutter-mobile);
+}
+
+@media (min-width: 641px) {
+  .container {
+    padding-inline: var(--container-gutter);
+  }
+}
+
+.default {
+  max-inline-size: var(--container-max);
+}
+
+.wide {
+  max-inline-size: var(--container-wide);
+}
+
+.narrow {
+  max-inline-size: var(--container-narrow);
+}

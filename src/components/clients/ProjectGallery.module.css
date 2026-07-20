@@ -1,0 +1,59 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+@media (min-width: 641px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.tile {
+  display: flex;
+  align-items: flex-end;
+  min-block-size: 12rem;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.label {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-body-l);
+}
+
+/* Glass tiles, each with a faint brand tint so categories still read apart. The
+   tint recipe is unchanged; only the base it is mixed into and the label ink now
+   follow the scene role tokens, so the tiles become warm-ivory panels with warm
+   ink in light mode. --scene-surface-deep is #0d0c0b in dark (the previous base
+   was #0e0d0b — a 1/255 difference, imperceptible after the tint mix). */
+.tint-0 {
+  background-color: color-mix(in srgb, var(--color-lime-taffy) 15%, var(--scene-surface-deep));
+  color: var(--scene-ink);
+}
+
+.tint-1 {
+  background-color: var(--scene-surface-deep);
+  color: var(--scene-ink);
+}
+
+.tint-2 {
+  background-color: color-mix(in srgb, var(--color-quilt-gold) 15%, var(--scene-surface-deep));
+  color: var(--scene-ink);
+}
+
+.tint-3 {
+  background-color: color-mix(in srgb, var(--color-bonfire-flame) 22%, var(--scene-surface-deep));
+  color: var(--scene-ink);
+}

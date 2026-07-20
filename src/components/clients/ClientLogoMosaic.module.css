@@ -1,0 +1,390 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Clients — dark band + scroll-driven logo gallery.
+
+   EVERY card is identical frosted glass: same material, same edge reflections, same
+   internal light. No per-logo detection. Only the active/hover animation differs.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Scroll track — three stages need real distance (~300vh ⇒ ~200vh of travel).
+   The band is transparent, so it inherits whichever environment the page paints;
+   its ink therefore follows the scene role tokens rather than a fixed white. */
+.scene {
+  position: relative;
+  min-block-size: 300vh;
+  /* Transparent — the global cinematic canvas shows through (continuous page). */
+  background-color: transparent;
+  color: var(--scene-ink);
+
+  /* Heading + subtext inherit these, so they read as scene ink on either canvas. */
+  --text-primary: var(--scene-ink);
+  --text-secondary: var(--scene-ink-soft);
+}
+
+/* Sticky stage — the gallery holds in view while the track scrolls past it
+   (CSS sticky, not a GSAP pin: no jump, uninterrupted scrolling). */
+.sticky {
+  position: sticky;
+  inset-block-start: 0;
+  display: flex;
+  align-items: center;
+  min-block-size: 100vh;
+  padding-block: var(--space-8);
+}
+
+/* The logo wall is the hero of this section, so the stage runs wider than the page
+   container. The header is re-aligned to the page rhythm below. */
+.stage {
+  position: relative;
+  isolation: isolate;
+  inline-size: 100%;
+  max-inline-size: 112.5rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 2vw, 2rem);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-block-end: clamp(1.75rem, 1rem + 3vw, 3.5rem);
+  margin-inline: auto;
+  max-inline-size: var(--container-max);
+}
+
+.subtitle {
+  max-inline-size: 54ch;
+  color: var(--text-secondary);
+}
+
+/* ── Group stack ──────────────────────────────────────────────────────────────
+   All three groups share ONE grid cell so a group can exit upward while the next
+   rises from below in the same instant. The stack's height is the tallest group
+   (two rows of h-32 + one gap-5), so the final one-row group centres inside it. */
+.groups {
+  display: grid;
+  min-block-size: calc(2 * 8rem + 1.25rem);
+}
+
+.group {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem; /* gap-5 */
+}
+
+/* flex flex-wrap gap-5 items-center — centred so six fixed-width cards sit as a
+   balanced row, and the final group aligns with the two above it. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem; /* gap-5 */
+}
+
+/* Channel 1 — the scroll timeline owns y / scale / opacity / blur here. */
+.cell {
+  will-change: transform, opacity, filter;
+}
+
+/* Channel 2 — the ambient float owns y here, and nothing else does. */
+.floater {
+  will-change: transform;
+}
+
+/* ── Premium frosted glass — IDENTICAL on every card ──────────────────────────
+   Width reduced ~9% (12rem → 11rem) vs the same height, so the grid breathes.
+   Channel 3 — CSS hover + spotlight own transform here.
+
+   The shadow stack is: outer drop shadow + four edge reflections (top brightest,
+   sides, bottom) + a soft inner glow. The edge reflections wrap the whole card;
+   there is no white disc behind the logo. */
+.card {
+  /* Local material channels. The specular rim/sheen of glassmorphism is a pure
+     white highlight that only reads on a dark stage, and the ambient shadow is
+     black; neither is expressible as an existing role token at these alphas, so
+     both are declared here and re-pointed for light mode at the end of the file.
+     Dark values are byte-identical to the previous hardcoded ones. */
+  --card-spec: 255 255 255; /* specular highlight rgb */
+  --card-shadow: 0 0 0; /* ambient drop-shadow rgb */
+  --card-shadow-a: 24%;
+  --card-shadow-hover-a: 26%;
+  --card-glass-hover: rgb(255 255 255 / 14%);
+  --card-border-hover: rgb(255 255 255 / 26%);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 11rem;
+  block-size: 8rem;
+  border-radius: 20px;
+  /* --glass-border-strong is 0.24 alpha in dark; 83.33% of it lands exactly on the
+     previous 0.2, and follows the ink-on-ivory border in light. */
+  border: 1.5px solid color-mix(in srgb, var(--glass-border-strong) 83.33%, transparent);
+  /* Brand-tinted glass: Quilt Gold blended into a luminous glass panel, so the card
+     reads as a soft champagne frosted panel rather than a flat gold fill. The
+     edge reflections + inner light (below) keep it glassy. --glass-fill-strong is
+     exactly rgba(255,255,255,0.1) in dark and near-white 86% in light. */
+  background-color: color-mix(in srgb, var(--color-quilt-gold) 22%, var(--glass-fill-strong));
+  overflow: hidden;
+  /* Ambient drop shadow + a tight bright inner rim (glassmorphism), over the wrap-
+     around edge reflections. */
+  box-shadow:
+    0 16px 50px rgb(var(--card-shadow) / var(--card-shadow-a)),
+    0 0 26px rgb(var(--card-spec) / 4.5%),
+    inset 0 0 4px 2px rgb(var(--card-spec) / 22%),
+    inset 0 1px 0 rgb(var(--card-spec) / 30%),
+    inset 1px 0 0 rgb(var(--card-spec) / 14%),
+    inset -1px 0 0 rgb(var(--card-spec) / 14%),
+    inset 0 -1px 0 rgb(var(--card-spec) / 9%),
+    inset 0 0 40px rgb(var(--card-spec) / 8%);
+  backdrop-filter: blur(38px) saturate(1.2);
+  transition:
+    transform 400ms var(--ease-out-soft),
+    background-color 400ms var(--ease-out-soft),
+    border-color 400ms var(--ease-out-soft),
+    box-shadow 400ms var(--ease-out-soft);
+}
+
+/* Glass reflections + internal light, stacked (top layer paints first):
+   1. angled edge reflection — a diagonal highlight sweeping from the top-left
+   2. soft top-to-bottom sheen
+   3–4. broad internal light that fades into the edges (no blob, no spotlight). */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(to left top, rgb(var(--card-spec) / 14%) 0%, rgb(var(--card-spec) / 0%) 50%),
+    linear-gradient(to bottom, rgb(var(--card-spec) / 8%) 0%, rgb(var(--card-spec) / 0%) 55%),
+    radial-gradient(140% 100% at 50% -12%, rgb(var(--card-spec) / 13%), transparent 60%),
+    radial-gradient(100% 90% at 50% 50%, rgb(var(--card-spec) / 7%), transparent 78%);
+}
+
+/* Centred ambient glow behind the logo — IDENTICAL on every card. A broad, heavily
+   feathered disc (blurred, fading fully to transparent well before the edges) so it
+   reads as the logo being lit from inside the glass, never as a hard white circle. It
+   sits below the logo (z-index 0 vs the logoBox's 10), so it lifts dark marks without
+   washing or recolouring the artwork. */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 2%;
+  z-index: 0;
+  margin: auto;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgb(var(--card-spec) / 18%) 0%,
+    rgb(var(--card-spec) / 10%) 40%,
+    rgb(var(--card-spec) / 4%) 70%,
+    transparent 100%
+  );
+  filter: blur(10px);
+}
+
+/* Logo container — flex-centred with a slim uniform gutter, so the logo fills most
+   of the card and can never touch an edge. */
+.logoBox {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: clamp(0.35rem, 0.25rem + 0.3vw, 0.6rem);
+}
+
+/* The artwork is never altered: no grayscale, no blur, no opacity change, no crop.
+   The assets are pre-trimmed of transparent margins (public/logos-trimmed), so the
+   85% caps + object-contain give every mark a consistent visible size at its own
+   aspect ratio. */
+.logo {
+  inline-size: auto;
+  block-size: auto;
+  max-inline-size: 94%;
+  max-block-size: 88%;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 400ms var(--ease-out-soft);
+  user-select: none;
+}
+
+/* Light sweep across the glass — fired by the active card and by hover. */
+.sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    var(--card-sweep, rgb(255 255 255 / 14%)) 50%,
+    transparent 58%
+  );
+  transform: translateX(-140%);
+}
+
+@keyframes sweep {
+  to {
+    transform: translateX(140%);
+  }
+}
+
+/* ── Active card (auto highlight, one at a time) + hover — the ONLY per-card
+   difference. Brighter glass, brighter reflections, a warm shadow, lift + sweep. */
+.card[data-spot],
+.card:hover {
+  transform: translateY(-4px);
+  background-color: color-mix(in srgb, var(--color-quilt-gold) 30%, var(--card-glass-hover));
+  border-color: var(--card-border-hover);
+  box-shadow:
+    0 0 30px color-mix(in srgb, var(--color-bonfire-flame) 14%, transparent),
+    0 20px 52px rgb(var(--card-shadow) / var(--card-shadow-hover-a)),
+    inset 0 1px 0 rgb(var(--card-spec) / 32%),
+    inset 1px 0 0 rgb(var(--card-spec) / 16%),
+    inset -1px 0 0 rgb(var(--card-spec) / 16%),
+    inset 0 -1px 0 rgb(var(--card-spec) / 11%),
+    inset 0 0 44px rgb(var(--card-spec) / 10%);
+}
+
+.card[data-spot] .logo {
+  transform: scale(1.03);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.card:hover .logo {
+  transform: scale(1.04);
+}
+
+.card[data-spot] .sweep {
+  animation: sweep 1.15s var(--ease-out-soft) 150ms;
+}
+
+.card:hover .sweep {
+  animation: sweep 0.9s var(--ease-out-soft);
+}
+
+/* ── Mobile: cards scale down; six-per-row wraps naturally via flex-wrap ──── */
+@media (max-width: 860px) {
+  .row {
+    gap: 0.75rem;
+  }
+
+  .group {
+    gap: 0.75rem;
+  }
+
+  .card {
+    inline-size: min(11rem, 42vw);
+    block-size: 7rem;
+  }
+
+  .logoBox {
+    padding: 1rem;
+  }
+
+  .groups {
+    min-block-size: calc(4 * 7rem + 3 * 0.75rem);
+  }
+}
+
+/* ── Static wall (Clients page) + reduced motion: groups stack vertically ──── */
+.scene[data-static] {
+  min-block-size: auto;
+  padding-block: var(--space-10);
+}
+
+.scene[data-static] .sticky {
+  position: static;
+  display: block;
+  min-block-size: 0;
+  padding-block: 0;
+}
+
+.scene[data-static] .groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-block-size: auto;
+}
+
+.scene[data-static] .group {
+  grid-area: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene {
+    min-block-size: auto;
+    padding-block: var(--space-10);
+  }
+
+  .sticky {
+    position: static;
+    display: block;
+    min-block-size: 0;
+    padding-block: 0;
+  }
+
+  .groups {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-block-size: auto;
+  }
+
+  .group {
+    grid-area: auto;
+  }
+
+  .card,
+  .card:hover,
+  .card[data-spot] {
+    transform: none;
+  }
+
+  .sweep {
+    display: none;
+  }
+}
+
+/* Group 3 renders ONE row (never an empty second row), centred in the stack. */
+.groupFinal {
+  justify-content: center;
+}
+
+/* ── Light mode: re-point the card's material channels ────────────────────────
+   Only the three effects that a role token cannot express are overridden here:
+
+   1. --card-spec — the glassmorphism specular rim/sheen. It is a pure white
+      highlight whose whole job is to separate glass from a near-black stage; on
+      warm ivory it becomes a warm white so it never reads as a grey haze. It is
+      deliberately near-invisible in light — that is the correct behaviour for a
+      specular, not a regression.
+   2. --card-shadow — black ambient shadow becomes warm bronze at the lower
+      alphas the light elevation scale uses (never black on ivory).
+   3. --card-sweep — the light sweep is a white specular band; on a near-white
+      champagne card it would be invisible, so light mode sweeps warm bronze.
+
+   The card fill, resting border and all brand accents stay token-driven above
+   and need no override. Logos are never inverted in this component, so they
+   carry their own colour in both modes. */
+:global(html[data-theme='light']) .card {
+  --card-spec: 255 253 249;
+  --card-shadow: 120 90 50;
+  --card-shadow-a: 10%;
+  --card-shadow-hover-a: 13%;
+  --card-glass-hover: rgb(255 253 249 / 94%);
+  --card-border-hover: rgb(20 15 10 / 22%);
+  --card-sweep: rgb(188 150 86 / 24%);
+}

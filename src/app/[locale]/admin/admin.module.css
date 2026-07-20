@@ -1,0 +1,39 @@
+.addRow {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.grow {
+  flex: 1 1 16rem;
+}
+
+.logoList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-3);
+  list-style: none;
+}
+
+.itemRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 32px;
+  block-size: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
+}
+
+.delete:hover {
+  background-color: color-mix(in srgb, var(--color-danger) 12%, transparent);
+}

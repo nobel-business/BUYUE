@@ -1,0 +1,32 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-block-end: var(--space-4);
+}
+
+.drawerTitle {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-body-l);
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 44px;
+  block-size: 44px;
+  margin-inline-start: auto;
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+.close:hover {
+  background-color: var(--surface-sunken);
+}
+
+.body {
+  color: var(--text-primary);
+}

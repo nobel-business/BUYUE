@@ -1,0 +1,90 @@
+.list {
+  display: flex;
+  list-style: none;
+}
+
+.horizontal {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.stacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.item {
+  position: relative;
+}
+
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding-block: 0.5rem;
+  padding-inline: 0.95rem;
+  border-radius: 999px;
+  /* Dim by default, resolves to full colour on hover/active. */
+  color: color-mix(in srgb, currentcolor 74%, transparent);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: color var(--dur-base) var(--ease-out-soft);
+}
+
+.link:hover,
+.active {
+  color: currentcolor;
+}
+
+/* Sliding active indicator (Framer `layoutId`). Subtle glass fill. */
+.pill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 999px;
+  /* Tinted from the bar's own ink so the active pill stays visible in both modes —
+     a white 12% fill would vanish against the near-white light bar. */
+  background-color: color-mix(in srgb, var(--chrome-ink) 12%, transparent);
+  border: 1px solid var(--chrome-border);
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  transition: transform var(--dur-base) var(--ease-out-soft);
+}
+
+.link:hover .label {
+  transform: translateY(-1px);
+}
+
+/* Centre-grown underline on hover (only for non-active links). */
+.link:not(.active) .label::after {
+  content: '';
+  position: absolute;
+  inset-block-end: -4px;
+  inset-inline: 0;
+  block-size: 2px;
+  border-radius: 2px;
+  background-color: var(--color-bonfire-flame);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--dur-base) var(--ease-out-soft);
+}
+
+.link:not(.active):hover .label::after {
+  transform: scaleX(1);
+}
+
+/* Stacked (mobile drawer): larger tap targets, simple active colour, no pill. */
+.stacked .link {
+  padding-inline: 0;
+  font-size: var(--font-size-h4);
+}
+
+.stacked .active {
+  color: var(--color-bonfire-flame);
+}

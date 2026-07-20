@@ -1,0 +1,88 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   GLOBAL BASE STYLES (Phase 2)
+
+   Consumes the token system (tokens.css). Uses LOGICAL properties so RTL/LTR
+   mirror automatically (Doc 07 §12, Doc 09 §27–28). Font families use the
+   Doc 03 fallback stacks until licensed webfonts are added (audit C-11).
+   reset.css and tokens.css are imported (in order) from the root layout.
+   ───────────────────────────────────────────────────────────────────────── */
+
+html {
+  background-color: var(--surface-page);
+  color: var(--text-primary);
+  font-size: 100%; /* respect user base font size */
+  scroll-behavior: smooth; /* anchor jumps only; disabled under reduced-motion */
+}
+
+/* Native scroll-lock — set on <html> while the intro cover is up or a section
+   temporarily takes over the wheel (SmoothScrollProvider). */
+html.scroll-locked {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Language-aware font family + leading (Doc 03 §4.3–4.4). */
+html:lang(ar) body {
+  font-family: var(--font-arabic);
+  line-height: var(--line-height-body-ar);
+}
+
+html:lang(en) body {
+  font-family: var(--font-latin);
+  line-height: var(--line-height-body);
+}
+
+body {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  /* `clip` (not `hidden`) guards horizontal scroll WITHOUT making <body> a
+     scroll container — which would break `position: sticky` descendants like the
+     Clients scroll-stage (Doc 07 §4). */
+  overflow-x: clip;
+  transition:
+    background-color var(--dur-base) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard);
+}
+
+::selection {
+  background-color: var(--color-bonfire-flame);
+  /* Role token, not a fixed off-white: --text-on-action resolves to Springtime Rain
+     in dark (identical to before) and to pure white on the flame in light. */
+  color: var(--text-on-action);
+}
+
+/* Branded, accessible focus ring (Doc 03 §10, Doc 07 §5). */
+:focus-visible {
+  outline: 3px solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+/* Never show a focus ring for mouse users who aren't keyboard-navigating. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip-to-content link — visible only when focused (Doc 07 §5, Doc 09 §26). */
+.skip-link {
+  position: absolute;
+  inset-block-start: -100%;
+  inset-inline-start: var(--space-4);
+  z-index: var(--z-toast);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-black-powder);
+  color: var(--color-springtime-rain);
+  border-radius: var(--radius-md);
+}
+
+/* The chip is an inverse plate in BOTH modes, but the two systems use different
+   darks: dark mode keeps Black Powder untouched, while light mode wants the warm
+   ink of the ivory system (a cool grey chip reads as a foreign element there).
+   No single token yields both, so this is a light-only override. */
+html[data-theme='light'] .skip-link {
+  background-color: var(--surface-inverse);
+  color: var(--text-on-inverse);
+}
+
+.skip-link:focus {
+  inset-block-start: var(--space-4);
+}

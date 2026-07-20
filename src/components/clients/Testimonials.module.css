@@ -1,0 +1,23 @@
+.quote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  block-size: 100%;
+}
+
+.author {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.name {
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.role {
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+}

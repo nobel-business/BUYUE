@@ -1,0 +1,30 @@
+.frame {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  overflow: hidden;
+}
+
+.img {
+  object-fit: cover;
+}
+
+.rounded-none {
+  border-radius: var(--radius-none);
+}
+
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+/* Brand scrim for reversed text legibility (Doc 03 §20). */
+.overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(47, 47, 45, 0) 40%, rgba(47, 47, 45, 0.55) 100%);
+}

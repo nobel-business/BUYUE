@@ -1,0 +1,83 @@
+/* ── Heading ──────────────────────────────────────────────────────────────── */
+.heading {
+  color: var(--text-primary);
+  line-height: var(--line-height-heading);
+  text-wrap: pretty;
+}
+
+.balance {
+  text-wrap: balance;
+}
+
+.size-display {
+  font-size: var(--font-size-display);
+  line-height: var(--line-height-tight);
+}
+
+.size-h1 {
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-tight);
+}
+
+.size-h2 {
+  font-size: var(--font-size-h2);
+}
+
+.size-h3 {
+  font-size: var(--font-size-h3);
+}
+
+.size-h4 {
+  font-size: var(--font-size-h4);
+}
+
+.weight-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.weight-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+/* ── Text ─────────────────────────────────────────────────────────────────── */
+.text {
+  text-wrap: pretty;
+}
+
+.size-body-l {
+  font-size: var(--font-size-body-l);
+}
+
+.size-body {
+  font-size: var(--font-size-body);
+}
+
+.size-small {
+  font-size: var(--font-size-small);
+}
+
+.tone-primary {
+  color: var(--text-primary);
+}
+
+.tone-secondary {
+  color: var(--text-secondary);
+}
+
+.tone-muted {
+  color: var(--text-muted);
+}
+
+/* ── Eyebrow ──────────────────────────────────────────────────────────────── */
+.eyebrow {
+  display: inline-block;
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: var(--color-bonfire-flame);
+}
+
+/* Latin-only letter-spacing (NEVER on Arabic — Doc 03 §4.3, Doc 07 §2). */
+:global(html:lang(en)) .eyebrow {
+  letter-spacing: 0.08em;
+}

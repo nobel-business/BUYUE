@@ -1,0 +1,58 @@
+.section {
+  inline-size: 100%;
+}
+
+.spacing-default {
+  padding-block: var(--section-padding-block);
+}
+
+.spacing-compact {
+  padding-block: var(--space-8);
+}
+
+.spacing-none {
+  padding-block: 0;
+}
+
+/* Transparent so the ambient wash (behind, at z-index -1) reads through. The
+   base colour is unchanged — <html> paints the same --surface-page underneath,
+   the wash only adds faint brand-tinted depth (approved decorative scope). */
+.tone-page {
+  background-color: transparent;
+  color: var(--text-primary);
+}
+
+.tone-raised {
+  background-color: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+/* Transparent so the global cinematic canvas reads through continuously — no hard
+   band. (Cards/overlays keep their own --surface-sunken; only the SECTION blends.) */
+.tone-sunken {
+  background-color: transparent;
+  color: var(--text-primary);
+}
+
+.tone-accent {
+  background-color: var(--surface-accent);
+  color: var(--text-on-accent);
+}
+
+/* Transparent so the canvas flows through; text stays light (the whole site is
+   dark now, so no re-map to a light surface is needed). */
+.tone-inverse {
+  background-color: transparent;
+  color: var(--text-primary);
+}
+
+/* NOTE: on brand (Bonfire Flame), white passes AA only for LARGE text
+   (Doc 03 §24). Use tone-brand for headings/CTAs, not body copy. */
+.tone-brand {
+  background-color: var(--surface-brand);
+  /* Copy sits on Bonfire Flame in BOTH modes, so it must stay light-on-brand —
+     --text-on-action is exactly that role (Springtime Rain in dark, #fff in light). */
+  --text-primary: var(--text-on-action);
+  --text-secondary: color-mix(in srgb, var(--text-on-action) 88%, transparent);
+  color: var(--text-primary);
+}

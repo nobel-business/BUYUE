@@ -1,0 +1,302 @@
+/* Full-bleed, integrated ending — NOT a floating card. Background goes edge to
+   edge; only the inner Container constrains the content. */
+.footer {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-block-start: var(--space-10);
+  padding-block: clamp(2.75rem, 1.5rem + 3vw, 4rem) var(--space-6);
+  color: var(--text-primary);
+  /* Transparent — the global cinematic canvas continues into the footer (the ending
+     scene). A faint warm wash toward the base + light glass blur add depth. */
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--color-bonfire-flame) 5%, transparent)
+  );
+  backdrop-filter: blur(6px);
+}
+
+/* Glowing gradient divider from the page above (not a flat hairline). */
+.footer::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-bonfire-flame) 55%, transparent) 30%,
+    color-mix(in srgb, var(--color-quilt-gold) 65%, transparent) 50%,
+    color-mix(in srgb, var(--color-bonfire-flame) 55%, transparent) 70%,
+    transparent
+  );
+  box-shadow: 0 0 14px color-mix(in srgb, var(--color-bonfire-flame) 40%, transparent);
+  pointer-events: none;
+}
+
+/* Centered warm glow — the closing "light" of the page. */
+.glow {
+  position: absolute;
+  inset-block-start: -30%;
+  /* Physical `left` — pairs with the physical `translate` below, which does not
+     mirror; a logical inset would push this glow a full width off in RTL. */
+  left: 50%;
+  z-index: -1;
+  inline-size: min(60%, 40rem);
+  block-size: min(60%, 40rem);
+  translate: -50% 0;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--color-bonfire-flame) 12%, transparent),
+    color-mix(in srgb, var(--color-quilt-gold) 6%, transparent) 45%,
+    transparent 70%
+  );
+  filter: blur(70px);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+}
+
+/* ── Top: three top-aligned columns ──────────────────────────────────────── */
+.top {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  padding-block-end: clamp(1.5rem, 1rem + 1.2vw, 2rem);
+}
+
+@media (min-width: 720px) {
+  .top {
+    grid-template-columns: 1.7fr 1fr 1.3fr;
+  }
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-inline-size: 30rem;
+}
+
+/* Stronger logo. */
+.logo {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+/* Smaller, quieter description. */
+.desc {
+  max-inline-size: 44ch;
+  font-size: var(--font-size-small);
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--text-primary) 62%, transparent);
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Refined section headings. */
+.colTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dot {
+  inline-size: 5px;
+  block-size: 5px;
+  border-radius: 50%;
+  background-color: var(--color-bonfire-flame);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-bonfire-flame) 55%, transparent);
+}
+
+/* ── Quick links (tight, clean spacing) ──────────────────────────────────── */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: color-mix(in srgb, var(--text-primary) 70%, transparent);
+  transition:
+    color var(--dur-base) var(--ease-out-soft),
+    transform var(--dur-base) var(--ease-out-soft);
+}
+
+.linkArrow {
+  display: inline-flex;
+  color: var(--color-bonfire-flame);
+  opacity: 0;
+  transform: translateX(-5px);
+  transition:
+    opacity var(--dur-base) var(--ease-out-soft),
+    transform var(--dur-base) var(--ease-out-soft);
+}
+
+[dir='rtl'] .linkArrow {
+  transform: translateX(5px);
+}
+
+.linkLabel {
+  position: relative;
+}
+
+.linkLabel::after {
+  content: '';
+  position: absolute;
+  inset-block-end: -2px;
+  inset-inline: 0;
+  block-size: 1.5px;
+  border-radius: 2px;
+  background-color: var(--color-bonfire-flame);
+  transform: scaleX(0);
+  transform-origin: var(--underline-origin, left) center;
+  transition: transform var(--dur-base) var(--ease-out-soft);
+}
+
+[dir='rtl'] .linkLabel::after {
+  --underline-origin: right;
+}
+
+.link:hover {
+  color: var(--text-primary);
+  transform: translateX(3px);
+}
+
+[dir='rtl'] .link:hover {
+  transform: translateX(-3px);
+}
+
+.link:hover .linkArrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.link:hover .linkLabel::after {
+  transform: scaleX(1);
+}
+
+/* ── Contact ─────────────────────────────────────────────────────────────── */
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-style: normal;
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--text-primary) 70%, transparent);
+}
+
+.contactPhones {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contactLink {
+  inline-size: fit-content;
+  color: color-mix(in srgb, var(--text-primary) 70%, transparent);
+  transition: color var(--dur-base) var(--ease-out-soft);
+}
+
+.contactLink:hover {
+  color: var(--color-bonfire-flame);
+}
+
+/* ── Bottom bar ──────────────────────────────────────────────────────────── */
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block-start: var(--space-5);
+  border-block-start: 1px solid color-mix(in srgb, var(--border-default) 50%, transparent);
+}
+
+.copyright {
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+}
+
+.bottomActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.metaLink {
+  font-size: var(--font-size-small);
+  color: color-mix(in srgb, var(--text-primary) 60%, transparent);
+  transition: color var(--dur-base) var(--ease-out-soft);
+}
+
+.metaLink:hover {
+  color: var(--text-primary);
+}
+
+/* ── Back to top ─────────────────────────────────────────────────────────── */
+.toTop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 38px;
+  block-size: 38px;
+  border-radius: 50%;
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  background-color: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  cursor: pointer;
+  transition:
+    transform var(--dur-base) var(--ease-out-soft),
+    border-color var(--dur-base) var(--ease-out-soft),
+    box-shadow var(--dur-base) var(--ease-out-soft),
+    background-color var(--dur-base) var(--ease-out-soft);
+}
+
+.toTop:hover {
+  transform: scale(1.08) rotate(-6deg);
+  border-color: color-mix(in srgb, var(--color-bonfire-flame) 55%, transparent);
+  background-color: color-mix(in srgb, var(--color-bonfire-flame) 14%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-bonfire-flame) 30%, transparent);
+}
+
+.toTop:active {
+  transform: scale(0.96);
+}
+
+.toTop:focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .link:hover,
+  .toTop,
+  .toTop:hover {
+    transform: none;
+  }
+}

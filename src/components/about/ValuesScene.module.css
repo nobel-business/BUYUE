@@ -1,0 +1,923 @@
+.scene {
+  position: relative;
+  /* Height follows the 100vh stage; ScrollTrigger sizes the pin scroll distance and
+     its spacer, so no manual track height and no leftover empty space. */
+
+  /* Deeper, elegant warm palette (brand-derived, never bright). */
+  --v-burnt: color-mix(in srgb, var(--color-bonfire-flame) 80%, #2a0d05);
+  --v-copper: color-mix(in srgb, var(--color-bonfire-flame) 60%, var(--color-quilt-gold) 28%);
+  --v-amber: color-mix(in srgb, var(--color-quilt-gold) 72%, var(--color-bonfire-flame) 20%);
+  --v-gold: var(--color-quilt-gold);
+  --warm: #d7d2cb;
+  --hinge-dir: right;
+
+  /* Printed-page materials — matte paper, ink, hairline rules, editorial serif. */
+  --v-serif:
+    'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, 'Times New Roman',
+    serif;
+  --paper-top: #f2ede4;
+  --paper: #ece6dc;
+  --paper-edge: #ddd5c8;
+  --ink: #2b2520;
+  --ink-soft: #6c6358;
+  --rule: color-mix(in srgb, #6b5a48 18%, transparent);
+
+  /* ── Hardcover materials ───────────────────────────────────────────────────
+     The cover is the one part of this scene that is dark BY DESIGN — it is the
+     outgoing dark world folding away. Its materials are collected here as one
+     var group so the light theme can re-point them at warm ivory parchment in a
+     single override (below) without touching the fold geometry or timeline.
+     The values in this block are exactly today's, so dark is unchanged. */
+  --cover-hi: #141210; /* face highlight, top-right of the radial */
+  --cover-mid: var(--scene-surface); /* #070707 in dark, ivory in light */
+  --cover-low: #050504; /* face falloff at the edges */
+  --cover-face-shadow: 0 40px 90px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.4);
+  --cover-crease-strong: rgba(0, 0, 0, 0.55); /* spine crease, at the hinge */
+  --cover-crease-soft: rgba(0, 0, 0, 0.14);
+  --cover-contact-strong: rgba(20, 12, 6, 0.42); /* shadow cast on the page */
+  --cover-contact-mid: rgba(20, 12, 6, 0.22);
+  --cover-contact-soft: rgba(20, 12, 6, 0.08);
+  --cover-spec-blend: screen; /* a bright sweep needs screen on a dark cover */
+  --cover-spec-edge: rgba(255, 224, 178, 0.28);
+  --cover-spec-core: rgba(255, 244, 224, 0.6);
+  --cover-back-hi: #241d17; /* endpaper, seen past 90° */
+  --cover-back-mid: #1a1512;
+  --cover-back-low: #120d0a;
+  --cover-back-inset: rgba(0, 0, 0, 0.6);
+  --cover-edge-low: #060504; /* paper-thickness bevel, inner → outer */
+  --cover-edge-mid: #2b2521;
+  --cover-edge-hi: #423a33;
+  --cover-edge-shadow: rgba(0, 0, 0, 0.6);
+}
+
+/* Light theme: the cover becomes a warm ivory/parchment cover so the fold reads
+   as a page turning rather than a black slab lifting off an ivory page. Only
+   materials change — geometry, hinge and timeline are identical. Shadows are
+   warm bronze (never black) and the specular becomes a bronze sheen under
+   `multiply`, since a white screen sweep is invisible on light parchment. */
+:global(html[data-theme='light']) .scene {
+  --cover-hi: #f4eee2;
+  --cover-low: #d6ccb9;
+  --cover-face-shadow: var(--elev-3);
+  --cover-crease-strong: rgb(120 90 50 / 30%);
+  --cover-crease-soft: rgb(120 90 50 / 9%);
+  --cover-contact-strong: rgb(120 90 50 / 26%);
+  --cover-contact-mid: rgb(120 90 50 / 14%);
+  --cover-contact-soft: rgb(120 90 50 / 5%);
+  --cover-spec-blend: multiply;
+  --cover-spec-edge: rgb(188 150 86 / 14%);
+  --cover-spec-core: rgb(188 150 86 / 30%);
+  --cover-back-hi: #e3dac9;
+  --cover-back-mid: #d9cfbb;
+  --cover-back-low: #cbbfa8;
+  --cover-back-inset: rgb(120 90 50 / 22%);
+  --cover-edge-low: #cfc4ae;
+  --cover-edge-mid: #efe8db;
+  --cover-edge-hi: var(--color-warm-white);
+  --cover-edge-shadow: rgb(120 90 50 / 30%);
+}
+
+/* The stage ScrollTrigger pins (via transform — safe under the page-transition
+   ancestor) with a deep perspective so the cover folds with real book-like depth. */
+.stage {
+  position: relative;
+  block-size: 100vh;
+  overflow: hidden;
+  perspective: 2200px;
+  perspective-origin: 50% 46%;
+}
+
+/* ══════════ The warm page underneath — always sharp, readable ══════════ */
+.warm {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  color: #222;
+}
+
+.wGray {
+  position: absolute;
+  inset: 0;
+  background-color: var(--warm);
+}
+
+.wMesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 55% at 18% 14%, rgba(255, 252, 247, 0.75), transparent 60%),
+    radial-gradient(
+      55% 60% at 86% 22%,
+      color-mix(in srgb, var(--v-amber) 16%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(60% 60% at 80% 88%, rgba(224, 210, 195, 0.6), transparent 62%);
+}
+
+.wRadial {
+  position: absolute;
+  inset-block-start: 6%;
+  inset-inline-start: 26%;
+  inline-size: min(60vw, 46rem);
+  block-size: min(60vw, 46rem);
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(248, 245, 239, 0.7), transparent 66%);
+  filter: blur(60px);
+  animation: v-drift 26s ease-in-out infinite;
+}
+
+.wLeak {
+  position: absolute;
+  inset-block-end: -12%;
+  inset-inline-end: 2%;
+  inline-size: min(46vw, 34rem);
+  block-size: min(46vw, 34rem);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--v-burnt) 15%, transparent),
+    transparent 64%
+  );
+  filter: blur(72px);
+  opacity: 0.7;
+  animation: v-drift 32s ease-in-out infinite reverse;
+}
+
+.wVignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 44%, transparent 54%, rgba(74, 40, 22, 0.14) 100%);
+}
+
+.wPaper {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+
+@keyframes v-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(3%, -3%, 0) scale(1.09);
+  }
+}
+
+.wDust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.dust {
+  position: absolute;
+  inline-size: 3px;
+  block-size: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--v-copper) 45%, #fff);
+  opacity: 0;
+  animation: v-float 18s ease-in-out infinite;
+}
+
+.dust:nth-child(1) {
+  inset-block-start: 20%;
+  inset-inline-start: 14%;
+  animation-delay: -1s;
+}
+
+.dust:nth-child(2) {
+  inset-block-start: 66%;
+  inset-inline-start: 24%;
+  animation-duration: 21s;
+  animation-delay: -4s;
+}
+
+.dust:nth-child(3) {
+  inset-block-start: 34%;
+  inset-inline-start: 80%;
+  animation-duration: 19s;
+  animation-delay: -8s;
+}
+
+.dust:nth-child(4) {
+  inset-block-start: 80%;
+  inset-inline-start: 62%;
+  animation-duration: 22s;
+  animation-delay: -3s;
+}
+
+.dust:nth-child(5) {
+  inset-block-start: 16%;
+  inset-inline-start: 72%;
+  animation-duration: 18s;
+  animation-delay: -11s;
+}
+
+.dust:nth-child(6) {
+  inset-block-start: 52%;
+  inset-inline-start: 90%;
+  animation-duration: 20s;
+  animation-delay: -6s;
+}
+
+.dust:nth-child(7) {
+  inset-block-start: 86%;
+  inset-inline-start: 40%;
+  animation-duration: 19s;
+  animation-delay: -2s;
+}
+
+.dust:nth-child(n + 8) {
+  inset-block-start: 44%;
+  inset-inline-start: 8%;
+  animation-duration: 23s;
+  animation-delay: -9s;
+}
+
+@keyframes v-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: translate3d(0, -40px, 0);
+    opacity: 0.3;
+  }
+
+  70% {
+    opacity: 0.16;
+  }
+}
+
+/* ── Content ──────────────────────────────────────────────────────────────── */
+.inner {
+  position: relative;
+  z-index: 2;
+  inline-size: 100%;
+}
+
+.title {
+  margin: 0 0 clamp(0.9rem, 0.6rem + 1vw, 1.4rem);
+  text-align: center;
+  font-family: var(--v-serif);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 1.8rem + 4vw, 5rem);
+  line-height: 1;
+  letter-spacing: 0.006em;
+  filter: drop-shadow(0 6px 18px color-mix(in srgb, var(--v-burnt) 14%, transparent));
+}
+
+.title,
+.title [data-w] {
+  background: linear-gradient(100deg, var(--v-burnt), var(--v-copper) 52%, var(--v-gold));
+  background-clip: text;
+  color: transparent;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Editorial diamond divider under the title (printed-book flourish). */
+.ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  margin: 0 auto clamp(2rem, 1.4rem + 2.4vw, 3.4rem);
+  color: color-mix(in srgb, var(--v-copper) 70%, transparent);
+}
+
+.ornament::before,
+.ornament::after {
+  content: '';
+  inline-size: clamp(2.5rem, 5vw, 4.5rem);
+  block-size: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--v-copper) 55%, transparent)
+  );
+}
+
+.ornament::after {
+  background: linear-gradient(
+    to left,
+    transparent,
+    color-mix(in srgb, var(--v-copper) 55%, transparent)
+  );
+}
+
+.ornamentGem {
+  inline-size: 7px;
+  block-size: 7px;
+  rotate: 45deg;
+  border: 1px solid currentcolor;
+}
+
+/* Editorial composition — one printed row of four, each on its own baseline with a
+   gentle vertical rhythm and a whisper of rotation (handset, not a grid). */
+.cardStage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(0.85rem, 0.4rem + 1.4vw, 1.75rem);
+  max-inline-size: 70rem;
+  margin-inline: auto;
+  translate: calc(var(--mx, 0) * 8px) calc(var(--my, 0) * 8px);
+  transition: translate 0.7s ease-out;
+}
+
+.cardWrap {
+  position: relative;
+  flex: 1 1 0;
+  min-inline-size: 0;
+  max-inline-size: 16.5rem;
+  /* Local perspective so each card sets down onto the page in real 3D. */
+  perspective: 1100px;
+  animation: v-cardfloat 12s ease-in-out infinite;
+  will-change: transform;
+}
+
+.pos1 {
+  margin-block-start: 0.4rem;
+  transform: rotate(-0.6deg);
+  animation-duration: 11s;
+  animation-delay: -1s;
+}
+
+.pos2 {
+  margin-block-start: clamp(1.4rem, 3.5vw, 2.6rem);
+  transform: rotate(0.5deg);
+  animation-duration: 13s;
+  animation-delay: -5s;
+}
+
+.pos3 {
+  margin-block-start: clamp(0.5rem, 1.5vw, 1rem);
+  transform: rotate(0.7deg);
+  animation-duration: 12.5s;
+  animation-delay: -8s;
+}
+
+.pos4 {
+  margin-block-start: clamp(1.8rem, 4.5vw, 3.2rem);
+  transform: rotate(-0.5deg);
+  animation-duration: 11.5s;
+  animation-delay: -3s;
+}
+
+/* Paper breathing — a barely-there 3px drift on the `translate` property so it
+   never fights the per-card rotation. */
+@keyframes v-cardfloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -3px;
+  }
+}
+
+/* Card — GSAP owns this element's transform (entrance). Never blurred.
+   preserve-3d + a low origin lets it set down onto the page (rotateX flip). */
+.card {
+  position: relative;
+  transform-style: preserve-3d;
+  transform-origin: 50% 88%;
+  will-change: transform, opacity;
+}
+
+.card[data-active] {
+  z-index: 5;
+}
+
+/* Matte printed sheet — NO glass, NO blur, NO glow. A warm paper face lifted off
+   the page by a soft, tight contact shadow; a hairline edge; the faintest fibre. */
+.cardInner {
+  position: relative;
+  padding: clamp(1.15rem, 0.9rem + 0.8vw, 1.55rem) clamp(1.1rem, 0.9rem + 0.7vw, 1.5rem)
+    clamp(2.6rem, 2.2rem + 1vw, 3.2rem);
+  border: 1px solid var(--rule);
+  border-radius: 15px;
+  background: linear-gradient(
+    158deg,
+    var(--paper-top) 0%,
+    var(--paper) 55%,
+    var(--paper-edge) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(74, 58, 42, 0.1),
+    0 16px 26px -18px rgba(74, 58, 42, 0.4);
+  transform-style: preserve-3d;
+  transition:
+    translate 0.5s var(--ease-out-soft),
+    scale 0.5s var(--ease-out-soft),
+    box-shadow 0.5s var(--ease-out-soft),
+    border-color 0.5s var(--ease-out-soft);
+}
+
+.cardInner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  opacity: 0.045;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
+}
+
+/* Monoline icon in a soft printed ring. */
+.icon {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.85rem;
+  block-size: 2.85rem;
+  margin-block-end: 0.95rem;
+  border-radius: 50%;
+  color: var(--color-bonfire-flame);
+  background: color-mix(in srgb, var(--color-bonfire-flame) 7%, #fff 34%);
+  border: 1px solid color-mix(in srgb, var(--color-bonfire-flame) 20%, transparent);
+  animation: v-icon 7s ease-in-out infinite;
+  transition:
+    color 0.4s var(--ease-out-soft),
+    border-color 0.4s var(--ease-out-soft),
+    background 0.4s var(--ease-out-soft);
+}
+
+.icon svg {
+  inline-size: 1.35rem;
+  block-size: 1.35rem;
+}
+
+@keyframes v-icon {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+
+  50% {
+    transform: translateY(-2.5px) rotate(1.5deg);
+  }
+}
+
+.cardTitle {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 0.5rem;
+  font-family: var(--v-serif);
+  font-weight: 700;
+  font-size: clamp(1.02rem, 0.92rem + 0.4vw, 1.28rem);
+  line-height: 1.16;
+  color: var(--ink);
+  transition:
+    color 0.4s var(--ease-out-soft),
+    transform 0.4s var(--ease-out-soft);
+}
+
+.cardBody {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.62;
+  color: var(--ink-soft);
+}
+
+/* Printed arrow affordance — bottom-trailing corner. */
+.cardArrow {
+  position: absolute;
+  inset-block-end: clamp(0.9rem, 0.7rem + 0.5vw, 1.3rem);
+  inset-inline-end: clamp(0.9rem, 0.7rem + 0.5vw, 1.3rem);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.9rem;
+  block-size: 1.9rem;
+  border-radius: 50%;
+  color: var(--color-bonfire-flame);
+  border: 1px solid color-mix(in srgb, var(--color-bonfire-flame) 26%, transparent);
+  transition:
+    color 0.4s var(--ease-out-soft),
+    background 0.4s var(--ease-out-soft),
+    transform 0.4s var(--ease-out-soft);
+}
+
+.cardArrow svg {
+  inline-size: 0.85rem;
+  block-size: 0.85rem;
+}
+
+[dir='rtl'] .cardArrow {
+  --arrow-nudge: -2px;
+}
+
+[dir='rtl'] .cardArrow svg {
+  transform: scaleX(-1);
+}
+
+/* ── Hover — a printed sheet lifting a touch off the page ─────────────────── */
+.cardWrap:hover {
+  z-index: 6;
+}
+
+.cardWrap:hover .cardInner {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 2px 4px rgba(74, 58, 42, 0.12),
+    0 30px 44px -22px rgba(74, 58, 42, 0.5);
+  border-color: color-mix(in srgb, #6b5a48 26%, transparent);
+}
+
+.cardWrap:hover .cardTitle {
+  color: var(--v-burnt);
+  transform: translateY(-1px);
+}
+
+.cardWrap:hover .icon {
+  color: #fff;
+  background: var(--color-bonfire-flame);
+  border-color: var(--color-bonfire-flame);
+}
+
+.cardWrap:hover .cardArrow {
+  color: #fff;
+  background: var(--color-bonfire-flame);
+  transform: translateX(var(--arrow-nudge, 2px));
+}
+
+/* ── Active hero card (scroll spotlight) — rises calmly. Others stay put. ─── */
+.card[data-active] .cardInner {
+  translate: 0 -9px;
+  scale: 1.03;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 3px 6px rgba(74, 58, 42, 0.14),
+    0 40px 56px -26px rgba(74, 58, 42, 0.55);
+  border-color: color-mix(in srgb, #6b5a48 24%, transparent);
+}
+
+.card[data-active] .cardTitle {
+  color: var(--v-burnt);
+}
+
+.card[data-active] .icon {
+  color: #fff;
+  background: var(--color-bonfire-flame);
+  border-color: var(--color-bonfire-flame);
+  animation-duration: 3.5s;
+}
+
+/* ══════════ Contact shadow — cast on the page by the lifting cover ══════════ */
+.contact {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  will-change: transform, opacity;
+  background: linear-gradient(
+    to var(--hinge-dir),
+    var(--cover-contact-strong) 0%,
+    var(--cover-contact-mid) 26%,
+    var(--cover-contact-soft) 52%,
+    transparent 72%
+  );
+}
+
+/* ══════════ The hardcover — folds open in real 3D ══════════
+   Closed (rotateY 0) it is the dark world covering the page. GSAP rotates it around
+   the trailing edge (origin set per direction) to open the chapter. */
+.cover {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Front of the cover = the outgoing dark world. */
+.coverFace {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0.1px);
+  box-shadow: var(--cover-face-shadow);
+}
+
+.darkBase {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 100% at 70% 22%,
+    var(--cover-hi) 0%,
+    var(--cover-mid) 58%,
+    var(--cover-low) 100%
+  );
+}
+
+.darkOrange {
+  position: absolute;
+  inset: -12%;
+  background: radial-gradient(
+    46% 46% at 72% 32%,
+    color-mix(in srgb, var(--color-bonfire-flame) 26%, transparent),
+    transparent 62%
+  );
+  filter: blur(60px);
+}
+
+.darkParticles {
+  position: absolute;
+  inset: 0;
+}
+
+.darkParticle {
+  position: absolute;
+  inline-size: 3px;
+  block-size: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-quilt-gold) 62%, transparent);
+  opacity: 0;
+  animation: v-float 16s ease-in-out infinite;
+}
+
+.darkParticle:nth-child(2n) {
+  inline-size: 2px;
+  block-size: 2px;
+}
+
+.darkParticle:nth-child(1) {
+  inset-block-start: 18%;
+  inset-inline-start: 12%;
+  animation-delay: -1s;
+}
+
+.darkParticle:nth-child(2) {
+  inset-block-start: 64%;
+  inset-inline-start: 22%;
+  animation-duration: 19s;
+  animation-delay: -3s;
+}
+
+.darkParticle:nth-child(3) {
+  inset-block-start: 34%;
+  inset-inline-start: 82%;
+  animation-duration: 17s;
+  animation-delay: -6s;
+}
+
+.darkParticle:nth-child(4) {
+  inset-block-start: 78%;
+  inset-inline-start: 60%;
+  animation-duration: 21s;
+  animation-delay: -9s;
+}
+
+.darkParticle:nth-child(5) {
+  inset-block-start: 15%;
+  inset-inline-start: 74%;
+  animation-duration: 16s;
+  animation-delay: -2s;
+}
+
+.darkParticle:nth-child(6) {
+  inset-block-start: 52%;
+  inset-inline-start: 88%;
+  animation-duration: 20s;
+  animation-delay: -7s;
+}
+
+.darkParticle:nth-child(7) {
+  inset-block-start: 88%;
+  inset-inline-start: 38%;
+  animation-duration: 18s;
+  animation-delay: -4s;
+}
+
+.darkParticle:nth-child(8) {
+  inset-block-start: 26%;
+  inset-inline-start: 44%;
+  animation-duration: 22s;
+  animation-delay: -11s;
+}
+
+.darkParticle:nth-child(9) {
+  inset-block-start: 70%;
+  inset-inline-start: 10%;
+  animation-duration: 17s;
+  animation-delay: -5s;
+}
+
+.darkParticle:nth-child(10) {
+  inset-block-start: 44%;
+  inset-inline-start: 66%;
+  animation-duration: 23s;
+  animation-delay: -13s;
+}
+
+.darkParticle:nth-child(11) {
+  inset-block-start: 10%;
+  inset-inline-start: 54%;
+  animation-duration: 19s;
+  animation-delay: -8s;
+}
+
+.darkParticle:nth-child(12) {
+  inset-block-start: 60%;
+  inset-inline-start: 50%;
+  animation-duration: 20s;
+  animation-delay: -10s;
+}
+
+.darkGrain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Crease inner-shadow — deepens near the spine as the page bends open. */
+.coverShade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to var(--hinge-dir),
+    var(--cover-crease-strong) 0%,
+    var(--cover-crease-soft) 26%,
+    transparent 52%
+  );
+}
+
+/* Specular highlight — a warm streak that sweeps across the folding edge. */
+.specular {
+  position: absolute;
+  inset-block: -20%;
+  inset-inline-start: -40%;
+  inline-size: 55%;
+  pointer-events: none;
+  mix-blend-mode: var(--cover-spec-blend);
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    var(--cover-spec-edge) 46%,
+    var(--cover-spec-core) 50%,
+    var(--cover-spec-edge) 54%,
+    transparent 70%
+  );
+  filter: blur(2px);
+}
+
+/* Endpaper — the inside of the cover, seen briefly past 90°. Warm, never white. */
+.coverBack {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg) translateZ(0.1px);
+  backface-visibility: hidden;
+  background:
+    radial-gradient(
+      120% 100% at 30% 20%,
+      var(--cover-back-hi),
+      var(--cover-back-mid) 60%,
+      var(--cover-back-low) 100%
+    ),
+    linear-gradient(135deg, color-mix(in srgb, var(--v-burnt) 22%, transparent), transparent 60%);
+  box-shadow: inset 0 0 120px var(--cover-back-inset);
+}
+
+/* Paper thickness — a bevelled strip standing perpendicular on the free edge,
+   giving the hardcover a real 6–8px edge as it lifts. Its 3D origin/rotation are
+   set from JS so it extrudes behind the free edge (mirrored for RTL). */
+.coverEdge {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: 8px;
+  transform-origin: 0% 50%;
+  transform: rotateY(-90deg);
+  background: linear-gradient(
+    to right,
+    var(--cover-edge-low),
+    var(--cover-edge-mid) 55%,
+    var(--cover-edge-hi)
+  );
+  box-shadow: 0 0 8px var(--cover-edge-shadow);
+}
+
+/* ══════════ Mobile / narrow — calm static warm scene (no fold) ══════════ */
+@media (max-width: 899px) {
+  .scene {
+    min-block-size: auto;
+  }
+
+  .stage {
+    position: static;
+    block-size: auto;
+    overflow: visible;
+    perspective: none;
+  }
+
+  .cover,
+  .contact {
+    display: none;
+  }
+
+  .warm {
+    position: relative;
+    inset: auto;
+    padding-block: var(--space-10, 5rem);
+  }
+
+  .cardStage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    max-inline-size: 26rem;
+    translate: none;
+  }
+
+  .cardWrap {
+    position: static;
+    flex: none;
+    inline-size: auto;
+    max-inline-size: none;
+    margin-block-start: 0;
+    transform: none;
+    animation: none;
+  }
+}
+
+/* ══════════ Reduced motion — legible static warm scene (no fold) ══════════ */
+@media (prefers-reduced-motion: reduce) {
+  .scene {
+    min-block-size: auto;
+  }
+
+  .stage {
+    position: static;
+    block-size: auto;
+    overflow: visible;
+    perspective: none;
+  }
+
+  .cover,
+  .contact {
+    display: none;
+  }
+
+  .warm {
+    position: relative;
+    inset: auto;
+    padding-block: var(--space-10, 5rem);
+  }
+
+  .cardStage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    max-inline-size: 26rem;
+  }
+
+  .cardWrap {
+    position: static;
+    flex: none;
+    inline-size: auto;
+    max-inline-size: none;
+    margin-block-start: 0;
+    transform: none;
+    animation: none;
+  }
+
+  .wRadial,
+  .wLeak,
+  .dust,
+  .icon {
+    animation: none;
+  }
+}

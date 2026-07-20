@@ -1,0 +1,13 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  block-size: 100%;
+}
+
+.index {
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-bonfire-flame);
+  line-height: 1;
+}

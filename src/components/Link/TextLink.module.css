@@ -1,0 +1,17 @@
+.link {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  background-image: linear-gradient(var(--color-bonfire-flame), var(--color-bonfire-flame));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 2px;
+  transition: background-size var(--dur-fast) var(--ease-standard);
+  padding-block-end: 2px;
+}
+
+/* Underline grows from the reading start edge (mirrors in RTL automatically
+   because the gradient origin follows text direction). */
+.link:hover,
+.link:focus-visible {
+  background-size: 100% 2px;
+}

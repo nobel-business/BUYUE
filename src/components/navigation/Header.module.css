@@ -1,0 +1,154 @@
+.header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-sticky);
+  inline-size: 100%;
+  padding-block: var(--space-4);
+  padding-inline: var(--space-4);
+  /* Only the wrapper translates for hide/show — smooth, GPU, no layout shift. */
+  transition: transform var(--dur-slow) var(--ease-out-soft);
+  will-change: transform;
+}
+
+.hidden {
+  transform: translateY(calc(-100% - var(--space-2)));
+}
+
+/* ── Floating glass pill ─────────────────────────────────────────────────── */
+.pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  max-inline-size: 1400px;
+  margin-inline: auto;
+  padding-block: 0.7rem;
+  /* Extra breathing room on the logo (start) side. */
+  padding-inline: 1.25rem 0.7rem;
+  border-radius: 24px;
+  color: var(--chrome-ink);
+  /* Nested links/logo inherit the bar's ink, whichever mode is active. */
+  --text-primary: var(--chrome-ink);
+  /* Layered surface: base fill + top inner highlight + a whisper of brand tint —
+     depth, not a flat panel. Every colour comes from a --chrome-* role token, so
+     the bar follows the theme without a light-mode branch here. */
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, var(--chrome-sheen), transparent 42%),
+    radial-gradient(
+      120% 140% at 100% 0%,
+      color-mix(in srgb, var(--color-bonfire-flame) 12%, transparent),
+      transparent 58%
+    ),
+    var(--chrome-surface);
+  border: 1px solid var(--chrome-border);
+  box-shadow:
+    inset 0 1px 0 var(--chrome-sheen),
+    0 10px 30px var(--chrome-shadow),
+    0 30px 60px color-mix(in srgb, var(--chrome-shadow) 70%, transparent);
+  backdrop-filter: blur(26px) saturate(1.25);
+  transition:
+    padding-block var(--dur-base) var(--ease-out-soft),
+    background-color var(--dur-base) var(--ease-out-soft),
+    box-shadow var(--dur-base) var(--ease-out-soft),
+    transform var(--dur-base) var(--ease-out-soft);
+}
+
+/* Subtle light gliding across the glass every ~9s (clipped to the pill). */
+.pill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 42%,
+    color-mix(in srgb, var(--chrome-sheen) 60%, transparent) 50%,
+    transparent 58%
+  );
+  transform: translateX(-120%);
+  animation: nav-sweep 9s ease-in-out infinite;
+}
+
+@keyframes nav-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  22%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* Keep interactive contents above the sweep. */
+.pill > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill::after {
+    animation: none;
+    display: none;
+  }
+}
+
+/* Scrolled: shrink + more transparent + more blur. */
+.scrolled {
+  padding-block: 0.5rem;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--chrome-sheen) 70%, transparent),
+      transparent 42%
+    ),
+    radial-gradient(
+      120% 140% at 100% 0%,
+      color-mix(in srgb, var(--color-bonfire-flame) 7%, transparent),
+      transparent 55%
+    ),
+    color-mix(in srgb, var(--chrome-surface) 88%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--chrome-sheen) 85%, transparent),
+    0 8px 24px var(--chrome-shadow),
+    0 22px 50px color-mix(in srgb, var(--chrome-shadow) 80%, transparent);
+  backdrop-filter: blur(30px) saturate(1.35);
+  transform: scale(0.985);
+}
+
+.logo {
+  flex-shrink: 0;
+  letter-spacing: 0.06em;
+}
+
+.desktopNav {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Theme switch leads the actions cluster, before the language pills. */
+.themeToggle {
+  flex-shrink: 0;
+}
+
+.ctaWrap {
+  display: none;
+}
+
+@media (min-width: 1025px) {
+  .desktopNav {
+    display: block;
+  }
+
+  .ctaWrap {
+    display: inline-flex;
+  }
+}

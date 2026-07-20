@@ -1,0 +1,58 @@
+.wrap {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--space-2);
+}
+
+.line {
+  position: relative;
+  display: block;
+  inline-size: min(100%, 60rem);
+  block-size: 1px;
+  overflow: hidden;
+  transform-origin: center;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-bonfire-flame) 40%, transparent) 30%,
+    color-mix(in srgb, var(--color-quilt-gold) 55%, transparent) 50%,
+    color-mix(in srgb, var(--color-bonfire-flame) 40%, transparent) 70%,
+    transparent
+  );
+}
+
+/* A concentrated highlight glides slowly along the hairline, over and over — a
+   quiet pulse of light travelling the divider. Transform-only; clipped by the
+   line's overflow. */
+.line::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inline-size: 26%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-quilt-gold) 95%, transparent),
+    transparent
+  );
+  transform: translateX(-120%);
+  animation: divider-travel 6.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes divider-travel {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line::after {
+    animation: none;
+    opacity: 0;
+  }
+}

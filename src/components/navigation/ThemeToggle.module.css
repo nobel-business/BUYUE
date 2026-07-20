@@ -1,0 +1,41 @@
+/* Bronze metal accent in both modes — the one nav control that stays warm
+   whichever theme is active. Sized to match the language switcher pills. */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  padding: 0;
+  border-radius: var(--radius-pill, 999px);
+  color: var(--color-bronze-icon);
+  background-color: color-mix(in srgb, var(--color-bronze) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-bronze) 34%, transparent);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out-soft),
+    background-color var(--dur-fast) var(--ease-out-soft),
+    border-color var(--dur-fast) var(--ease-out-soft);
+}
+
+.toggle:hover {
+  color: var(--color-bronze);
+  background-color: color-mix(in srgb, var(--color-bronze) 20%, transparent);
+  border-color: color-mix(in srgb, var(--color-bronze) 55%, transparent);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+.icon {
+  inline-size: 1.05rem;
+  block-size: 1.05rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle {
+    transition: none;
+  }
+}

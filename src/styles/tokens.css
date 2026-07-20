@@ -1,0 +1,310 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   BUYUE — DESIGN TOKENS (Phase 2, Global Design System)
+
+   Single source of truth for all design values (Doc 03, Doc 07 §11).
+   Never hardcode a value that exists here.
+
+   Layers:
+     1. Brand palette (raw, immutable — from buyue Branding.pdf / Doc 03 §11)
+     2. Derived neutrals & semantics (Doc 03 §11.4–5)
+     3. Accessible action colors (audit C-05 resolution, Doc 03 §24)
+     4. Spacing / radius / shadow / z / type scales (Doc 03 §4–10)
+     5. Motion tokens (Doc 05 §2)
+     6. Semantic ROLE tokens (light theme) + dark-theme overrides (Doc 03 §22–23)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── 1. Brand palette (raw) ─────────────────────────────────────────────── */
+  --color-bonfire-flame: #cf5138; /* Primary brand (display / accents / blocks) */
+  --color-black-powder: #2f2f2d;
+  --color-quilt-gold: #eac46b;
+  --color-springtime-rain: #f5f7f9;
+  --color-lime-taffy: #bbcfb3;
+
+  /* ── 1b. Light-mode raw palette (warm ivory system) ─────────────────────────
+     Brand accents above are carried across BOTH modes unchanged; only surfaces,
+     ink and framing differ. Raw values only — roles are assigned in §6. */
+  --color-ivory: #e7e0d3; /* page + scene background */
+  --color-warm-white: #fffdf9; /* nav bar fill */
+  --color-hemisphere: #fff4e6; /* warm white light tint */
+  --color-warm-ink: #1a1613; /* headline / primary text */
+  --color-warm-ink-edge: #140f0a; /* border ink */
+  --color-bronze: #bc9656; /* metal accents / theme icon */
+  --color-bronze-icon: #bc7a3a;
+  --color-bronze-shadow: #785a32; /* warm bar shadow */
+  --color-bronze-vignette: #96784f; /* warm edge vignette */
+  --color-soft-orange: #ff7a45; /* glow / core / reactions */
+
+  /* ── 2. Derived neutrals (Doc 03 §11.4) ─────────────────────────────────── */
+  --color-ink-900: #2f2f2d;
+  --color-ink-700: #4a4a47;
+  --color-ink-500: #6f6f6b;
+  --color-ink-300: #a8a8a3;
+  --color-line-200: #e2e4e6;
+  --color-surface-0: #fff;
+  --color-surface-50: #f5f7f9;
+  --color-surface-100: #eef1f3;
+
+  /* ── 3. Accessible action colors (audit C-05, Doc 03 §24) ───────────────────
+     White text on raw Bonfire Flame is 4.30:1 (< AA 4.5 for normal text).
+     These darkened, in-family shades pass AA with white text:
+       primary #c14b34 → 4.86:1 · hover #b04530 → 5.62:1 · active #9b3d2a → 6.79:1
+     The raw brand color is retained above for non-text accents / large text. */
+  --color-action-primary: #c14b34;
+  --color-action-primary-hover: #b04530;
+  --color-action-primary-active: #9b3d2a;
+
+  /* ── Semantic status (Doc 03 §11.5 — ⚠ confirm with client, audit H-02) ──── */
+  --color-success: #2e7d4f;
+  --color-warning: #a9760f;
+  --color-danger: #c14b34; /* accessible; pair always with icon+text, not color alone */
+  --color-info: #4a6b7c;
+
+  /* ── 4a. Spacing (8px base, Doc 03 §5) ──────────────────────────────────── */
+  --space-1: 0.25rem; /* 4 */
+  --space-2: 0.5rem; /* 8 */
+  --space-3: 0.75rem; /* 12 */
+  --space-4: 1rem; /* 16 */
+  --space-5: 1.5rem; /* 24 */
+  --space-6: 2rem; /* 32 */
+  --space-8: 3rem; /* 48 */
+  --space-10: 4rem; /* 64 */
+  --space-12: 6rem; /* 96 */
+  --space-16: 8rem; /* 128 */
+  --space-20: 10rem; /* 160 */
+
+  /* Section rhythm (Doc 03 §5, Doc 09 §13) */
+  --section-padding-block: clamp(3.5rem, 2rem + 6vw, 8rem);
+
+  /* ── 4b. Radius (Doc 03 §8) ─────────────────────────────────────────────── */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* ── 4c. Shadows (Doc 03 §10 — dark theme: near-invisible, lean on borders) ─ */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.44);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5);
+  --shadow-focus: 0 0 0 3px rgba(207, 81, 56, 0.35);
+
+  /* ── 4d. Z-index scale ──────────────────────────────────────────────────── */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-progress: 150;
+  --z-overlay: 1000;
+  --z-modal: 1100;
+  --z-toast: 1200;
+
+  /* ── 4e. Typography (Doc 03 §4.4) ───────────────────────────────────────── */
+  --font-arabic: 'Noto Naskh Arabic', 'Segoe UI', Tahoma, sans-serif;
+  --font-latin: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Fluid sizes clamp(min, preferred, max) — responsive per Doc 03 §25 */
+  --font-size-display: clamp(2.75rem, 1.6rem + 4.6vw, 5rem); /* 44 → 80 */
+  --font-size-h1: clamp(2.25rem, 1.6rem + 2.6vw, 3rem); /* 36 → 48 */
+  --font-size-h2: clamp(1.75rem, 1.3rem + 1.8vw, 2.25rem); /* 28 → 36 */
+  --font-size-h3: clamp(1.375rem, 1.1rem + 1.1vw, 1.75rem); /* 22 → 28 */
+  --font-size-h4: clamp(1.125rem, 1rem + 0.5vw, 1.375rem); /* 18 → 22 */
+  --font-size-body-l: 1.25rem; /* 20 */
+  --font-size-body: 1rem; /* 16 */
+  --font-size-small: 0.875rem; /* 14 */
+  --font-size-overline: 0.75rem; /* 12 */
+
+  --line-height-tight: 1.1;
+  --line-height-heading: 1.2;
+  --line-height-body: 1.6;
+  --line-height-body-ar: 1.75; /* Arabic needs more leading (Doc 03 §4.4) */
+
+  /* ── 4f. Layout containers (Doc 03 §7) ──────────────────────────────────── */
+  --container-max: 75rem; /* 1200 */
+  --container-wide: 82.5rem; /* 1320 */
+  --container-narrow: 44rem; /* ~704 — comfortable reading measure */
+  --container-gutter: var(--space-5);
+  --container-gutter-mobile: var(--space-4);
+
+  /* ── 5. Motion tokens (Doc 05 §2) ───────────────────────────────────────── */
+  --dur-instant: 100ms;
+  --dur-fast: 200ms;
+  --dur-base: 300ms;
+  --dur-medium: 500ms;
+  --dur-slow: 700ms;
+  --dur-xslow: 1000ms;
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-lux: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-emphasis: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── 6. Semantic ROLE tokens — DARK is the baseline ────────────────────────
+     Buyue cinematic palette (matches the About hero): warm near-black surfaces,
+     off-white text, translucent "glass" panels, brand orange/gold accents.
+     Light mode is an OVERRIDE of these roles, applied via `:root[data-theme=
+     'light']` at the end of this file — never a parallel set of class names.
+     Components must consume the roles below (and the glass/chrome tokens) so
+     they follow the mode automatically; hardcoding rgba(255,255,255,…) opts a
+     component out of theming. `color-scheme` also flips native controls
+     (scrollbars, <select> popups, autofill, caret). */
+  color-scheme: dark;
+  accent-color: var(--color-bonfire-flame);
+
+  --surface-page: #070707; /* warm near-black base */
+  --surface-raised: color-mix(in srgb, var(--color-springtime-rain) 6%, transparent); /* glass */
+  --surface-sunken: #0c0b0a; /* subtly-lifted recessed band */
+  --surface-inverse: #131110; /* dark warm contrast band (stays dark) */
+  --surface-accent: color-mix(
+    in srgb,
+    var(--color-bonfire-flame) 12%,
+    #100d0b
+  ); /* dark warm accent */
+  --surface-brand: var(--color-bonfire-flame);
+
+  --text-primary: var(--color-springtime-rain);
+  --text-secondary: rgba(245, 247, 249, 0.72);
+  --text-muted: rgba(245, 247, 249, 0.5);
+  --text-on-inverse: var(--color-springtime-rain);
+  --text-on-action: var(--color-springtime-rain);
+  --text-on-accent: var(--color-springtime-rain);
+
+  --border-default: rgba(245, 247, 249, 0.12);
+  --border-strong: rgba(245, 247, 249, 0.24);
+
+  /* Chrome & glass — the nav bar and every frosted panel read from these, so a
+     mode switch never requires touching a component. */
+  --chrome-surface: rgba(255, 255, 255, 0.06);
+  --chrome-sheen: rgba(255, 255, 255, 0.09);
+  --chrome-border: rgba(255, 255, 255, 0.12);
+  --chrome-shadow: rgba(0, 0, 0, 0.38);
+  --chrome-ink: var(--color-springtime-rain);
+  --chrome-ink-soft: rgba(245, 247, 249, 0.82);
+
+  /* Ambient framing — the global canvas wash and its edge vignette. */
+  --ambient-fog: #3a2a1a;
+  --ambient-glow: var(--color-bonfire-flame);
+  --vignette-edge: rgba(0, 0, 0, 0.55);
+
+  /* Glass — every frosted panel (cards, FAQ, service cards, overlays). */
+  --glass-fill: rgba(255, 255, 255, 0.06);
+  --glass-fill-strong: rgba(255, 255, 255, 0.1);
+  --glass-sheen: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-strong: rgba(255, 255, 255, 0.24);
+
+  /* Elevation — layered ambient shadows. Components use the whole string. */
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.24), 0 4px 12px rgba(0, 0, 0, 0.2);
+  --elev-2: 0 2px 6px rgba(0, 0, 0, 0.26), 0 10px 30px rgba(0, 0, 0, 0.28);
+  --elev-3:
+    0 4px 10px rgba(0, 0, 0, 0.28), 0 18px 44px rgba(0, 0, 0, 0.3), 0 40px 80px rgba(0, 0, 0, 0.24);
+
+  /* Art-directed scenes (hero, values, services, FAQ, mosaic, preloader). These
+     sections paint their own environment rather than sitting on --surface-page. */
+  --scene-surface: #070707;
+  --scene-surface-deep: #0d0c0b;
+  --scene-ink: var(--color-springtime-rain);
+  --scene-ink-soft: rgba(245, 247, 249, 0.72);
+  --scene-ink-faint: rgba(245, 247, 249, 0.5);
+  --scene-grid: rgba(213, 197, 168, 0.02);
+  --scene-particle: rgba(233, 219, 197, 1);
+  --scene-glow-warm: var(--color-bronze);
+  --scene-glow-soft: var(--color-soft-orange);
+  --scene-vignette: rgba(0, 0, 0, 0.52);
+
+  /* Scrim behind modals / drawers / covers. */
+  --overlay-scrim: rgba(7, 7, 7, 0.72);
+
+  --accent: var(--color-quilt-gold);
+  --focus-ring-color: var(--color-bonfire-flame);
+}
+
+/* ── 6b. LIGHT MODE — warm ivory override ─────────────────────────────────────
+   Set by `data-theme="light"` on <html> (see the no-flash script in the root
+   layout). Uses `:root[…]` for a specificity of 0,2,0 so it always beats the
+   `:root` baseline regardless of source order. Brand accents are deliberately
+   NOT redefined here — flame / soft orange / gold / bronze / sage carry across
+   both modes unchanged. */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --surface-page: var(--color-ivory); /* warm ivory / sand */
+  --surface-raised: rgb(255 253 249 / 92%); /* near-white panel */
+  --surface-sunken: #ded6c7; /* subtly recessed band */
+  --surface-inverse: var(--color-warm-ink); /* dark contrast band */
+  --surface-accent: color-mix(in srgb, var(--color-bonfire-flame) 10%, var(--color-warm-white));
+  --surface-brand: var(--color-bonfire-flame);
+
+  --text-primary: var(--color-warm-ink); /* warm near-black */
+  /* The palette's 62%/50% steps were specified against a *white* reference; over
+     the ivory page they compute to 4.49:1 and 3.16:1 — the first misses AA 4.5:1
+     by a hair, the second fails outright. Nudged to 66%/62%, which lands at
+     5.0:1 and 4.5:1 while keeping the intended hierarchy gap between them. */
+  --text-secondary: rgb(26 22 19 / 66%); /* sub-headline / body */
+  --text-muted: rgb(26 22 19 / 62%); /* small labels (REC / scroll cue) */
+  --text-on-inverse: var(--color-warm-white);
+  --text-on-action: #fff; /* on flame CTA */
+  --text-on-accent: var(--color-warm-ink); /* on gold */
+
+  --border-default: rgb(20 15 10 / 14%);
+  --border-strong: rgb(20 15 10 / 24%);
+
+  /* Nav bar: near-white fill, ink border, warm bronze shadow. */
+  --chrome-surface: rgb(255 253 249 / 92%);
+  --chrome-sheen: rgb(255 255 255 / 70%);
+  --chrome-border: rgb(20 15 10 / 14%);
+  --chrome-shadow: rgb(120 90 50 / 18%);
+  --chrome-ink: var(--color-warm-ink);
+  --chrome-ink-soft: rgb(26 22 19 / 82%); /* nav links */
+
+  --ambient-fog: var(--color-hemisphere); /* warm white, not warm black */
+  --ambient-glow: var(--color-soft-orange);
+  --vignette-edge: rgb(150 120 79 / 28%); /* soft warm shadow */
+
+  /* Glass — soft WHITE glass with warm transparency, never a dark pane. */
+  --glass-fill: rgb(255 253 249 / 66%);
+  --glass-fill-strong: rgb(255 253 249 / 86%);
+  --glass-sheen: rgb(255 255 255 / 88%);
+  --glass-border: rgb(20 15 10 / 10%);
+  --glass-border-strong: rgb(20 15 10 / 18%);
+
+  /* Elevation — layered warm bronze ambient shadows, no black. Apple-style: a
+     tight contact shadow plus progressively wider, softer ambient layers. */
+  --elev-1: 0 1px 2px rgb(120 90 50 / 8%), 0 4px 12px rgb(120 90 50 / 10%);
+  --elev-2: 0 2px 6px rgb(120 90 50 / 9%), 0 10px 30px rgb(120 90 50 / 12%);
+  --elev-3:
+    0 4px 10px rgb(120 90 50 / 10%), 0 18px 44px rgb(120 90 50 / 12%),
+    0 40px 80px rgb(120 90 50 / 10%);
+
+  /* Scenes become warm ivory environments rather than near-black ones. */
+  --scene-surface: var(--color-ivory);
+  --scene-surface-deep: #ded6c7;
+  --scene-ink: var(--color-warm-ink);
+  --scene-ink-soft: rgb(26 22 19 / 62%);
+  --scene-ink-faint: rgb(26 22 19 / 50%);
+  --scene-grid: rgb(20 15 10 / 4%);
+  --scene-particle: rgb(120 90 50 / 100%);
+  --scene-glow-warm: var(--color-bronze);
+  --scene-glow-soft: var(--color-soft-orange);
+  --scene-vignette: rgb(150 120 79 / 24%);
+
+  --overlay-scrim: rgb(231 224 211 / 82%);
+
+  /* The legacy --shadow-* scale must theme too, or every consumer that has not
+     migrated to --elev-* (modals, drawers, toasts, button hovers) casts a black
+     shadow on ivory. Same geometry, warm bronze ink, lower alpha — a black
+     shadow at dark-mode strength reads as dirt on a light surface. */
+  --shadow-sm: 0 1px 2px rgb(120 90 50 / 10%);
+  --shadow-md: 0 4px 12px rgb(120 90 50 / 12%);
+  --shadow-lg: 0 12px 28px rgb(120 90 50 / 14%);
+  --shadow-xl: 0 24px 48px rgb(120 90 50 / 16%);
+
+  --accent: var(--color-quilt-gold);
+  --focus-ring-color: var(--color-action-primary);
+}

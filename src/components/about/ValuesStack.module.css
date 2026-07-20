@@ -1,0 +1,150 @@
+.scene {
+  position: relative;
+  min-block-size: calc(var(--count, 4) * 100vh);
+}
+
+.sticky {
+  position: sticky;
+  inset-block-start: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: 100vh;
+  overflow: hidden;
+}
+
+.head {
+  margin-block-end: clamp(1.5rem, 1rem + 2vw, 3rem);
+  text-align: center;
+}
+
+/* Shared 3D space for the stacked cards; the perspective lets the active card tilt. */
+.stack {
+  position: relative;
+  perspective: 1200px;
+  min-block-size: 58vh;
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  will-change: transform, opacity;
+}
+
+/* Huge, near-transparent ghost number behind each card — the card's index at
+   display scale, tinted with the card's accent. Peeks above and below the card. */
+.ghost {
+  position: absolute;
+  inset-block-start: 50%;
+  /* Physical `left` — pairs with the physical `translate` below, which does not
+     mirror. As a logical inset the two compound in RTL, throwing this numeral a
+     full glyph-width (up to 26rem) off centre. */
+  left: 50%;
+  z-index: 0;
+  translate: -50% -50%;
+  font-weight: 800;
+  font-size: clamp(12rem, 38vh, 26rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: color-mix(in srgb, var(--accent, var(--color-bonfire-flame)) 9%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+.cardInner {
+  position: relative;
+  z-index: 1;
+  inline-size: min(100%, 46rem);
+  border-radius: var(--radius-lg, 20px);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Cursor-follow light — non-transform, so it never fights the tilt/scrub. Tinted
+   with the card's accent hue. */
+.light {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    32% 40% at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--accent, var(--color-quilt-gold)) 26%, transparent),
+    transparent 70%
+  );
+  transition: opacity 400ms var(--ease-out-soft, ease);
+}
+
+.cardInner:hover .light {
+  opacity: 1;
+}
+
+/* Animated border glow on the focused card, in the card's accent. The ambient
+   drop uses --chrome-shadow purely as the theme's shadow TINT (black in dark,
+   warm bronze in light), scaled back to the same 0.16 alpha it has today. */
+.cardInner:hover {
+  box-shadow:
+    0 30px 70px color-mix(in srgb, var(--chrome-shadow) 42.1%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent, var(--color-bonfire-flame)) 30%, transparent);
+}
+
+/* Mobile / narrow: no pin, no stack — a calm static column of the same cards. */
+@media (max-width: 899px) {
+  .scene {
+    min-block-size: auto;
+  }
+
+  .sticky {
+    position: static;
+    min-block-size: auto;
+    padding-block: var(--space-10);
+    overflow: visible;
+  }
+
+  .stack {
+    perspective: none;
+    min-block-size: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .card {
+    position: static;
+    inset: auto;
+  }
+}
+
+/* Reduced motion: collapse the pinned track (no scrub) and show every card in a
+   static column, so there is never empty scroll past a frozen stack. */
+@media (prefers-reduced-motion: reduce) {
+  .scene {
+    min-block-size: auto;
+  }
+
+  .sticky {
+    position: static;
+    min-block-size: auto;
+    padding-block: var(--space-10);
+    overflow: visible;
+  }
+
+  .stack {
+    perspective: none;
+    min-block-size: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .card {
+    position: static;
+    inset: auto;
+  }
+}

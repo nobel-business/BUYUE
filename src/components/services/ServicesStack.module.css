@@ -1,0 +1,636 @@
+/* ── Section shell ───────────────────────────────────────────────────────────── */
+/* A cohesive dark cinematic scene (like the FAQ/intro), so the glass cards + light
+   text read consistently in both light and dark themes. */
+.section {
+  position: relative;
+  /* Transparent — sits over the global cinematic canvas (continuous page). */
+  background-color: transparent;
+
+  /* Scene ink — off-white over the near-black scene, warm near-black over ivory. */
+  --text-primary: var(--scene-ink);
+  --text-secondary: color-mix(in srgb, var(--scene-ink) 72%, transparent);
+
+  /* Base ramp stops. Declared here so the whole atmosphere can be re-pointed in a
+     single light rule: the ramp must INVERT direction, not just change hue — the
+     dark scene lifts toward a warm centre, the light one settles from a bright
+     centre out to deeper sand. color-mix cannot express that from one stop set. */
+  --svc-base-1: #151311;
+  --svc-base-2: #0d0c0b;
+  --svc-base-3: #090909;
+
+  color: var(--text-primary);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   BACKGROUND — a layered cinematic atmosphere. Every layer is decorative and
+   pointer-events:none; the content stage sits above the whole stack.
+
+   Note on "blur 350–500px": the huge glows are built as wide-falloff radial
+   gradients rather than solid circles under `filter: blur()`. The result is
+   visually the same soft bloom, but a 400px blur filter on a 1200px element is
+   a per-frame GPU cost that would stutter the card transitions — gradients are
+   effectively free. Real `filter` is used only where the shape demands it (rays).
+
+   All horizontal placement uses PHYSICAL `left`/`right`, not logical insets, so
+   the lighting composition is identical in Arabic and English.
+   ══════════════════════════════════════════════════════════════════════════════ */
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg > * {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ── Light mode ──────────────────────────────────────────────────────────────
+   The composition is unchanged — same layers, same placement, same motion. Two
+   things cannot be expressed by swapping a colour token, so they live here:
+     · the base ramp inverts (bright warm centre settling out to deeper sand,
+       rather than a lifted warm centre against near-black);
+     · `mix-blend-mode: screen` on the rays is a no-op over a light base — the
+       rays would simply disappear, so they switch to `multiply` and read as
+       soft warm shade instead of light.
+   The glows keep their brand hues; only their strength drops, because values
+   tuned to lift a near-black scene read as stains over ivory. */
+:global(html[data-theme='light']) .section {
+  --svc-base-1: #f2ece0;
+  --svc-base-2: #ebe4d7;
+  --svc-base-3: var(--color-ivory);
+}
+
+:global(html[data-theme='light']) .bgRays {
+  mix-blend-mode: multiply;
+  --svc-rays-max: 0.3;
+}
+
+:global(html[data-theme='light']) .bgGlowWarm {
+  --svc-glow-max: 0.55;
+}
+
+/* .bgGeoA animates `translate` only, so a plain opacity declaration does apply. */
+:global(html[data-theme='light']) .bgGeoA {
+  opacity: 0.55;
+}
+
+:global(html[data-theme='light']) .bgGrain {
+  mix-blend-mode: multiply;
+}
+
+/* ── 1. Base — near-black, barely-there warm centre ─────────────────────────── */
+/* Masked at the top/bottom edges so it melts into the global #070707 canvas
+   instead of banding against the sections above and below. */
+.bgBase {
+  inset: 0;
+  background: radial-gradient(
+    120% 100% at 50% 45%,
+    var(--svc-base-1) 0%,
+    var(--svc-base-2) 45%,
+    var(--svc-base-3) 100%
+  );
+  mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+}
+
+/* ── 2. Ambient light — one very large warm glow, top right ─────────────────── */
+.bgGlowWarm {
+  inset-block-start: -35%;
+  right: -20%;
+  inline-size: 95%;
+  block-size: 115%;
+  background: radial-gradient(
+    circle at 62% 38%,
+    rgb(188 150 86 / 11%) 0%,
+    rgb(188 150 86 / 6%) 28%,
+    rgb(188 150 86 / 2%) 52%,
+    transparent 72%
+  );
+  animation: svc-breathe 26s ease-in-out infinite alternate;
+}
+
+/* ── 3. Secondary glow — behind the content, felt not seen ──────────────────── */
+.bgGlowText {
+  inset-block-start: 8%;
+  left: 50%;
+  inline-size: 78%;
+  block-size: 80%;
+  translate: -50% 0;
+  background: radial-gradient(circle at 50% 50%, rgb(255 122 69 / 4%) 0%, transparent 68%);
+  animation: svc-breathe 34s ease-in-out -11s infinite alternate;
+}
+
+/* ── 4. Geometry — huge, very transparent, no outlines ──────────────────────── */
+.bgGeoA,
+.bgGeoB,
+.bgGeoC {
+  border-radius: 50%;
+}
+
+.bgGeoA {
+  inset-block-start: -18%;
+  right: 4%;
+  inline-size: min(1200px, 82vw);
+  block-size: min(1200px, 82vw);
+  background: radial-gradient(circle at 50% 50%, rgb(188 150 86 / 4%), transparent 66%);
+  animation: svc-float-a 68s ease-in-out infinite alternate;
+}
+
+.bgGeoB {
+  inset-block-end: -30%;
+  left: -14%;
+  inline-size: min(1000px, 74vw);
+  block-size: min(1000px, 74vw);
+  background: radial-gradient(circle at 50% 50%, rgb(255 122 69 / 3%), transparent 62%);
+  animation: svc-float-b 86s ease-in-out -23s infinite alternate;
+}
+
+.bgGeoC {
+  inset-block-start: 26%;
+  left: 34%;
+  inline-size: min(820px, 60vw);
+  block-size: min(820px, 60vw);
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--scene-ink) 2%, transparent),
+    transparent 58%
+  );
+  animation: svc-float-a 97s ease-in-out -41s infinite alternate;
+}
+
+/* ── 5. Light rays — cast from the top-right glow, almost invisible ─────────── */
+.bgRays {
+  inset-block-start: -45%;
+  right: -30%;
+  inline-size: 130%;
+  block-size: 150%;
+  background: repeating-conic-gradient(
+    from 196deg at 84% 10%,
+    rgb(188 150 86 / 9%) 0deg 3deg,
+    transparent 3deg 13deg
+  );
+  filter: blur(55px);
+  opacity: 0.42; /* effective ≈ 3.8% */
+  mix-blend-mode: screen;
+  animation: svc-rays 120s ease-in-out infinite alternate;
+}
+
+/* ── 6. Technical grid — large cells, only visible if you look for it ───────── */
+.bgGrid {
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--scene-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--scene-grid) 1px, transparent 1px);
+  background-size: 148px 148px;
+  mask-image: radial-gradient(115% 95% at 62% 32%, #000 12%, transparent 78%);
+}
+
+/* ── 7. Decorative lines — long bronze hairlines, some fading early ─────────── */
+.bgLineA,
+.bgLineB,
+.bgLineC {
+  block-size: 1px;
+  transform-origin: center;
+}
+
+.bgLineA {
+  inset-block-start: 22%;
+  left: -12%;
+  inline-size: 88%;
+  rotate: -14deg;
+  background: linear-gradient(to right, transparent, rgb(188 150 86 / 3%) 38%, transparent 92%);
+}
+
+.bgLineB {
+  inset-block-start: 61%;
+  left: 6%;
+  inline-size: 104%;
+  rotate: -9deg;
+  /* Fades out well before the edge — an implied line, not a drawn one. */
+  background: linear-gradient(to right, transparent 6%, rgb(188 150 86 / 3%) 46%, transparent 74%);
+}
+
+.bgLineC {
+  inset-block-start: 38%;
+  left: 22%;
+  inline-size: 92%;
+  rotate: 11deg;
+  background: linear-gradient(
+    to right,
+    transparent 18%,
+    color-mix(in srgb, var(--scene-ink) 2%, transparent) 60%,
+    transparent
+  );
+}
+
+/* ── 8. Particles — 18 motes, tiny, slow, almost static ─────────────────────── */
+.bgDust {
+  position: absolute;
+  inset: 0;
+}
+
+.particle {
+  position: absolute;
+  inset-block-start: var(--py);
+  left: var(--px);
+  inline-size: var(--size);
+  block-size: var(--size);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--scene-particle) var(--op), transparent);
+  /* `alternate` means it eases back the way it came — no restart seam, so the
+     drift never reads as a loop. */
+  animation: svc-drift var(--dur) ease-in-out var(--delay) infinite alternate;
+}
+
+/* ── 9. Grain — kills gradient banding, static by design ────────────────────── */
+.bgGrain {
+  inset: 0;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── 10. Vignette — pulls the eye back to the centre ────────────────────────── */
+.bgVignette {
+  inset: 0;
+  background: radial-gradient(
+    118% 88% at 50% 46%,
+    transparent 42%,
+    color-mix(in srgb, var(--scene-vignette) 54%, transparent) 76%,
+    var(--scene-vignette) 100%
+  );
+}
+
+/* ── Motion — everything slow enough to read as atmosphere, not animation ───── */
+/* Peak opacity is a variable, not a literal: a running animation outranks any
+   author declaration, so a light-mode `opacity:` override on these layers would
+   silently never apply. Driving the keyframe value through a custom property is
+   the only way to dim them per theme. */
+@keyframes svc-breathe {
+  from {
+    opacity: calc(var(--svc-glow-max, 1) * 0.82);
+    scale: 1;
+  }
+
+  to {
+    opacity: var(--svc-glow-max, 1);
+    scale: 1.06;
+  }
+}
+
+@keyframes svc-float-a {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: -2.5% 3%;
+  }
+}
+
+@keyframes svc-float-b {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: 3% -2%;
+  }
+}
+
+@keyframes svc-rays {
+  from {
+    opacity: calc(var(--svc-rays-max, 0.5) * 0.64);
+    rotate: -2.5deg;
+  }
+
+  to {
+    opacity: var(--svc-rays-max, 0.5);
+    rotate: 2.5deg;
+  }
+}
+
+@keyframes svc-drift {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: 7px -16px;
+  }
+}
+
+/* Default (mobile / no-JS / reduced motion): calm vertical stack. */
+.stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-block: var(--space-8);
+}
+
+/* ── Glass card ──────────────────────────────────────────────────────────────── */
+.card {
+  position: relative;
+  inline-size: min(92vw, 46rem);
+  border-radius: 26px;
+  overflow: hidden;
+
+  /* Light frosted glass on the dark scene — a clearly-read premium panel. */
+  color: var(--text-primary);
+  background-color: color-mix(in srgb, var(--glass-fill) 100%, transparent);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 30px 80px var(--chrome-shadow),
+    inset 0 1px 0 var(--glass-sheen),
+    inset 0 0 44px color-mix(in srgb, var(--glass-sheen) 55%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--glass-sheen) 88%, transparent),
+    transparent 42%
+  );
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: clamp(1.75rem, 1.25rem + 2.4vw, 3.25rem);
+}
+
+/* Title takes the place of the old big number: one line, always. Compound selector so
+   it reliably overrides the Heading's size class. */
+.inner .title {
+  max-inline-size: 100%;
+  font-size: clamp(1.05rem, 0.7rem + 1.4vw, 1.75rem);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  margin-block-end: var(--space-2);
+}
+
+.intro {
+  max-inline-size: 54ch;
+}
+
+.offer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.features {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.features li {
+  position: relative;
+  padding-inline-start: var(--space-5);
+  color: var(--text-secondary);
+}
+
+.features li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.65em;
+  inline-size: 12px;
+  block-size: 2px;
+  background-color: var(--color-bonfire-flame);
+}
+
+.valueRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 3px solid var(--color-quilt-gold);
+}
+
+.value {
+  font-weight: var(--font-weight-medium);
+}
+
+.ctaRow {
+  margin-block-start: var(--space-2);
+}
+
+/* ── Progress rail (clickable numbers) ───────────────────────────────────────── */
+.progress {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dot {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0.4em 0.5em;
+  font: inherit;
+  font-size: var(--font-size-caption, 0.8rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--text-primary) 22%, transparent);
+  cursor: pointer;
+  transition: color 0.4s var(--ease-out-soft);
+}
+
+.dot[data-state='active'] {
+  color: var(--color-bonfire-flame);
+}
+
+.dot[data-state='past'] {
+  color: color-mix(in srgb, var(--text-primary) 46%, transparent);
+}
+
+.dot[data-state='future'] {
+  color: color-mix(in srgb, var(--text-primary) 22%, transparent);
+}
+
+/* Exit arrows — desktop only (mobile/reduced motion just scroll normally). */
+.exitNav {
+  display: none;
+}
+
+.exitIcon {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+/* ── Desktop: one-viewport step scene ────────────────────────────────────────── */
+/* Must match the matchMedia query in ServicesStack.tsx exactly. The scene collapses the
+   ten cards onto one grid cell and hides all but the active one, so it is only safe
+   where the JS takeover actually runs — on a touch device (iPad landscape is >861px)
+   these styles alone would leave services 02–10 permanently invisible. */
+@media (min-width: 861px) and (hover: hover) and (pointer: fine) {
+  /* Exactly one viewport — the wheel (not scroll distance) drives the steps, so
+     there is no tall track and no blank scroll. */
+  .section {
+    block-size: 100vh;
+    overflow: hidden;
+  }
+
+  .stage {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding-block: 0;
+    perspective: 1600px;
+    perspective-origin: 50% 45%;
+  }
+
+  /* All cards share the centre cell; GSAP places each in depth. Hidden until GSAP
+     assigns depth (prevents a first-paint flash); no-JS shows the first card. */
+  .card {
+    grid-area: 1 / 1;
+    inline-size: min(88vw, 46rem);
+    opacity: 0;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    will-change: transform, opacity, filter;
+  }
+
+  .card:first-child {
+    opacity: 1;
+  }
+
+  /* Active card floats almost imperceptibly (independent of the depth transform). */
+  /* Never let a long service outgrow the viewport: the scene is a fixed 100vh with
+     overflow:hidden, so anything taller was silently cut off (the opening paragraph
+     of a 6-bullet service disappeared above the screen). Cap it and let the copy
+     scroll inside the card — the wheel handler yields to this before stepping. */
+  .inner {
+    animation: card-float 8s ease-in-out infinite;
+    max-block-size: calc(100vh - 8rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--text-primary) 28%, transparent) transparent;
+  }
+
+  .progress {
+    position: absolute;
+    z-index: 2;
+    inset-block-end: clamp(1.5rem, 4vh, 3rem);
+    inset-inline: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: clamp(0.25rem, 0.8vw, 0.8rem);
+  }
+
+  /* Stacked pair: one click leaves the story upward or downward from ANY service. */
+  .exitNav {
+    position: absolute;
+    z-index: 3;
+    inset-block-end: clamp(1.5rem, 4vh, 3rem);
+    inset-inline-end: clamp(1.5rem, 3vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .exitBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    padding: 0;
+    border-radius: 999px;
+    color: var(--text-secondary);
+    background: var(--glass-fill);
+    border: 1px solid color-mix(in srgb, var(--text-primary) 16%, transparent);
+    cursor: pointer;
+    transition:
+      color 0.3s var(--ease-out-soft),
+      background 0.3s var(--ease-out-soft),
+      border-color 0.3s var(--ease-out-soft);
+  }
+
+  .exitBtn:hover {
+    color: var(--text-primary);
+    background: var(--glass-fill-strong);
+    border-color: color-mix(in srgb, var(--color-bonfire-flame) 45%, transparent);
+  }
+
+  .exitBtn:focus-visible {
+    outline: 2px solid var(--color-bonfire-flame);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes card-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+/* ── Reduced motion: never capture / never 3D — calm static stack ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .section {
+    block-size: auto;
+    overflow: visible;
+  }
+
+  .stage {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-block: var(--space-8);
+    perspective: none;
+  }
+
+  .card {
+    grid-area: auto;
+    inline-size: min(92vw, 46rem);
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    visibility: visible !important;
+    will-change: auto;
+  }
+
+  .inner {
+    animation: none;
+  }
+
+  /* The atmosphere stays — it is composition, not motion — but nothing drifts. */
+  .bg *,
+  .particle {
+    animation: none;
+  }
+
+  .progress,
+  .exitNav {
+    display: none;
+  }
+}

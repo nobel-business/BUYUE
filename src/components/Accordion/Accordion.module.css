@@ -1,0 +1,55 @@
+.accordion {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  border-block-end: 1px solid var(--border-default);
+}
+
+.heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  inline-size: 100%;
+  padding-block: var(--space-4);
+  text-align: start;
+  color: var(--text-primary);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-medium);
+}
+
+.trigger:hover {
+  color: var(--color-bonfire-flame);
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--color-bonfire-flame);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+/* Smooth height via grid-template-rows (animatable). */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-base) var(--ease-standard);
+}
+
+.open {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  overflow: hidden;
+  padding-block-end: var(--space-4);
+  color: var(--text-secondary);
+  max-inline-size: 62ch;
+}

@@ -1,0 +1,110 @@
+.magnet {
+  display: inline-flex;
+}
+
+.switcher {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, currentcolor 6%, transparent);
+  border: 1px solid var(--chrome-border);
+  backdrop-filter: blur(8px);
+}
+
+.option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 2.5rem;
+  padding-block: 0.32rem;
+  padding-inline: 0.6rem;
+  border-radius: 999px;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, currentcolor 55%, transparent);
+  transition:
+    color var(--dur-base) var(--ease-out-soft),
+    filter var(--dur-base) var(--ease-out-soft);
+}
+
+.option:hover {
+  color: color-mix(in srgb, currentcolor 85%, transparent);
+  filter: brightness(1.1);
+}
+
+/* Active label sits on the brand-flame pill → always the on-action ink. */
+.optionActive {
+  color: var(--text-on-action);
+}
+
+/* Sliding indicator — brand-tinted dark glass with a soft glow. */
+.pill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-bonfire-flame) 32%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-on-action) 18%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 0 14px color-mix(in srgb, var(--color-bonfire-flame) 40%, transparent),
+    /* Themed shadow ink — 0.38 × 79% reproduces the old 0.30 alpha exactly in
+       dark, and gives the pill a warm bronze drop on the near-white light bar
+       instead of a black one. */
+    0 2px 6px color-mix(in srgb, var(--chrome-shadow) 79%, transparent);
+}
+
+/* A 32% flame tint composites to deep maroon over the dark bar (white label =
+   11.97:1) but to pale peach over the near-white light bar — where the white
+   label drops to 1.72:1, i.e. the CURRENT LANGUAGE becomes unreadable in the
+   sticky header on every page. Light uses the opaque accessible action colour,
+   which is documented at 4.86:1 with white. */
+:global(html[data-theme='light']) .pill {
+  background-color: var(--color-action-primary);
+}
+
+/* Matching the light treatment every other specular sweep got: a white glint has
+   nothing to brighten on a light bar. */
+:global(html[data-theme='light']) .sweep {
+  background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 38%) 50%, transparent 65%);
+}
+
+/* Light sweep travels across the indicator on hover (premium detail). */
+.sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.65) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+}
+
+.switcher:hover .sweep {
+  animation: sweep 0.75s var(--ease-out-soft);
+}
+
+@keyframes sweep {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+.text {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switcher:hover .sweep {
+    animation: none;
+  }
+}

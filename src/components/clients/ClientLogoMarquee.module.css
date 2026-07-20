@@ -1,0 +1,186 @@
+.wrap {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Very subtle brand radial wash for depth (no neon, no colour gradients). */
+.wash {
+  position: absolute;
+  inset-block-start: 50%;
+  /* Physical `left` — pairs with the physical `translate` below, which does not
+     mirror; a logical inset would push this wash a full width off in RTL. */
+  left: 50%;
+  z-index: -1;
+  inline-size: min(80%, 52rem);
+  block-size: 120%;
+  translate: -50% -50%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--color-bonfire-flame) 8%, transparent),
+    transparent 70%
+  );
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 0.5rem + 1.5vw, 1.75rem);
+}
+
+/* Edge-fade so logos dissolve at both ends instead of a hard cut. */
+.viewport {
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.viewport:active {
+  cursor: grabbing;
+}
+
+.drag {
+  will-change: transform;
+}
+
+.track {
+  display: flex;
+  inline-size: max-content;
+  gap: clamp(0.75rem, 0.5rem + 1vw, 1.25rem);
+  will-change: transform;
+}
+
+/* ── Glass logo tile ──────────────────────────────────────────────────────── */
+.card {
+  /* Ambient shadow channel: black on the dark stage, warm bronze on ivory. No
+     role token carries these exact alphas, so it is declared locally and
+     re-pointed in the light block at the end of the file. */
+  --tile-shadow: 0 0 0;
+  --tile-shadow-a: 40%;
+  --tile-shadow-hover-a: 44%;
+
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  inline-size: clamp(9rem, 8rem + 3vw, 11rem);
+  block-size: clamp(5rem, 4.5rem + 2vw, 6rem);
+  padding: var(--space-4);
+  border-radius: 18px;
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--glass-sheen) 89%, transparent),
+    0 6px 18px rgb(var(--tile-shadow) / var(--tile-shadow-a));
+  transition:
+    transform 300ms var(--ease-out-soft),
+    border-color 300ms var(--ease-out-soft),
+    box-shadow 300ms var(--ease-out-soft);
+}
+
+.card:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: color-mix(in srgb, var(--color-bonfire-flame) 50%, transparent);
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--color-bonfire-flame) 26%, transparent),
+    0 14px 30px rgb(var(--tile-shadow) / var(--tile-shadow-hover-a));
+}
+
+/* Logo: original aspect ratio, never stretched/cropped. On the dark tile the logo
+   is shown as a light monochrome silhouette, resolving to full colour on hover.
+   The silhouette direction is theme-dependent — see the light override below. */
+.logo {
+  max-inline-size: 78%;
+  max-block-size: 58%;
+  inline-size: auto;
+  block-size: auto;
+  object-fit: contain;
+  filter: grayscale(1) brightness(0) invert(0.9);
+  opacity: 0.7;
+  transition:
+    filter 300ms var(--ease-out-soft),
+    opacity 300ms var(--ease-out-soft);
+  user-select: none;
+}
+
+.card:hover .logo {
+  filter: none;
+  opacity: 1;
+}
+
+/* Slow ambient light sweep across each tile. */
+.sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    var(--tile-sweep, color-mix(in srgb, var(--color-springtime-rain) 55%, transparent)) 50%,
+    transparent 60%
+  );
+  transform: translateX(-140%);
+  animation: sweep 7s var(--ease-out-soft) infinite;
+}
+
+@keyframes sweep {
+  0%,
+  70% {
+    transform: translateX(-140%);
+  }
+
+  100% {
+    transform: translateX(140%);
+  }
+}
+
+/* ── Reduced-motion / static fallback ────────────────────────────────────── */
+.staticGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-3);
+  list-style: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep {
+    animation: none;
+    display: none;
+  }
+
+  .card,
+  .card:hover {
+    transform: none;
+  }
+}
+
+/* ── Light mode ───────────────────────────────────────────────────────────────
+   Two effects here are direction-dependent rather than value-dependent, so they
+   cannot be expressed by swapping a token:
+
+   1. The resting logo treatment is `brightness(0) invert(0.9)` — it burns every
+      client mark to near-WHITE so it reads on the dark tile. On the warm ivory
+      tile that is an invisible logo, the single worst failure this component can
+      have. Light mode inverts the inversion: the same flattened silhouette, but
+      in warm ink. Hover (`filter: none`, specificity 0,3,0) still beats this
+      0,2,1 rule, so both modes still resolve to the logo's true colours.
+   2. The sweep is a white specular band; on a near-white tile it disappears, so
+      light mode sweeps warm bronze instead.
+   Plus the ambient shadow channel: warm bronze at light-elevation alphas. */
+:global(html[data-theme='light']) .logo {
+  filter: grayscale(1) brightness(0) invert(0.12);
+  opacity: 0.66;
+}
+
+:global(html[data-theme='light']) .card {
+  --tile-shadow: 120 90 50;
+  --tile-shadow-a: 12%;
+  --tile-shadow-hover-a: 16%;
+  --tile-sweep: rgb(188 150 86 / 30%);
+}

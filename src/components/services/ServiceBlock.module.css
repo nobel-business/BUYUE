@@ -1,0 +1,82 @@
+.block {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-10);
+  border-block-start: 1px solid var(--border-default);
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.index {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  color: var(--color-bonfire-flame);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.intro {
+  max-inline-size: 60ch;
+}
+
+.offer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.features {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.features li {
+  position: relative;
+  padding-inline-start: var(--space-5);
+  color: var(--text-secondary);
+}
+
+/* Dash marker mirrors automatically via logical inset. */
+.features li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.65em;
+  inline-size: 12px;
+  block-size: 2px;
+  background-color: var(--color-bonfire-flame);
+}
+
+.valueRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 3px solid var(--color-quilt-gold);
+}
+
+.value {
+  font-weight: var(--font-weight-medium);
+}
+
+@media (min-width: 861px) {
+  .block {
+    grid-template-columns: 1fr 1.6fr;
+    gap: var(--space-10);
+    align-items: start;
+  }
+
+  .index {
+    font-size: var(--font-size-display);
+  }
+}

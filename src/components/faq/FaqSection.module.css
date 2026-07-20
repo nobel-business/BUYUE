@@ -1,0 +1,436 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Premium FAQ — the glass scene, shared by About / Services / Clients.
+   Text roles are inherited, not remapped: the glass tints and shadows are all
+   derived from --text-primary / --chrome-shadow, so the section follows the mode
+   (light-on-dark over the cinematic canvas, dark-on-ivory in light) without any
+   per-theme rules. Brand accents (Bonfire Flame / Quilt Gold) carry across both.
+   ─────────────────────────────────────────────────────────────────────────── */
+.scene {
+  position: relative;
+  padding-block: clamp(4rem, 3rem + 6vw, 8rem);
+  overflow: clip;
+}
+
+/* Soft breathing glow behind the stack. */
+.glow {
+  position: absolute;
+  inset-block-start: 26%;
+  /* Physical `left`, not `inset-inline-start`: the breathe keyframes centre this with
+     a physical translateX(-50%), and a logical inset would flip in RTL and push the
+     glow a half-width off screen instead of cancelling. */
+  left: 50%;
+  z-index: 0;
+  inline-size: min(64vw, 46rem);
+  block-size: min(64vw, 46rem);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--color-bonfire-flame) 16%, transparent),
+    transparent 68%
+  );
+  filter: blur(70px);
+  pointer-events: none;
+  animation: faq-breathe 9s ease-in-out infinite;
+}
+
+@keyframes faq-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: translateX(-50%) scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.08);
+  }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Title — single line on desktop, fluid, centered ─────────────────────── */
+.title {
+  margin-block: 0 clamp(2rem, 1.5rem + 3vw, 3.5rem);
+  text-align: center;
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: clamp(1.55rem, 1rem + 2.6vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+@media (min-width: 700px) {
+  .title {
+    white-space: nowrap;
+  }
+}
+
+/* ── List ────────────────────────────────────────────────────────────────── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 0.5rem + 1vw, 1.1rem);
+  max-inline-size: 52rem;
+  margin-inline: auto;
+  padding: 0;
+  list-style: none;
+}
+
+/* ── Glass card ────────────────────────────────────────────────────────────
+   Translucent surface + backdrop blur + inner highlight + thin border + layered
+   shadow. Reads as luxury glass in both themes (tints follow --text-primary). */
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
+  background: linear-gradient(
+    color-mix(in srgb, var(--text-primary) 5%, transparent),
+    color-mix(in srgb, var(--text-primary) 3%, transparent)
+  );
+  backdrop-filter: blur(16px) saturate(1.15);
+  /* Ambient tint comes from --chrome-shadow so the drop shadows follow the mode:
+     black in dark (the mix percentages reproduce the previous alphas exactly) and
+     warm bronze over the ivory scene, never a black smear. Geometry is unchanged. */
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text-primary) 10%, transparent),
+    0 10px 30px color-mix(in srgb, var(--chrome-shadow) 42%, transparent),
+    0 2px 8px color-mix(in srgb, var(--chrome-shadow) 26%, transparent);
+  transition:
+    transform 320ms var(--ease-out-soft),
+    opacity 400ms var(--ease-out-soft),
+    border-color 320ms var(--ease-out-soft),
+    box-shadow 320ms var(--ease-out-soft);
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-4px) scale(1.01);
+  border-color: color-mix(in srgb, var(--color-bonfire-flame) 45%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text-primary) 14%, transparent),
+    0 20px 48px color-mix(in srgb, var(--chrome-shadow) 58%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-bonfire-flame) 22%, transparent),
+    0 0 40px color-mix(in srgb, var(--color-bonfire-flame) 14%, transparent);
+}
+
+/* When one card is open, the rest recede so the answer owns the scene. */
+.list:has(.card[data-open='true']) .card:not([data-open='true']) {
+  opacity: 0.55;
+}
+
+/* Cursor-follow spotlight. */
+.spot {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    18rem 18rem at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--color-bonfire-flame) 16%, transparent),
+    transparent 60%
+  );
+  transition: opacity 400ms var(--ease-out-soft);
+}
+
+.card:hover .spot {
+  opacity: 1;
+}
+
+/* One-pass moving reflection on hover. */
+.sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.sheen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    color-mix(in srgb, var(--text-primary) 14%, transparent) 50%,
+    transparent 58%
+  );
+  transform: translateX(-140%);
+}
+
+.card:hover .sheen::before {
+  animation: faq-sweep 0.9s var(--ease-out-soft);
+}
+
+@keyframes faq-sweep {
+  to {
+    transform: translateX(140%);
+  }
+}
+
+/* ── Trigger row — tighter (~84px collapsed), wider horizontal padding ─────── */
+.head {
+  margin: 0;
+}
+
+.trigger {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
+  inline-size: 100%;
+  min-block-size: 84px;
+  padding-block: 1rem;
+  padding-inline: clamp(1.25rem, 1rem + 2vw, 2.25rem);
+  background: none;
+  border: 0;
+  text-align: start;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.index {
+  flex-shrink: 0;
+  font-size: var(--font-size-small, 0.85rem);
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--color-bonfire-flame) 80%, var(--text-secondary));
+  opacity: 0.85;
+}
+
+.question {
+  flex: 1;
+  font-weight: 650;
+  font-size: clamp(1rem, 0.95rem + 0.4vw, 1.2rem);
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+/* ── Icon — glass circular button, + rotates into × on open ────────────────── */
+/* Strokes are centred by the grid, not by inset + translate: `inset-inline-start`
+   is logical (flips to `right` in RTL) while `translate` is physical (always
+   leftward), so the two compounded instead of cancelling and knocked the + off
+   centre in Arabic. Grid centring is direction-agnostic. */
+.icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 16%, transparent);
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  transition:
+    transform 440ms var(--ease-out-soft),
+    border-color 320ms var(--ease-out-soft),
+    box-shadow 320ms var(--ease-out-soft);
+}
+
+.trigger:hover .icon {
+  border-color: color-mix(in srgb, var(--color-bonfire-flame) 55%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--color-bonfire-flame) 22%, transparent);
+}
+
+.icon i {
+  grid-area: 1 / 1;
+  inline-size: 0.85rem;
+  block-size: 1.5px;
+  border-radius: 2px;
+  background: var(--text-primary);
+}
+
+.icon i:last-child {
+  rotate: 90deg;
+}
+
+.card[data-open='true'] .icon {
+  transform: rotate(135deg);
+  border-color: color-mix(in srgb, var(--color-bonfire-flame) 60%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--color-bonfire-flame) 26%, transparent);
+}
+
+/* ── Panel — grid-rows height + blur, word cascade ─────────────────────────── */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 480ms var(--ease-out-soft);
+}
+
+.card[data-open='true'] .panel {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  overflow: hidden;
+  filter: blur(4px);
+  transition: filter 480ms var(--ease-out-soft);
+}
+
+.card[data-open='true'] .panelInner {
+  filter: blur(0);
+}
+
+.answer {
+  margin: 0;
+  padding-block: 0 clamp(1.1rem, 0.8rem + 1.4vw, 1.75rem);
+  padding-inline: clamp(1.25rem, 1rem + 2vw, 2.25rem);
+  max-inline-size: 62ch;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body);
+  line-height: 1.8;
+}
+
+/* Line-by-line: words settle up + in, staggered once open. */
+.word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 420ms var(--ease-out-soft),
+    transform 420ms var(--ease-out-soft);
+}
+
+.card[data-open='true'] .word {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(160ms + var(--wi) * 16ms);
+}
+
+/* ── CTA — plain-text label as a glass + orange hero button, centered ───────── */
+.cta {
+  display: flex;
+  justify-content: center;
+  margin-block-start: clamp(2.5rem, 2rem + 3vw, 4rem);
+}
+
+.ctaBtn {
+  position: relative;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  max-inline-size: min(100%, 34rem);
+  overflow: hidden;
+  isolation: isolate;
+  padding-block: 1rem;
+  padding-inline: clamp(1.5rem, 1rem + 2vw, 2rem);
+  text-align: center;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-bonfire-flame) 60%, transparent);
+  background: linear-gradient(
+    120deg,
+    var(--color-bonfire-flame),
+    color-mix(in srgb, var(--color-bonfire-flame) 78%, var(--color-quilt-gold)),
+    var(--color-bonfire-flame)
+  );
+  background-size: 200% 100%;
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--color-bonfire-flame) 26%, transparent);
+  color: var(--text-on-action, #fff);
+  font-weight: var(--font-weight-medium, 600);
+  text-decoration: none;
+  animation: faq-cta-gradient 6s ease infinite;
+  transition:
+    transform 200ms var(--ease-out-soft),
+    box-shadow 300ms var(--ease-out-soft);
+}
+
+@keyframes faq-cta-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.ctaBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.7s var(--ease-out-soft);
+}
+
+.ctaBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 46px color-mix(in srgb, var(--color-bonfire-flame) 34%, transparent);
+}
+
+.ctaBtn:hover::before {
+  transform: translateX(130%);
+}
+
+.ctaBtn:active {
+  transform: scale(0.98);
+}
+
+.ctaLabel,
+.ctaArrow {
+  position: relative;
+  z-index: 1;
+}
+
+.ctaArrow {
+  transition: transform 200ms var(--ease-out-soft);
+}
+
+.ctaBtn:hover .ctaArrow {
+  transform: translateX(3px);
+}
+
+/* Preserve the RTL mirror on the arrow while nudging toward the reading edge. */
+:global(html[dir='rtl']) .ctaBtn:hover .ctaArrow {
+  transform: scaleX(-1) translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .ctaBtn {
+    animation: none;
+  }
+
+  .card,
+  .card:hover,
+  .card:focus-within {
+    transform: none;
+  }
+
+  .spot,
+  .sheen,
+  .ctaBtn::before {
+    display: none;
+  }
+
+  .panel,
+  .panelInner,
+  .icon,
+  .word {
+    transition: none;
+  }
+
+  .word {
+    opacity: 1;
+    transform: none;
+  }
+}

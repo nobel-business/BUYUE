@@ -1,0 +1,1910 @@
+.scene {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  min-block-size: 90vh;
+  /* Pull the scene up behind the sticky navbar so the whole first viewport shares
+     ONE cinematic background (no seam/colour cut); content clears the nav + ~50px. */
+  margin-block-start: calc(-1 * var(--nav-offset));
+  padding-block: calc(var(--nav-offset) + 2rem) clamp(2.5rem, 4vh, 4rem);
+  overflow: hidden;
+  /* Scene base — warm near-black in dark, warm ivory in light. */
+  background: var(--scene-surface);
+  color: var(--scene-ink);
+  --nav-offset: 7rem;
+
+  /* STRICT Buyue palette only — Bonfire Flame orange + Quilt Gold; richness comes
+     from more gold + brighter glow, never a different hue. */
+  --hero-orange: var(--color-bonfire-flame);
+  --hero-gold: var(--color-quilt-gold);
+  --bloom: var(--color-bonfire-flame);
+  --bloom-soft: var(--color-quilt-gold);
+  --warm-hi: color-mix(in srgb, var(--color-quilt-gold) 70%, white);
+
+  /* Warm-lifted scene black used by the background stack. Rebuilt from scene
+     tokens so it follows the theme; resolves to ≈#191511 in dark, i.e. within
+     1–2/255 of the #191512 / #171412 literals it replaces. */
+  --scene-warm-deep: color-mix(in srgb, var(--scene-surface-deep) 93%, var(--scene-glow-warm));
+
+  /* Panel drop-shadow ink. These cannot come from a shared token: every glass
+     shadow here is stronger than --scene-vignette's 0.52 alpha and color-mix()
+     can only scale an alpha DOWN. Declared locally in dark (identical to the
+     rgba(0,0,0,α) literals they replace) and swapped for the palette's warm
+     bronze in the single light override just below. */
+  --panel-shadow-1: rgba(0, 0, 0, 0.5);
+  --panel-shadow-2: rgba(0, 0, 0, 0.55);
+  --panel-shadow-3: rgba(0, 0, 0, 0.6);
+  --panel-shadow-4: rgba(0, 0, 0, 0.65);
+  --panel-shadow-5: rgba(0, 0, 0, 0.7);
+
+  --text-primary: var(--scene-ink);
+  /* Matched to the old flat #a8a8a8 / #6c6c68 greys to within ~4/255 on dark. */
+  --text-secondary: color-mix(in srgb, var(--scene-ink) 66%, transparent);
+  --text-muted: color-mix(in srgb, var(--scene-ink) 42%, transparent);
+}
+
+/* Light mode forbids black shadows; every glass panel below re-reads these five
+   custom properties, so this one rule re-inks all of them in warm bronze. */
+:global(html[data-theme='light']) .scene {
+  --panel-shadow-1: color-mix(in srgb, var(--color-bronze-shadow) 10%, transparent);
+  --panel-shadow-2: color-mix(in srgb, var(--color-bronze-shadow) 12%, transparent);
+  --panel-shadow-3: color-mix(in srgb, var(--color-bronze-shadow) 13%, transparent);
+  --panel-shadow-4: color-mix(in srgb, var(--color-bronze-shadow) 15%, transparent);
+  --panel-shadow-5: color-mix(in srgb, var(--color-bronze-shadow) 17%, transparent);
+}
+
+/* Soft fade at the base so the dark scene melts into the page below (no hard edge). */
+.scene::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 0;
+  block-size: 22vh;
+  background: linear-gradient(to bottom, transparent, var(--surface-page));
+  pointer-events: none;
+}
+
+/* ── Background stack ─────────────────────────────────────────────────────── */
+.bg {
+  position: absolute;
+  inset: -6%;
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 90% at 72% 26%,
+    var(--scene-warm-deep) 0%,
+    var(--scene-surface-deep) 46%,
+    var(--scene-surface) 100%
+  );
+}
+
+.ambientTop,
+.ambientBottom,
+.particles,
+.left,
+.planetWrap,
+.glass,
+.stats,
+.bloom,
+.orbit,
+.crystal,
+.shard {
+  transition: translate 0.5s ease-out;
+}
+
+/* ── Layer 3 — warm brown gradient ────────────────────────────────────────── */
+.brown {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    90% 80% at 78% 60%,
+    color-mix(in srgb, var(--scene-warm-deep) 78%, var(--bloom) 8%),
+    transparent 62%
+  );
+  opacity: 0.8;
+}
+
+/* ── Huge warm bloom behind the composition ───────────────────────────────── */
+.bloom {
+  position: absolute;
+  inset-block-start: 26%;
+  inset-inline-end: 4%;
+  inline-size: min(58rem, 62vw);
+  block-size: min(58rem, 62vw);
+  translate: calc(var(--mx, 0) * 14px) calc(var(--my, 0) * 14px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--bloom) 40%, transparent),
+    color-mix(in srgb, var(--bloom-soft) 16%, transparent) 40%,
+    transparent 66%
+  );
+  filter: blur(50px);
+  opacity: 0.6;
+  animation: hero-bloom 14s ease-in-out infinite;
+}
+
+@keyframes hero-bloom {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 0.78;
+  }
+}
+
+/* ── Slow volumetric light rays ───────────────────────────────────────────── */
+.rays {
+  position: absolute;
+  inset-block-start: 8%;
+  inset-inline-end: 6%;
+  inline-size: min(52rem, 58vw);
+  block-size: min(52rem, 58vw);
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    color-mix(in srgb, var(--bloom-soft) 10%, transparent) 12deg,
+    transparent 24deg,
+    color-mix(in srgb, var(--warm-hi) 8%, transparent) 40deg,
+    transparent 60deg,
+    color-mix(in srgb, var(--bloom-soft) 9%, transparent) 78deg,
+    transparent 96deg,
+    transparent 360deg
+  );
+  filter: blur(14px);
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  animation: hero-rays 60s linear infinite;
+  pointer-events: none;
+}
+
+/* `screen` over an ivory base is a no-op, so the rays vanish in light no matter
+   which colour token feeds them. Blend mode is the only lever here. */
+:global(html[data-theme='light']) .rays {
+  mix-blend-mode: multiply;
+}
+
+@keyframes hero-rays {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Tiny glowing stars ───────────────────────────────────────────────────── */
+.stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  inline-size: 2px;
+  block-size: 2px;
+  border-radius: 50%;
+  background: var(--warm-hi);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--warm-hi) 80%, transparent);
+  opacity: 0.3;
+  animation: hero-star 6s ease-in-out infinite;
+}
+
+/* --warm-hi is a gold/white blend chosen to glow on black; on ivory it is
+   invisible. Swap to the scene's bronze particle ink so the starfield reads. */
+:global(html[data-theme='light']) .star {
+  background: var(--scene-particle);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--scene-particle) 80%, transparent);
+}
+
+.star:nth-child(1) {
+  inset-block-start: 16%;
+  inset-inline-start: 66%;
+  animation-delay: -1s;
+}
+
+.star:nth-child(2) {
+  inset-block-start: 28%;
+  inset-inline-start: 90%;
+  animation-delay: -3s;
+}
+
+.star:nth-child(3) {
+  inset-block-start: 44%;
+  inset-inline-start: 58%;
+  animation-delay: -5s;
+}
+
+.star:nth-child(4) {
+  inset-block-start: 58%;
+  inset-inline-start: 94%;
+  animation-delay: -2s;
+}
+
+.star:nth-child(5) {
+  inset-block-start: 70%;
+  inset-inline-start: 62%;
+  animation-delay: -4s;
+}
+
+.star:nth-child(6) {
+  inset-block-start: 22%;
+  inset-inline-start: 78%;
+  animation-delay: -6s;
+}
+
+.star:nth-child(7) {
+  inset-block-start: 84%;
+  inset-inline-start: 82%;
+  animation-delay: -1.5s;
+}
+
+.star:nth-child(8) {
+  inset-block-start: 36%;
+  inset-inline-start: 72%;
+  animation-delay: -3.5s;
+}
+
+.star:nth-child(9) {
+  inset-block-start: 64%;
+  inset-inline-start: 88%;
+  animation-delay: -5.5s;
+}
+
+@keyframes hero-star {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+/* Soft orange glow, top-left. */
+.ambientTop {
+  position: absolute;
+  inset-block-start: -16%;
+  inset-inline-start: -10%;
+  inline-size: min(58vw, 50rem);
+  block-size: min(58vw, 50rem);
+  translate: calc(var(--mx, 0) * 10px) calc(var(--my, 0) * 10px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--hero-orange) 30%, transparent),
+    color-mix(in srgb, var(--hero-orange) 9%, transparent) 42%,
+    transparent 66%
+  );
+  filter: blur(40px);
+  opacity: 0.5;
+  animation: hero-pulse 12s ease-in-out infinite;
+}
+
+/* Gold glow, bottom-right. */
+.ambientBottom {
+  position: absolute;
+  inset-block-end: -18%;
+  inset-inline-end: -4%;
+  inline-size: min(50vw, 42rem);
+  block-size: min(50vw, 42rem);
+  translate: calc(var(--mx, 0) * 8px) calc(var(--my, 0) * 8px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--hero-gold) 22%, transparent),
+    transparent 64%
+  );
+  filter: blur(50px);
+  opacity: 0.38;
+  animation: hero-pulse 16s ease-in-out infinite reverse;
+}
+
+@keyframes hero-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.72;
+  }
+}
+
+/* Thin light streaks. */
+.streak,
+.streak2 {
+  position: absolute;
+  block-size: 1px;
+  inline-size: 150%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--hero-orange) 40%, transparent) 50%,
+    transparent
+  );
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.streak {
+  inset-block-start: 34%;
+  inset-inline-start: -25%;
+  transform: rotate(-18deg);
+  animation: hero-streak 18s linear infinite;
+}
+
+.streak2 {
+  inset-block-start: 62%;
+  inset-inline-start: -25%;
+  transform: rotate(-12deg);
+  opacity: 0.16;
+  animation: hero-streak 26s linear infinite reverse;
+}
+
+@keyframes hero-streak {
+  0% {
+    transform: translateX(-6%) rotate(-18deg);
+  }
+
+  100% {
+    transform: translateX(6%) rotate(-18deg);
+  }
+}
+
+/* Particles. */
+.particles {
+  position: absolute;
+  inset: 0;
+  translate: calc(var(--mx, 0) * 6px) calc(var(--my, 0) * 6px);
+  will-change: transform;
+}
+
+.particle {
+  position: absolute;
+  inline-size: 3px;
+  block-size: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--hero-gold) 62%, var(--hero-orange));
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: hero-particle 18s ease-in-out infinite;
+}
+
+.particle:nth-child(1) {
+  inset-block-start: 22%;
+  inset-inline-start: 60%;
+  animation-duration: 16s;
+  animation-delay: -2s;
+}
+
+.particle:nth-child(2) {
+  inset-block-start: 68%;
+  inset-inline-start: 72%;
+  inline-size: 2px;
+  block-size: 2px;
+  animation-duration: 21s;
+  animation-delay: -6s;
+}
+
+.particle:nth-child(3) {
+  inset-block-start: 40%;
+  inset-inline-start: 82%;
+  animation-duration: 19s;
+  animation-delay: -9s;
+}
+
+.particle:nth-child(4) {
+  inset-block-start: 80%;
+  inset-inline-start: 55%;
+  inline-size: 4px;
+  block-size: 4px;
+  animation-duration: 24s;
+  animation-delay: -3s;
+}
+
+.particle:nth-child(5) {
+  inset-block-start: 16%;
+  inset-inline-start: 88%;
+  animation-duration: 17s;
+  animation-delay: -12s;
+}
+
+.particle:nth-child(6) {
+  inset-block-start: 54%;
+  inset-inline-start: 50%;
+  inline-size: 2px;
+  block-size: 2px;
+  animation-duration: 22s;
+  animation-delay: -7s;
+}
+
+.particle:nth-child(7) {
+  inset-block-start: 30%;
+  inset-inline-start: 92%;
+  animation-duration: 20s;
+  animation-delay: -4s;
+}
+
+.particle:nth-child(8) {
+  inset-block-start: 12%;
+  inset-inline-start: 68%;
+  inline-size: 2px;
+  block-size: 2px;
+  animation-duration: 23s;
+  animation-delay: -10s;
+}
+
+.particle:nth-child(9) {
+  inset-block-start: 74%;
+  inset-inline-start: 84%;
+  animation-duration: 18s;
+  animation-delay: -1s;
+}
+
+.particle:nth-child(10) {
+  inset-block-start: 48%;
+  inset-inline-start: 64%;
+  inline-size: 4px;
+  block-size: 4px;
+  animation-duration: 26s;
+  animation-delay: -14s;
+}
+
+.particle:nth-child(11) {
+  inset-block-start: 26%;
+  inset-inline-start: 76%;
+  inline-size: 2px;
+  block-size: 2px;
+  animation-duration: 19s;
+  animation-delay: -5s;
+}
+
+.particle:nth-child(12) {
+  inset-block-start: 62%;
+  inset-inline-start: 58%;
+  animation-duration: 21s;
+  animation-delay: -11s;
+}
+
+.particle:nth-child(13) {
+  inset-block-start: 86%;
+  inset-inline-start: 78%;
+  inline-size: 2px;
+  block-size: 2px;
+  animation-duration: 24s;
+  animation-delay: -8s;
+}
+
+.particle:nth-child(14) {
+  inset-block-start: 36%;
+  inset-inline-start: 52%;
+  animation-duration: 20s;
+  animation-delay: -13s;
+}
+
+@keyframes hero-particle {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: translate3d(0, -40px, 0);
+    opacity: 0.3;
+  }
+
+  75% {
+    opacity: 0.14;
+  }
+}
+
+.noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  /* Corners sink toward the scene's own base colour. On dark this is
+     rgba(7,7,7,0.78) — indistinguishable from the rgba(0,0,0,0.78) it replaces. */
+  background: radial-gradient(
+    circle at 52% 44%,
+    transparent 46%,
+    color-mix(in srgb, var(--scene-surface) 78%, transparent) 100%
+  );
+}
+
+/* Light needs its own rule: the light scene base IS the page colour, so fading
+   the corners toward --scene-surface is a no-op. Use the palette's warm bronze
+   edge (--scene-vignette) instead, which no dark-safe color-mix can reach. */
+:global(html[data-theme='light']) .vignette {
+  background: radial-gradient(circle at 52% 44%, transparent 46%, var(--scene-vignette) 100%);
+}
+
+/* Soft orange light that follows the cursor across the whole hero. */
+.cursorGlow {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 0;
+  inline-size: 40rem;
+  block-size: 40rem;
+  translate: calc(var(--cx, -999px) - 20rem) calc(var(--cy, -999px) - 20rem);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--hero-orange) 18%, transparent),
+    transparent 60%
+  );
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+/* ── Left section rail ────────────────────────────────────────────────────── */
+.rail {
+  position: absolute;
+  inset-block-start: 50%;
+  /* Sit just outside the content column (≈48px left of it), not off in the margin. */
+  inset-inline-start: max(1.25rem, calc((100vw - var(--container-max)) / 2 - 3rem));
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  transform: translateY(-50%);
+}
+
+.railNum {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.railLine {
+  position: relative;
+  inline-size: 1px;
+  block-size: clamp(8rem, 22vh, 15rem);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--hero-orange) 45%, transparent),
+    color-mix(in srgb, var(--hero-orange) 8%, transparent)
+  );
+}
+
+/* Scroll-progress fill that grows down the rail as the hero exits. */
+.railFill {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  transform-origin: top;
+  transform: scaleY(0);
+  border-radius: inherit;
+  background: linear-gradient(
+    to bottom,
+    var(--hero-orange),
+    color-mix(in srgb, var(--hero-orange) 30%, transparent)
+  );
+  box-shadow: 0 0 8px color-mix(in srgb, var(--hero-orange) 50%, transparent);
+}
+
+.railDot {
+  position: absolute;
+  inset-block-start: 18%;
+  /* Physical `left` — pairs with the physical `translate` below. A logical inset
+     flips in RTL while the translate does not, knocking the dot off its rail. */
+  left: 50%;
+  inline-size: 7px;
+  block-size: 7px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--hero-orange);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--hero-orange) 70%, transparent);
+  animation: hero-dot 3.5s ease-in-out infinite;
+}
+
+@keyframes hero-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 10px color-mix(in srgb, var(--hero-orange) 55%, transparent);
+  }
+
+  50% {
+    box-shadow: 0 0 20px color-mix(in srgb, var(--hero-orange) 90%, transparent);
+  }
+}
+
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+.container {
+  position: relative;
+  z-index: 1;
+  inline-size: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: clamp(2rem, 4vw, 4.5rem);
+}
+
+/* ── Text column ──────────────────────────────────────────────────────────── */
+.left {
+  translate: calc(var(--mx, 0) * 4px) calc(var(--my, 0) * 4px);
+  max-inline-size: 42rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-block-end: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium, 600);
+  letter-spacing: 0.04em;
+  color: var(--hero-orange);
+}
+
+.title {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(2.75rem, 6.4vw, 6rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+}
+
+.titleAccent {
+  background: linear-gradient(120deg, var(--hero-orange), var(--hero-gold), var(--hero-orange));
+  background-size: 200% 100%;
+  background-clip: text;
+  color: transparent;
+  animation: hero-accent 8s ease infinite;
+}
+
+@keyframes hero-accent {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.divider {
+  display: block;
+  inline-size: clamp(3rem, 6vw, 4.5rem);
+  block-size: 3px;
+  /* Rhythm: headline → divider → lead ≈ 32px. */
+  margin-block: 1.75rem 2rem;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--hero-orange), var(--hero-gold));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--hero-orange) 45%, transparent);
+}
+
+.lead {
+  /* Lead → paragraphs ≈ 40px. */
+  margin: 0 0 2.5rem;
+  max-inline-size: 40rem;
+  font-size: clamp(1rem, 0.95rem + 0.4vw, 1.2rem);
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--text-primary) 88%, transparent);
+}
+
+.paraList {
+  display: flex;
+  flex-direction: column;
+  /* Paragraph → paragraph ≈ 30px. */
+  gap: 1.9rem;
+  margin: 0;
+  padding: 0;
+  max-inline-size: 40rem;
+  list-style: none;
+}
+
+.paraItem {
+  display: flex;
+  gap: 0.85rem;
+  font-size: 0.95rem;
+  line-height: 1.62;
+  color: var(--text-secondary);
+}
+
+.paraDot {
+  flex-shrink: 0;
+  inline-size: 7px;
+  block-size: 7px;
+  margin-block-start: 0.55rem;
+  border-radius: 50%;
+  background: var(--hero-orange);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--hero-orange) 60%, transparent);
+}
+
+.scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  /* Last paragraph → CTA ≈ 48px. */
+  margin-block-start: 3rem;
+  font-size: 0.9rem;
+  color: var(--hero-orange);
+}
+
+.scrollArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--hero-orange) 45%, transparent);
+  animation: hero-bounce 2.4s ease-in-out infinite;
+}
+
+@keyframes hero-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+/* ── Visual column ────────────────────────────────────────────────────────── */
+.right {
+  position: relative;
+  min-block-size: clamp(26rem, 48vw, 42rem);
+}
+
+.visual {
+  position: absolute;
+  inset: 0;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+/* ════════ Cinematic creative-agency composition ════════════════════════════
+   A stylized cinema camera orbited by glass creative panels + gold cubes. Pure
+   CSS/brand palette (Bonfire Flame + Quilt Gold). Everything floats on its own
+   CSS loop; mouse parallax is the `translate` property (--d per element); the
+   whole stage scroll-parallaxes via GSAP on the parent. */
+.stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* Orbital light rings swirling around the camera. */
+.orbitRing {
+  position: absolute;
+  inset-block-start: 22%;
+  inset-inline-start: 16%;
+  z-index: 1;
+  inline-size: 66%;
+  aspect-ratio: 1.5;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--hero-orange) 48%, transparent);
+  box-shadow:
+    0 0 44px color-mix(in srgb, var(--hero-orange) 28%, transparent),
+    inset 0 0 34px color-mix(in srgb, var(--hero-gold) 14%, transparent);
+  transform: rotateX(66deg) rotate(-12deg);
+  animation: orbit-spin 42s linear infinite;
+  pointer-events: none;
+}
+
+.orbitRing::before {
+  content: '';
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--hero-gold) 34%, transparent);
+}
+
+@keyframes orbit-spin {
+  to {
+    transform: rotateX(66deg) rotate(348deg);
+  }
+}
+
+/* Gold wireframe cubes (foreground depth). */
+.cube {
+  position: absolute;
+  z-index: 5;
+  inline-size: clamp(1.1rem, 2.1vw, 1.8rem);
+  aspect-ratio: 1;
+  border: 1.5px solid color-mix(in srgb, var(--hero-gold) 55%, transparent);
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--hero-gold) 22%, transparent),
+    inset 0 0 10px color-mix(in srgb, var(--hero-gold) 12%, transparent);
+  translate: calc(var(--mx, 0) * var(--d, 16px)) calc(var(--my, 0) * var(--d, 16px));
+  transition: translate 0.5s ease-out;
+  pointer-events: none;
+}
+
+.cube::before {
+  content: '';
+  position: absolute;
+  inset: 24%;
+  border: 1px solid color-mix(in srgb, var(--hero-gold) 34%, transparent);
+}
+
+.cubeA {
+  inset-block-start: 8%;
+  inset-inline-start: 30%;
+  --d: 18px;
+  animation: cube-float 12s ease-in-out infinite;
+}
+
+.cubeB {
+  inset-block-start: 52%;
+  inset-inline-start: 8%;
+  --d: 14px;
+  /* Distant cube → blurred. */
+  filter: blur(1.4px);
+  opacity: 0.7;
+  animation: cube-float 15s ease-in-out infinite reverse;
+}
+
+.cubeC {
+  inset-block-end: 20%;
+  inset-inline-start: 40%;
+  --d: 22px;
+  animation: cube-float 13s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+.cubeD {
+  inset-block-start: 30%;
+  inset-inline-end: 4%;
+  --d: 12px;
+  animation: cube-float 16s ease-in-out infinite reverse;
+  animation-delay: -6s;
+}
+
+@keyframes cube-float {
+  0%,
+  100% {
+    transform: rotate(42deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(50deg) translateY(-12px);
+  }
+}
+
+/* ── Cinema camera (stylized) ───────────────────────────────────────────────
+   THEME NOTE: the camera is a physical product, not chrome. Its material
+   colours (black magnesium body, bronze/gold barrel rings, glass speculars and
+   its own contact shadows) are identical in both modes by design — it is meant
+   to read as a real object sitting on ivory. Nothing below is tokenised. */
+.camera {
+  position: absolute;
+  inset-block-start: 34%;
+  inset-inline-start: 36%;
+  z-index: 3;
+  inline-size: 33%;
+  aspect-ratio: 1.35;
+  --d: 6px;
+  rotate: -3deg;
+  translate: calc(var(--mx, 0) * var(--d)) calc(var(--my, 0) * var(--d));
+  transition: translate 0.5s ease-out;
+  animation: cam-float 9s ease-in-out infinite;
+}
+
+@keyframes cam-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-1.5deg) scale(1);
+  }
+
+  50% {
+    transform: translate3d(0, -12px, 0) rotate(0.5deg) scale(1.015);
+  }
+}
+
+.camBody {
+  position: absolute;
+  inset-block-start: 26%;
+  inset-inline-start: 22%;
+  inline-size: 72%;
+  block-size: 54%;
+  border-radius: 14px;
+  /* Matte-metal body with a soft specular streak + warm rim (PBR-ish). */
+  background:
+    linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.08) 46%, transparent 60%),
+    linear-gradient(150deg, #33302a, #17150f 52%, #090907);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 2px 8px rgba(255, 255, 255, 0.09),
+    inset -8px 0 22px color-mix(in srgb, var(--hero-orange) 12%, transparent),
+    inset 0 -12px 26px rgba(0, 0, 0, 0.65),
+    0 34px 66px rgba(0, 0, 0, 0.6),
+    0 0 52px color-mix(in srgb, var(--hero-orange) 20%, transparent);
+}
+
+/* Pulsing record indicator. */
+.camBody::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 16%;
+  inset-inline-end: 14%;
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: 50%;
+  background: var(--hero-orange);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--hero-orange) 80%, transparent);
+  animation: cam-rec 2.2s ease-in-out infinite;
+}
+
+@keyframes cam-rec {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.camTop {
+  position: absolute;
+  inset-block-start: 8%;
+  inset-inline-start: 42%;
+  inline-size: 40%;
+  block-size: 22%;
+  border-radius: 10px;
+  background: linear-gradient(150deg, #262418, #100f0d);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.5);
+}
+
+.camLens {
+  position: absolute;
+  inset-block-start: 30%;
+  inset-inline-start: 4%;
+  z-index: 2;
+  inline-size: 40%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 38%, #34322a, #16150f 58%, #060605);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Concentric machined barrel rings for a real cine-lens read. */
+  box-shadow:
+    inset 0 0 0 3px #0c0b09,
+    inset 0 0 0 5px #262319,
+    inset 0 0 0 9px #0c0b09,
+    0 20px 44px rgba(0, 0, 0, 0.6),
+    0 0 40px color-mix(in srgb, var(--hero-orange) 20%, transparent);
+}
+
+/* Bright glass specular glint on the front element. */
+.camLens::after {
+  content: '';
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.4), transparent 42%);
+  pointer-events: none;
+}
+
+.camLensRing {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--hero-gold) 34%, transparent);
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.7),
+    0 0 12px color-mix(in srgb, var(--hero-gold) 18%, transparent);
+}
+
+.camLensGlass {
+  position: absolute;
+  inset: 26%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 38% 34%,
+    color-mix(in srgb, var(--hero-gold) 40%, transparent),
+    color-mix(in srgb, var(--hero-orange) 30%, transparent) 40%,
+    #0a0805 78%
+  );
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.7);
+}
+
+.camBrand {
+  position: absolute;
+  inset-block-end: 30%;
+  inset-inline-end: 12%;
+  z-index: 3;
+  font-weight: 700;
+  font-size: clamp(0.7rem, 1.4vw, 1rem);
+  letter-spacing: 0.02em;
+  color: var(--hero-orange);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--hero-orange) 50%, transparent);
+}
+
+/* ── Floating glass panels ────────────────────────────────────────────────── */
+.card {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 14px;
+  background: var(--glass-fill);
+  backdrop-filter: blur(28px) saturate(1.2);
+  border: 1px solid color-mix(in srgb, var(--glass-border-strong) 62%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--glass-border-strong) 67%, transparent),
+    0 24px 52px var(--panel-shadow-1),
+    0 0 30px color-mix(in srgb, var(--hero-orange) 8%, transparent);
+  color: var(--text-primary);
+  translate: calc(var(--mx, 0) * var(--d, 12px)) calc(var(--my, 0) * var(--d, 12px));
+  transition:
+    translate 0.5s ease-out,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+  animation: card-drift 10s ease-in-out infinite;
+}
+
+/* Opacity-breathing glow (nested, so it never fights the GSAP reveal). */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 90% at 50% 0%,
+    color-mix(in srgb, var(--hero-gold) 12%, transparent),
+    transparent 70%
+  );
+  opacity: 0.4;
+  animation: card-breathe 6.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes card-breathe {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.75;
+  }
+}
+
+/* Premium hover — brightens + gold edge glow (scale/rotate stay per-card). */
+.card:hover {
+  border-color: color-mix(in srgb, var(--hero-gold) 45%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--glass-border-strong) 83%, transparent),
+    0 30px 60px var(--panel-shadow-2),
+    0 0 44px color-mix(in srgb, var(--hero-orange) 22%, transparent);
+}
+
+@keyframes card-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(0, -10px, 0) rotate(0.4deg);
+  }
+}
+
+.cardKicker {
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--hero-gold) 80%, var(--text-secondary));
+}
+
+.cardTitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.cardLine {
+  block-size: 3px;
+  inline-size: 70%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--hero-orange), var(--hero-gold), transparent);
+}
+
+.cardStrategy {
+  inset-block-start: 8%;
+  inset-inline-start: 4%;
+  inline-size: 20%;
+  --d: 22px;
+  rotate: -5deg;
+  scale: 0.95;
+  animation-duration: 11s;
+}
+
+.cardClap {
+  inset-block-start: 3%;
+  inset-inline-end: 6%;
+  inline-size: 20%;
+  --d: 26px;
+  rotate: 6deg;
+  scale: 0.86;
+  /* Distant → softly blurred for depth. */
+  filter: blur(1.2px);
+  opacity: 0.9;
+  animation-duration: 13s;
+  animation-delay: -3s;
+}
+
+/* Object material: a clapperboard's stripes are white-on-black in the real
+   world, so they stay literal in both modes (as with the camera). */
+.clapBar {
+  block-size: 0.9rem;
+  border-radius: 4px 4px 0 0;
+  background: repeating-linear-gradient(-45deg, #f5f7f9 0 8px, #201f1b 8px 16px);
+}
+
+.clapMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.clapMeta span {
+  display: flex;
+  flex-direction: column;
+}
+
+.clapMeta i {
+  font-size: 0.5rem;
+  font-style: normal;
+  color: var(--text-muted);
+}
+
+.clapMeta b {
+  font-size: 0.85rem;
+  color: var(--hero-gold);
+}
+
+.clapStudio {
+  font-size: 0.56rem;
+  color: var(--text-secondary);
+}
+
+.cardGrade {
+  inset-block-start: 40%;
+  inset-inline-start: 0%;
+  inline-size: 17%;
+  --d: 16px;
+  rotate: -6deg;
+  animation-duration: 12s;
+  animation-delay: -5s;
+}
+
+/* Object material: a colour-grading wheel; its bezel shading is part of the
+   control, not the panel. */
+.wheel {
+  inline-size: 2.6rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    var(--hero-orange),
+    var(--hero-gold),
+    var(--color-lime-taffy),
+    var(--color-black-powder),
+    var(--hero-orange)
+  );
+  box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.slider {
+  position: relative;
+  block-size: 4px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--hero-orange),
+    var(--hero-gold) 70%,
+    var(--glass-border) 70%
+  );
+}
+
+.slider::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 50%;
+  /* Physical `left` — the knob marks the 70% point of a physical `90deg` gradient
+     fill, and pairs with the physical translate below, so it must not flip. */
+  left: 70%;
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 50%;
+  background: var(--scene-ink);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--hero-gold) 60%, transparent);
+}
+
+.cardChart {
+  inset-block-start: 36%;
+  inset-inline-end: 0%;
+  inline-size: 18%;
+  --d: 24px;
+  rotate: 5deg;
+  scale: 0.92;
+  animation-duration: 14s;
+  animation-delay: -2s;
+}
+
+.chartValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--hero-gold);
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  block-size: 2.4rem;
+}
+
+.bars i {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(180deg, var(--hero-gold), var(--hero-orange));
+}
+
+.bars i:nth-child(1) {
+  block-size: 40%;
+}
+
+.bars i:nth-child(2) {
+  block-size: 62%;
+}
+
+.bars i:nth-child(3) {
+  block-size: 50%;
+}
+
+.bars i:nth-child(4) {
+  block-size: 82%;
+}
+
+.bars i:nth-child(5) {
+  block-size: 100%;
+}
+
+.cardContent {
+  inset-block-end: 14%;
+  inset-inline-end: 4%;
+  inline-size: 20%;
+  --d: 18px;
+  rotate: 3deg;
+  animation-duration: 13s;
+  animation-delay: -6s;
+}
+
+.thumbs {
+  display: flex;
+  gap: 0.35rem;
+}
+
+/* Object material: these are video frames inside the panel, not panel chrome —
+   dark footage stays dark on ivory. */
+.thumbs i {
+  flex: 1;
+  aspect-ratio: 1.3;
+  border-radius: 6px;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--hero-orange) 24%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(150deg, #2a2822, #111);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cardTimeline {
+  inset-block-end: 4%;
+  inset-inline-start: 18%;
+  z-index: 4;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  inline-size: 30%;
+  --d: 10px;
+  rotate: -2deg;
+  scale: 1.02;
+  animation-duration: 11s;
+  animation-delay: -1s;
+}
+
+.play {
+  flex-shrink: 0;
+  inline-size: 2rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: linear-gradient(
+    145deg,
+    var(--hero-orange),
+    color-mix(in srgb, var(--hero-orange) 70%, var(--hero-gold))
+  );
+  box-shadow: 0 0 18px color-mix(in srgb, var(--hero-orange) 45%, transparent);
+  position: relative;
+}
+
+.play::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 50%;
+  /* Physical `left` — pairs with the physical translate below. The triangle's
+     `border-inline-start` stays logical so it still points the reading way in RTL. */
+  left: 54%;
+  inline-size: 0;
+  block-size: 0;
+  border-block: 5px solid transparent;
+  border-inline-start: 8px solid var(--text-on-action);
+  transform: translate(-50%, -50%);
+}
+
+.tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.wave {
+  block-size: 0.7rem;
+  border-radius: 3px;
+  background: repeating-linear-gradient(90deg, var(--hero-gold) 0 2px, transparent 2px 5px);
+  opacity: 0.75;
+}
+
+.waveB {
+  background: repeating-linear-gradient(90deg, var(--color-lime-taffy) 0 2px, transparent 2px 5px);
+  opacity: 0.6;
+}
+
+/* ── Floating rings (independent orbit layer) ─────────────────────────────── */
+.orbit {
+  position: absolute;
+  inset-block-start: 6%;
+  inset-inline-start: 4%;
+  inline-size: min(30rem, 40vw);
+  block-size: min(30rem, 40vw);
+  translate: calc(var(--mx, 0) * 5px) calc(var(--my, 0) * 5px);
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.ring1,
+.ring2 {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--bloom-soft) 30%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--bloom) 10%, transparent);
+}
+
+.ring1 {
+  transform: rotateX(70deg) rotateZ(0deg);
+  animation: hero-ring-a 24s linear infinite;
+}
+
+.ring2 {
+  inset: 12%;
+  border-color: color-mix(in srgb, var(--warm-hi) 22%, transparent);
+  transform: rotateX(58deg) rotateY(18deg);
+  animation: hero-ring-b 32s linear infinite reverse;
+}
+
+@keyframes hero-ring-a {
+  to {
+    transform: rotateX(70deg) rotateZ(360deg);
+  }
+}
+
+@keyframes hero-ring-b {
+  to {
+    transform: rotateX(58deg) rotateY(18deg) rotateZ(360deg);
+  }
+}
+
+/* ── Floating orange crystal ──────────────────────────────────────────────── */
+.crystal {
+  position: absolute;
+  inset-block-start: 8%;
+  inset-inline-end: 30%;
+  inline-size: clamp(3.5rem, 7vw, 5.5rem);
+  block-size: clamp(3.5rem, 7vw, 5.5rem);
+  translate: calc(var(--mx, 0) * 16px) calc(var(--my, 0) * 16px);
+  animation: hero-crystal-float 11s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Object material: a lit gem. Its own facet highlight and self-shadow are
+   surface shading, so they read the same on ivory as on black. */
+.crystalFace {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--warm-hi) 88%, white),
+    var(--bloom) 45%,
+    #7a2a10 100%
+  );
+  box-shadow:
+    inset 0 2px 6px rgba(255, 255, 255, 0.4),
+    inset 0 -6px 14px rgba(0, 0, 0, 0.4),
+    0 20px 44px color-mix(in srgb, var(--bloom) 34%, transparent);
+  transform: rotate(45deg);
+  animation: hero-crystal-spin 18s ease-in-out infinite;
+}
+
+.crystalGlow {
+  position: absolute;
+  inset: -60%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--bloom) 30%, transparent),
+    transparent 60%
+  );
+  filter: blur(18px);
+}
+
+@keyframes hero-crystal-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -18px, 0);
+  }
+}
+
+@keyframes hero-crystal-spin {
+  0%,
+  100% {
+    transform: rotate(42deg);
+  }
+
+  50% {
+    transform: rotate(50deg);
+  }
+}
+
+/* ── Floating glass shard (secondary panel) ───────────────────────────────── */
+.shard {
+  position: absolute;
+  inset-block-end: 12%;
+  inset-inline-start: 2%;
+  inline-size: clamp(6rem, 12vw, 9rem);
+  block-size: clamp(8rem, 16vw, 12rem);
+  translate: calc(var(--mx, 0) * 14px) calc(var(--my, 0) * 14px);
+  animation: hero-shard-float 13s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.shardInner {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--glass-border-strong) 67%, transparent);
+  background: var(--glass-fill);
+  backdrop-filter: blur(24px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--glass-border-strong) 75%, transparent),
+    0 30px 70px var(--panel-shadow-3),
+    0 0 40px color-mix(in srgb, var(--bloom) 12%, transparent);
+  transform: perspective(800px) rotateY(20deg) rotate(8deg);
+}
+
+@keyframes hero-shard-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, 16px, 0);
+  }
+}
+
+/* Glowing planet. */
+.planetWrap {
+  position: absolute;
+  inset-block-start: 4%;
+  inset-inline-start: 2%;
+  inline-size: min(33rem, 44vw);
+  block-size: min(33rem, 44vw);
+  translate: calc(var(--mx, 0) * 8px) calc(var(--my, 0) * 8px);
+  will-change: transform;
+}
+
+/* Object material: a lit sphere. The dark limb/terminator is the planet's own
+   unlit side — it must stay dark in both modes or the sphere goes flat. */
+.planet {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 34% 32%,
+    color-mix(in srgb, var(--hero-gold) 92%, white),
+    var(--hero-orange) 26%,
+    #5c1f0c 52%,
+    #1a0803 74%,
+    #0b0402 100%
+  );
+  box-shadow:
+    inset -18px -14px 60px rgba(0, 0, 0, 0.7),
+    inset 22px 18px 60px color-mix(in srgb, var(--hero-orange) 22%, transparent);
+  animation: hero-planet 46s linear infinite;
+}
+
+/* Bright lit crescent on the terminator — a warm rim of light. */
+.planetLimb {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 28%,
+    color-mix(in srgb, var(--warm-hi) 70%, transparent),
+    transparent 34%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.7;
+  pointer-events: none;
+  animation: hero-planet 46s linear infinite;
+}
+
+.planetGlow {
+  position: absolute;
+  inset: -22%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--hero-orange) 30%, transparent),
+    transparent 62%
+  );
+  filter: blur(30px);
+  animation: hero-pulse 10s ease-in-out infinite;
+}
+
+/* A thin tilted orbit ring for depth (Saturn-like). */
+.planetRing {
+  position: absolute;
+  inset: -15%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--hero-orange) 24%, transparent);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--hero-orange) 10%, transparent);
+  transform: rotateX(72deg) rotate(-12deg);
+  pointer-events: none;
+}
+
+@keyframes hero-planet {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Floating smoked-glass Buyue panel. */
+.glass {
+  position: absolute;
+  inset-block-start: 26%;
+  inset-inline-end: -2%;
+  z-index: 2;
+  inline-size: min(30rem, 38vw);
+  block-size: min(33rem, 42vw);
+  translate: calc(var(--mx, 0) * 12px) calc(var(--my, 0) * 12px);
+  will-change: transform;
+}
+
+.glassInner {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  border-radius: 26px;
+  border: 1px solid color-mix(in srgb, var(--glass-border) 83%, transparent);
+  background: color-mix(in srgb, var(--glass-fill) 83%, transparent);
+  backdrop-filter: blur(30px) saturate(1.1);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--glass-border-strong) 50%, transparent),
+    inset 0 0 60px color-mix(in srgb, var(--glass-sheen) 33%, transparent),
+    0 50px 120px var(--panel-shadow-4);
+  animation: hero-glass 9s ease-in-out infinite;
+  transition: box-shadow 0.4s var(--ease-out-soft, ease);
+}
+
+@keyframes hero-glass {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateY(-15deg) rotateX(6deg) rotate(-6deg) translateZ(0);
+  }
+
+  50% {
+    transform: perspective(1000px) rotateY(-9deg) rotateX(3deg) rotate(-8deg) translateZ(22px);
+  }
+}
+
+/* Orange Fresnel rim on the lit edge. */
+.glassRim {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset -1px -1px 0 color-mix(in srgb, var(--hero-orange) 55%, transparent),
+    inset 0 0 40px color-mix(in srgb, var(--hero-orange) 14%, transparent);
+}
+
+/* Slow reflection that glides across the panel every few seconds. */
+.glassSweep {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.glassSweep::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 40%,
+    color-mix(in srgb, var(--glass-border-strong) 67%, transparent) 50%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  animation: hero-glass-sweep 7s ease-in-out infinite;
+}
+
+@keyframes hero-glass-sweep {
+  0% {
+    transform: translateX(-130%);
+  }
+
+  18%,
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+/* The sweep is a white specular; on white glass it has nothing to brighten.
+   A warm bronze glint is the light-mode equivalent — no token spans both. */
+:global(html[data-theme='light']) .glassSweep::before {
+  background: linear-gradient(
+    120deg,
+    transparent 40%,
+    color-mix(in srgb, var(--color-bronze) 24%, transparent) 50%,
+    transparent 60%
+  );
+}
+
+.glass:hover .glassInner {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--glass-border-strong) 67%, transparent),
+    inset 0 0 70px color-mix(in srgb, var(--hero-orange) 10%, transparent),
+    0 50px 130px var(--panel-shadow-5),
+    0 0 60px color-mix(in srgb, var(--hero-orange) 22%, transparent);
+}
+
+.glassMark {
+  inline-size: clamp(3rem, 6vw, 4.5rem);
+  block-size: auto;
+  opacity: 0.16;
+  filter: grayscale(0.2);
+}
+
+.glassWord {
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: 0.01em;
+  color: color-mix(in srgb, var(--scene-ink) 14%, transparent);
+}
+
+/* Glass stats card. */
+.stats {
+  position: absolute;
+  inset-block-end: -2%;
+  inset-inline-end: 0;
+  z-index: 6;
+  display: flex;
+  gap: clamp(0.75rem, 1.4vw, 1.4rem);
+  padding: 0.75rem clamp(0.9rem, 1.8vw, 1.4rem);
+  translate: calc(var(--mx, 0) * 6px) calc(var(--my, 0) * 6px);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-fill);
+  backdrop-filter: blur(30px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--glass-border-strong) 50%, transparent),
+    0 24px 60px var(--panel-shadow-2),
+    0 0 40px color-mix(in srgb, var(--hero-orange) 12%, transparent);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  transition: transform 0.3s var(--ease-out-soft, ease);
+}
+
+.stat:not(:last-child) {
+  padding-inline-end: clamp(0.75rem, 1.4vw, 1.4rem);
+  border-inline-end: 1px solid color-mix(in srgb, var(--glass-border-strong) 37%, transparent);
+}
+
+.stat:hover {
+  transform: scale(1.06);
+}
+
+.stat:hover .statValue {
+  text-shadow: 0 0 22px color-mix(in srgb, var(--hero-orange) 55%, transparent);
+}
+
+.statValue {
+  font-weight: 800;
+  font-size: clamp(1.2rem, 2.2vw, 1.75rem);
+  line-height: 1;
+  color: var(--hero-orange);
+  transition: text-shadow 0.3s var(--ease-out-soft, ease);
+}
+
+.statLabel {
+  font-size: 0.64rem;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+/* ── Tagline ──────────────────────────────────────────────────────────────── */
+.tagline {
+  position: absolute;
+  inset-block-end: clamp(1rem, 3vh, 2rem);
+  inset-inline: 0;
+  z-index: 1;
+  margin: 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 1180px) {
+  .rail {
+    display: none;
+  }
+}
+
+@media (max-width: 899px) {
+  .scene {
+    display: block;
+    min-block-size: auto;
+    /* Still clears the navbar (scene is pulled up by --nav-offset). */
+    padding-block: calc(var(--nav-offset) + 1.5rem) 3.5rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: clamp(3rem, 8vw, 5rem);
+  }
+
+  .right {
+    min-block-size: clamp(24rem, 92vw, 34rem);
+  }
+
+  .planetWrap {
+    inline-size: min(20rem, 60vw);
+    block-size: min(20rem, 60vw);
+  }
+
+  .glass {
+    inline-size: min(18rem, 56vw);
+    block-size: min(20rem, 62vw);
+  }
+
+  .stats {
+    inset-inline: 0;
+    inset-block-end: -6%;
+    justify-content: center;
+  }
+}
+
+/* ── Reduced motion: still, fully-legible scene ───────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ambientTop,
+  .ambientBottom,
+  .streak,
+  .streak2,
+  .particle,
+  .railDot,
+  .scrollArrow,
+  .planet,
+  .planetGlow,
+  .planetLimb,
+  .glassInner,
+  .titleAccent,
+  .glassSweep::before,
+  .bloom,
+  .rays,
+  .star,
+  .orbitRing,
+  .cube,
+  .camera,
+  .camBody::after,
+  .card,
+  .card::before {
+    animation: none;
+  }
+
+  .glassInner {
+    transform: perspective(1000px) rotateY(-12deg) rotateX(4deg) rotate(-6deg);
+  }
+
+  .glassSweep::before {
+    display: none;
+  }
+
+  .cursorGlow {
+    display: none;
+  }
+
+  .particle {
+    opacity: 0.22;
+  }
+}

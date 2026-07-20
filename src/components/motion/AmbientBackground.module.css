@@ -1,0 +1,251 @@
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Oversized so the gentle scroll parallax never exposes an edge. */
+.field {
+  position: absolute;
+  inset: -10%;
+  will-change: transform;
+}
+
+/* Soft volumetric fog — a huge, very-soft warm wash centred low so the whole page
+   reads as a lit warm-dark environment rather than flat black. */
+.fog {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 90% at 78% 8%,
+      color-mix(in srgb, var(--color-bonfire-flame) 10%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      120% 100% at 20% 100%,
+      color-mix(in srgb, var(--ambient-fog) 40%, transparent),
+      transparent 60%
+    );
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* ── Light mode ──────────────────────────────────────────────────────────────
+   Same composition, dialled right down. These washes were tuned to *lift* a
+   near-black page; at that strength over warm ivory they read as stains rather
+   than light, so the orbs drop to roughly a third and the fog becomes the warm
+   hemisphere tint (--ambient-fog) instead of a warm black. */
+:global(html[data-theme='light']) .fog {
+  opacity: 0.6;
+}
+
+:global(html[data-theme='light']) .orb {
+  opacity: calc(0.18 + var(--sv, 0) * 0.06);
+}
+
+:global(html[data-theme='light']) .particle {
+  background: color-mix(in srgb, var(--color-bronze) 70%, transparent);
+}
+
+:global(html[data-theme='light']) .grain {
+  /* soft-light over a light base barely registers; multiply keeps the tooth. */
+  mix-blend-mode: multiply;
+  opacity: 0.025;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  /* Heavy blur + low opacity → a soft wash, not a shape. */
+  filter: blur(80px);
+  /* Opacity is CSS-owned: base + an almost-imperceptible lift with scroll
+     velocity (--sv, 0→1, set by the smooth-scroll provider). GSAP never touches
+     opacity here, so there is no property conflict. */
+  opacity: calc(0.55 + var(--sv, 0) * 0.16);
+  will-change: transform;
+}
+
+/* Warm brand washes positioned so light seems to come from a different edge as you
+   move down the page (top-right → left → right → bottom). Orange + gold/amber only. */
+.orbA {
+  inset-block-start: -14%;
+  inset-inline-end: -8%;
+  inline-size: min(52vw, 44rem);
+  block-size: min(52vw, 44rem);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--color-bonfire-flame) 30%, transparent) 0%,
+    transparent 68%
+  );
+}
+
+.orbB {
+  inset-block-start: 32%;
+  inset-inline-start: -16%;
+  inline-size: min(54vw, 46rem);
+  block-size: min(54vw, 46rem);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--color-quilt-gold) 26%, transparent) 0%,
+    transparent 68%
+  );
+}
+
+.orbC {
+  inset-block-start: 60%;
+  inset-inline-end: -12%;
+  inline-size: min(48vw, 40rem);
+  block-size: min(48vw, 40rem);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--color-bonfire-flame) 22%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+.orbD {
+  inset-block-end: -18%;
+  inset-inline-start: 30%;
+  inline-size: min(50vw, 42rem);
+  block-size: min(50vw, 42rem);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--color-quilt-gold) 22%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+/* Tiny drifting motes — the faintest layer of "alive". Seven small brand-gold
+   dots rise and fade on long, offset cycles. Transform/opacity only; capped at a
+   whisper (max ~0.32) so they read as dust, never as a starfield. */
+.particles {
+  position: absolute;
+  inset: 0;
+}
+
+.particle {
+  position: absolute;
+  inline-size: 3px;
+  block-size: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-quilt-gold) 65%, transparent);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: particle-float 16s ease-in-out infinite;
+}
+
+.particle:nth-child(1) {
+  inset-block-start: 20%;
+  inset-inline-start: 12%;
+  animation-duration: 15s;
+  animation-delay: 0s;
+}
+
+.particle:nth-child(2) {
+  inset-block-start: 64%;
+  inset-inline-start: 22%;
+  animation-duration: 19s;
+  animation-delay: -3s;
+}
+
+.particle:nth-child(3) {
+  inset-block-start: 34%;
+  inset-inline-start: 47%;
+  animation-duration: 17s;
+  animation-delay: -6s;
+}
+
+.particle:nth-child(4) {
+  inset-block-start: 78%;
+  inset-inline-start: 60%;
+  animation-duration: 21s;
+  animation-delay: -9s;
+}
+
+.particle:nth-child(5) {
+  inset-block-start: 15%;
+  inset-inline-start: 75%;
+  animation-duration: 16s;
+  animation-delay: -1.5s;
+}
+
+.particle:nth-child(6) {
+  inset-block-start: 52%;
+  inset-inline-start: 85%;
+  animation-duration: 20s;
+  animation-delay: -7.5s;
+}
+
+.particle:nth-child(7) {
+  inset-block-start: 88%;
+  inset-inline-start: 38%;
+  animation-duration: 18s;
+  animation-delay: -4.5s;
+}
+
+.particle:nth-child(8) {
+  inset-block-start: 42%;
+  inset-inline-start: 68%;
+  animation-duration: 22s;
+  animation-delay: -10s;
+}
+
+.particle:nth-child(9) {
+  inset-block-start: 8%;
+  inset-inline-start: 54%;
+  animation-duration: 17s;
+  animation-delay: -13s;
+}
+
+.particle:nth-child(10) {
+  inset-block-start: 72%;
+  inset-inline-start: 48%;
+  animation-duration: 20s;
+  animation-delay: -2.5s;
+}
+
+@keyframes particle-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 0.32;
+  }
+
+  50% {
+    transform: translate3d(0, -44px, 0);
+    opacity: 0.24;
+  }
+
+  75% {
+    opacity: 0.14;
+  }
+}
+
+/* Very light grain for depth. Inlined SVG turbulence (no network). Soft-light
+   keeps it from tinting or darkening the palette. */
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Under reduced motion the washes are dimmer, perfectly still, and not coupled
+   to scroll velocity. */
+@media (prefers-reduced-motion: reduce) {
+  .orb {
+    opacity: 0.4;
+  }
+
+  .particles {
+    display: none;
+  }
+}

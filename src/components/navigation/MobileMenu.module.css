@@ -1,0 +1,32 @@
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 44px;
+  block-size: 44px;
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+}
+
+.trigger:hover {
+  background-color: var(--surface-sunken);
+}
+
+@media (min-width: 1025px) {
+  .trigger {
+    display: none;
+  }
+}
+
+.nav {
+  margin-block: var(--space-5);
+}
+
+.cta {
+  inline-size: 100%;
+  margin-block-start: var(--space-4);
+}
+
+.switcher {
+  margin-block-start: var(--space-6);
+}

@@ -1,0 +1,40 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.gap-sm {
+  gap: var(--space-4);
+}
+
+.gap-md {
+  gap: var(--space-5);
+}
+
+.gap-lg {
+  gap: var(--space-6);
+}
+
+/* Tablet: 2 columns for 2/3/4-up grids. */
+@media (min-width: 641px) {
+  .cols-2,
+  .cols-3,
+  .cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: full column count. */
+@media (min-width: 1025px) {
+  .cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

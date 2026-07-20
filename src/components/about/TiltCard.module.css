@@ -1,0 +1,142 @@
+.perspective {
+  block-size: 100%;
+  perspective: 900px;
+}
+
+/* Idle "breathing" drift — a barely-there vertical float so the card never sits
+   dead. Lives on the perspective wrapper (GSAP owns the inner .tilt transform, so
+   the two never fight). Offset per card via --tilt-delay for an organic feel. */
+.float {
+  animation: card-float 8s ease-in-out infinite;
+  animation-delay: var(--tilt-delay, 0s);
+  will-change: transform;
+}
+
+@keyframes card-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+.tilt {
+  position: relative;
+  block-size: 100%;
+  border-radius: var(--radius-lg, 20px);
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition:
+    box-shadow 400ms var(--ease-out-soft),
+    border-color 400ms var(--ease-out-soft);
+}
+
+/* Soft light that follows the cursor + a hover glow / border lift. The card's own
+   surface (Card/FeatureCard) sits above; this only adds highlight, never layout. */
+.tilt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    36% 44% at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--color-quilt-gold) 26%, transparent),
+    transparent 70%
+  );
+  transition: opacity 400ms var(--ease-out-soft);
+}
+
+/* --chrome-shadow is used here purely as the theme's shadow TINT (black in dark,
+   warm bronze in light), scaled back to the same 0.14 alpha it has today. */
+.tilt:hover {
+  box-shadow:
+    0 24px 60px color-mix(in srgb, var(--chrome-shadow) 36.84%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-bonfire-flame) 22%, transparent);
+}
+
+.tilt:hover::after {
+  opacity: 1;
+}
+
+/* A slow diagonal sheen that sweeps once on hover — quiet, premium. */
+.sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sheen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 58%
+  );
+  transform: translateX(-140%);
+}
+
+/* No token can express this one: the sweep is a white highlight band over dark
+   glass, and there is no "brighter than the surface" token — on light mode's
+   near-white glass a white band is invisible, so light gets a warm bronze band
+   of the same geometry instead. Colour only; the sweep transform is untouched. */
+:global(html[data-theme='light']) .sheen::before {
+  background: linear-gradient(115deg, transparent 42%, rgb(188 150 86 / 22%) 50%, transparent 58%);
+}
+
+.tilt:hover .sheen::before {
+  animation: tilt-sweep 0.9s var(--ease-out-soft);
+}
+
+/* Periodic self-sweep (Vision/Mission): the sheen crosses once, then rests off-
+   screen for the rest of the cycle — a slow "every few seconds" shimmer. Hover
+   still wins (higher specificity) for the on-demand sweep. */
+.autoSweep .sheen::before {
+  animation: tilt-auto-sweep 7s ease-in-out infinite;
+  animation-delay: var(--tilt-delay, 0s);
+}
+
+@keyframes tilt-sweep {
+  to {
+    transform: translateX(140%);
+  }
+}
+
+@keyframes tilt-auto-sweep {
+  0% {
+    transform: translateX(-140%);
+  }
+
+  12% {
+    transform: translateX(140%);
+  }
+
+  100% {
+    transform: translateX(140%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt {
+    transform: none !important;
+  }
+
+  .sheen {
+    display: none;
+  }
+
+  .float {
+    animation: none;
+  }
+}

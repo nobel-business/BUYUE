@@ -1,0 +1,35 @@
+.serviceList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  list-style: none;
+}
+
+@media (min-width: 641px) {
+  .serviceList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .serviceList {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.serviceList li {
+  position: relative;
+  padding-inline-start: var(--space-5);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.serviceList li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.65em;
+  inline-size: 12px;
+  block-size: 2px;
+  background-color: var(--color-bonfire-flame);
+}

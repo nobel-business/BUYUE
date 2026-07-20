@@ -1,0 +1,195 @@
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-block-size: 44px; /* touch target (Doc 03 §24) */
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: var(--radius-md);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden; /* clips the hover light-sweep to the pill shape */
+  isolation: isolate; /* keeps the sweep pseudo below the label */
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+/* Premium light-sweep: a soft diagonal highlight glides across on hover. Purely
+   decorative, pointer-events none, sits above the fill but below the label
+   (isolate + z-index), so it never affects layout or hit-testing. */
+.button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  opacity: 0;
+  transition:
+    transform 0.7s var(--ease-out-soft, cubic-bezier(0.22, 1, 0.36, 1)),
+    opacity 0.3s var(--ease-standard);
+}
+
+.button:hover::before {
+  transform: translateX(130%);
+  opacity: 1;
+}
+
+/* Keep the button content above the sweep. */
+.label,
+.button > :global(svg) {
+  position: relative;
+  z-index: 1;
+}
+
+/* The trailing icon (arrow) nudges toward the reading direction on hover — a small
+   "go" cue. translateX flips automatically under [dir='rtl'] on the ancestor. */
+.button :global(svg):last-child {
+  transition: transform var(--dur-fast) var(--ease-out-soft, ease-out);
+}
+
+.button:hover :global(svg):last-child {
+  transform: translateX(3px);
+}
+
+/* In RTL the trailing arrow is mirrored (scaleX(-1) on Icon.flip). Recompose that
+   mirror here so the hover nudge preserves the flip instead of overriding it, and
+   moves the arrow toward the reading (inline-end) direction. */
+:global(html[dir='rtl']) .button:hover :global(svg):last-child {
+  transform: scaleX(-1) translateX(3px);
+}
+
+.size-md {
+  padding-block: 0.875rem;
+  padding-inline: 1.75rem;
+  font-size: var(--font-size-body);
+}
+
+.size-lg {
+  padding-block: 1rem;
+  padding-inline: 2rem;
+  font-size: var(--font-size-body-l);
+}
+
+.fullWidth {
+  inline-size: 100%;
+}
+
+/* ── Variant: primary (accessible action color, audit C-05) ───────────────── */
+.variant-primary {
+  background-color: var(--color-action-primary);
+  color: var(--text-on-action);
+}
+
+.variant-primary:hover {
+  background-color: var(--color-action-primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.variant-primary:active {
+  background-color: var(--color-action-primary-active);
+  transform: scale(0.98);
+}
+
+/* ── Variant: secondary (outline) ─────────────────────────────────────────── */
+.variant-secondary {
+  background-color: transparent;
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.variant-secondary:hover {
+  background-color: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  transform: translateY(-1px);
+}
+
+.variant-secondary:active {
+  transform: scale(0.98);
+}
+
+/* ── Variant: ghost / text ────────────────────────────────────────────────── */
+.variant-ghost {
+  background-color: transparent;
+  color: var(--color-action-primary);
+  padding-inline: var(--space-2);
+}
+
+.variant-ghost:hover {
+  background-color: color-mix(in srgb, var(--color-action-primary) 8%, transparent);
+}
+
+/* ── Variants: on art-directed scenes / brand blocks ──────────────────────────
+   These sit ON TOP of the scene layers (hero, values, services), not on the page
+   surface, so they read from the SCENE roles rather than the page ones: the chip
+   is the scene's ink and its label is the scene's own background. In dark that is
+   the off-white pill it has always been; in light it becomes a warm near-black
+   pill on ivory, following the scene instead of staying permanently off-white. */
+.variant-on-dark-primary {
+  background-color: var(--scene-ink);
+  color: var(--scene-surface);
+}
+
+.variant-on-dark-primary:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.variant-on-dark-secondary {
+  background-color: transparent;
+  border-color: var(--scene-ink);
+  color: var(--scene-ink);
+}
+
+.variant-on-dark-secondary:hover {
+  background-color: color-mix(in srgb, var(--scene-ink) 12%, transparent);
+}
+
+/* ── States ───────────────────────────────────────────────────────────────── */
+.button:disabled,
+.button[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.loading {
+  cursor: progress;
+}
+
+.loading .label,
+.loading > :global(svg) {
+  opacity: 0;
+}
+
+.spinner {
+  position: absolute;
+  inline-size: 1.25em;
+  block-size: 1.25em;
+  border: 2px solid currentColor;
+  border-block-start-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

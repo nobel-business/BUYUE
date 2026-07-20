@@ -1,0 +1,10 @@
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* Directional icons mirror in RTL (Doc 03 §18, Doc 07 §2). */
+:global(html[dir='rtl']) .flip {
+  transform: scaleX(-1);
+}

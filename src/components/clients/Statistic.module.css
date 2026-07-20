@@ -1,0 +1,18 @@
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.number {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  color: var(--color-bonfire-flame);
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  font-size: var(--font-size-body);
+  color: var(--text-muted);
+}

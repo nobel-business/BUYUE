@@ -1,0 +1,14 @@
+/* Per-word clip mask: the outer span hides overflow, the inner span is what
+   translates up into view. Inline-block keeps normal line-wrapping + spacing. */
+.word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* A hair of bottom padding so descenders/Arabic marks aren't clipped. */
+  padding-block-end: 0.08em;
+}
+
+.inner {
+  display: inline-block;
+  will-change: transform;
+}

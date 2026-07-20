@@ -1,0 +1,21 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-inline-size: var(--container-narrow);
+}
+
+.align-start {
+  align-items: flex-start;
+  text-align: start;
+}
+
+.align-center {
+  align-items: center;
+  text-align: center;
+  margin-inline: auto;
+}
+
+.subheading {
+  max-inline-size: 60ch;
+}

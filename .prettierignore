@@ -1,0 +1,15 @@
+# Build output & deps
+node_modules
+.next
+out
+coverage
+.lighthouseci
+
+# Single-source-of-truth documentation — hand-formatted, not to be reflowed
+Documentation
+
+# Binary / source design assets
+*.pdf
+
+# Lockfiles
+package-lock.json

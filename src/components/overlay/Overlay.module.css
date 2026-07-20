@@ -1,0 +1,60 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background-color: var(--overlay-scrim);
+  backdrop-filter: blur(2px);
+}
+
+.panel {
+  position: absolute;
+  background-color: var(--surface-raised);
+  color: var(--text-primary);
+  outline: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.modal {
+  inset-block-start: 50%;
+  /* Physical `left`, not `inset-inline-start`: the centring below uses a physical
+     `translate`, which does not mirror. Paired with a logical inset the two
+     compound in RTL instead of cancelling, putting the dialog a full width off
+     centre in Arabic. */
+  left: 50%;
+  /* The independent `translate` property, NOT `transform: translate(…)`: the panel
+     animates `scale`/`y` via Motion, which writes an inline `transform` that would
+     replace this centring outright and drop the dialog half its own size down-and-
+     right. `translate` composes with `transform` instead of competing with it. */
+  translate: -50% -50%;
+  inline-size: min(92vw, 32rem);
+  max-block-size: 85vh;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+/* RTL note: modal centering uses translate(-50%,-50%); the inset-inline-start
+   anchor keeps it centered in both directions. */
+
+.drawer-start,
+.drawer-end {
+  inset-block: 0;
+  block-size: 100%;
+  inline-size: min(88vw, 24rem);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-xl);
+}
+
+.drawer-start {
+  inset-inline-start: 0;
+}
+
+.drawer-end {
+  inset-inline-end: 0;
+}

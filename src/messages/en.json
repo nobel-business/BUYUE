@@ -1,0 +1,424 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "services": "Our Services",
+    "clients": "Our Clients",
+    "contact": "Contact Us"
+  },
+  "ui": {
+    "brandName": "Buyue",
+    "skipToContent": "Skip to content",
+    "openMenu": "Menu",
+    "closeMenu": "Close",
+    "language": "Language",
+    "primaryNav": "Primary navigation",
+    "backToTop": "Back to top",
+    "parentCompany": "Buyue is a full-service marketing and advertising agency and one of the operating brands of Noble Business Group, serving brands across Saudi Arabia and Egypt.",
+    "themeToLight": "Switch to light mode",
+    "themeToDark": "Switch to dark mode"
+  },
+  "home": {
+    "_note": "PROVISIONAL English — Doc 08 non-binding samples pending client translation approval (audit C-10). Not final.",
+    "meta": {
+      "title": "Buyue | Marketing & Brand-Building Agency in Saudi Arabia & Egypt",
+      "description": "Buyue is a full-service marketing and advertising agency, part of Noble Business Group, offering brand building, digital marketing, advertising campaigns, photography, web design, exhibition stands, and motion graphics.",
+      "keywords": "marketing agency Saudi Arabia, marketing agency Al-Khobar, Buyue, marketing and advertising agency, brand building, integrated marketing services, marketing agency Egypt"
+    },
+    "hero": {
+      "heading": "We Sell Everything — Except Talk",
+      "body": "Buyue is a full-service marketing and advertising agency. We help brands build a powerful market presence through clear strategy, content that resonates, smart campaigns, and creative execution that connects the idea to the result.",
+      "ctaPrimary": "Start Your Project",
+      "ctaSecondary": "Explore Our Work"
+    },
+    "servicesTeaser": {
+      "heading": "Our Services",
+      "subheading": "Your brand's journey... from idea to market",
+      "body": "Buyue's services cover the full range of a brand's needs — from building a digital presence, through advertising campaigns and photography, to a real-world presence at exhibitions and events.",
+      "features": [
+        "Visual & promotional identity",
+        "Social media management",
+        "Advertising campaign production",
+        "Search engine optimization (SEO)",
+        "Website & app design",
+        "Cinematic & photographic production",
+        "Exhibition stand design & execution",
+        "Digital screens & outdoor advertising",
+        "Promotional gifts & print"
+      ],
+      "cta": "See all services"
+    },
+    "whyBuyue": {
+      "heading": "Why choose Buyue?",
+      "items": [
+        {
+          "title": "We understand before we execute",
+          "body": "We start by understanding the market, the audience, and the brand's positioning before any step of execution."
+        },
+        {
+          "title": "We merge creativity with strategy",
+          "body": "We deliver actionable ideas — not just beautiful concepts."
+        },
+        {
+          "title": "We focus on results",
+          "body": "We believe real marketing is measured by impact, not by the number of posts."
+        },
+        {
+          "title": "We execute across multiple channels",
+          "body": "From identity and social media to campaigns, photography, exhibitions, and print."
+        }
+      ]
+    },
+    "clientsTeaser": {
+      "heading": "Our Clients",
+      "subheading": "Brands and entities across different sectors have trusted us",
+      "body": "Buyue has worked with brands and entities across many sectors — including telecom, technology, industry, government bodies, food & beverage, and exhibitions. The company profile features clients such as Jazeera Paints, MAKKA, NAPCO, Isuzu, SNB, ASUS, Zain, and stc, along with government and cultural bodies.",
+      "cta": "See our clients"
+    }
+  },
+  "about": {
+    "_note": "PROVISIONAL English — translated per Doc 08 method, pending client approval (audit C-10). Not final.",
+    "meta": {
+      "title": "About Us | Buyue – Marketing & Brand-Building Agency in Saudi Arabia & Egypt",
+      "description": "Buyue is a Saudi-Egyptian marketing agency, part of Noble Business Group. We turn ideas into tangible results through integrated marketing strategies and strong brand building.",
+      "keywords": "Noble Business Group, marketing agency Saudi Arabia, Buyue, about Buyue, marketing and brand building agency"
+    },
+    "intro": {
+      "heading": "About Us",
+      "paragraphs": [
+        "Buyue is a full-service marketing and advertising agency and one of the operating brands of Noble Business Group, serving brands across Saudi Arabia and Egypt.",
+        "We begin every project by understanding the market and the audience, then build the strategy, identity, and creative execution on that foundation — creating a brand presence that doesn't just compete, but commands the market.",
+        "Not every brand is built to last, and only a few are designed to make a real difference. At Buyue, we believe a brand's strength lies not in merely being seen, but in how its audience understands it, engages with it, chooses it, and remembers it.",
+        "That is why we treat every brand as a long-term strategic asset — never a passing campaign."
+      ]
+    },
+    "vision": {
+      "heading": "Our Vision",
+      "body": "To become the leading strategic partner for brands in the region, through innovative, measurable marketing solutions capable of building a genuine and sustainable presence."
+    },
+    "mission": {
+      "heading": "Our Mission",
+      "body": "We help our clients unlock their full potential through integrated marketing strategies that combine creativity, technology, and smart data analysis — turning every idea into a success story worth telling."
+    },
+    "values": {
+      "heading": "Our Values",
+      "items": [
+        {
+          "title": "Innovation & Creativity",
+          "body": "We craft distinct solutions tailored to each brand — never relying on ready-made templates."
+        },
+        {
+          "title": "Transparency & Commitment",
+          "body": "We make our process clear to our clients, and we commit to time, quality, and expectations."
+        },
+        {
+          "title": "Quality & Precision",
+          "body": "We care about every detail in planning and execution, because the details are what make the difference."
+        },
+        {
+          "title": "A Focus on Results",
+          "body": "We measure our success by the impact and results our clients achieve — not just by the number of designs or posts."
+        }
+      ]
+    },
+    "faq": {
+      "heading": "Frequently Asked Questions About Buyue",
+      "items": [
+        {
+          "q": "Tell me about Buyue?",
+          "a": "Buyue is a Saudi-Egyptian marketing and advertising agency, one of the operating brands of Noble Business Group, specialized in brand building and integrated marketing solutions."
+        },
+        {
+          "q": "Which countries does Buyue operate in?",
+          "a": "Buyue works primarily across Saudi Arabia and Egypt, serving local, regional, and global brands."
+        },
+        {
+          "q": "Is Buyue specialized in a single service or integrated services?",
+          "a": "Buyue offers integrated services covering the entire brand journey — from social media management and advertising campaigns to photography, web design, exhibition stands, motion graphics, and printed materials."
+        }
+      ],
+      "cta": "Want to know our team better? Get in touch"
+    },
+    "hero": {
+      "scroll": "Scroll to explore",
+      "tagline": "Your story, our strategy.",
+      "stats": [
+        {
+          "value": "10+",
+          "label": "Years of Experience"
+        },
+        {
+          "value": "250+",
+          "label": "Successful Projects"
+        },
+        {
+          "value": "50+",
+          "label": "Happy Clients"
+        }
+      ]
+    }
+  },
+  "services": {
+    "_note": "PROVISIONAL English — translated per Doc 08 method, pending client approval (audit C-10). Not final.",
+    "meta": {
+      "title": "Our Services | Buyue – From Social Media to Exhibition Stand Design",
+      "description": "Discover Buyue's integrated marketing services: social media management, advertising campaigns, SEO, web design, photography and video, exhibition stands, motion graphics, and printed materials.",
+      "keywords": "integrated marketing services, social media management, advertising campaigns, exhibition stand design, product photography, motion graphics, SEO, web design"
+    },
+    "intro": {
+      "heading": "Our Services",
+      "paragraphs": [
+        "Buyue's services cover your brand's entire journey — from its first digital appearance on social media to a real-world presence at the largest exhibitions and events.",
+        "We deliver integrated marketing and creative services that help you build a clear, impactful, and measurable presence."
+      ]
+    },
+    "offerLabel": "What we offer",
+    "valueLabel": "The value",
+    "exitUpLabel": "Skip up",
+    "exitDownLabel": "Skip down",
+    "blocks": [
+      {
+        "title": "Visual & Promotional Identity",
+        "intro": "An identity is not just a logo — it is how your audience recognizes and remembers your brand. We help you build a clear, cohesive identity, ready to use across every channel.",
+        "hasOffer": true,
+        "features": [
+          "Visual identity development",
+          "Promotional material design",
+          "Crafting the brand's core messaging",
+          "A consistent visual style for digital and print"
+        ],
+        "value": "We give your brand a clear look and voice that help it show up in the market with confidence."
+      },
+      {
+        "title": "Social Media Management",
+        "intro": "Managing social channels is not just about publishing posts — it is an integrated strategy for building an influential presence that turns into engagement, trust, and sales.",
+        "hasOffer": false,
+        "features": [
+          "We create visual content that reflects your brand identity.",
+          "We identify the best posting times to boost engagement.",
+          "We manage replies and comments to build an active community around your brand.",
+          "We develop an ongoing content plan that serves your marketing goals."
+        ],
+        "value": "We turn your social media presence into a real community that engages and grows with your brand."
+      },
+      {
+        "title": "Advertising Campaign Production",
+        "intro": "A strong campaign doesn't start with the camera alone, but with a clear idea and visual execution able to deliver the message quickly and powerfully. At Buyue, we produce advertising campaigns from idea to shoot to delivery, creating visual content that serves the brand's goal and reaches the audience the right way.",
+        "hasOffer": true,
+        "features": [
+          "Developing advertising campaign ideas",
+          "Writing scripts and the creative concept",
+          "Shooting ads and marketing videos",
+          "Producing content tailored for social media and digital platforms",
+          "Directing, editing, and visual post-production",
+          "Preparing multiple versions to fit different platforms"
+        ],
+        "value": "We turn the campaign idea into impactful, ready-to-publish visual content that builds awareness and drives engagement with your brand."
+      },
+      {
+        "title": "UGC / EGC / FGC Content Production",
+        "intro": "Authentic content has become one of the most influential types of content on purchase decisions, because it brings the brand closer to the audience in a natural, direct, and believable voice. At Buyue, we produce UGC, EGC, and FGC content that serves digital campaigns and strengthens audience trust in the product or service through a realistic style suited to social platforms.",
+        "hasOffer": true,
+        "features": [
+          "Developing content ideas suited to the product and audience",
+          "Writing short scripts in a natural, persuasive style",
+          "Selecting creators or faces suited to the campaign",
+          "Shooting UGC content for products and services",
+          "Producing EGC content reflecting the experience of employees or the team",
+          "Producing FGC content based on the experience of founders or brand representatives",
+          "Fast editing suited to social media and digital ads",
+          "Preparing multiple versions for testing and publishing across platforms"
+        ],
+        "value": "We create content that feels authentic, close to the audience, and able to build trust and drive engagement and purchase."
+      },
+      {
+        "title": "Search Engine Optimization (SEO)",
+        "intro": "Appearing on the first pages of search engines is no longer an option, but a necessity for any brand's growth. We help your brand appear before the audience already searching for your services or products.",
+        "hasOffer": false,
+        "features": [
+          "A comprehensive site audit uncovering strengths and weaknesses.",
+          "Improving site structure and the browsing experience.",
+          "Writing content aligned with search engines and AI engines.",
+          "Optimizing keywords, titles, and meta descriptions."
+        ],
+        "value": "We make sure your brand is the answer your audience finds when they search."
+      },
+      {
+        "title": "Website & App Design and Development",
+        "intro": "Your website or app is your digital face to the world, and it must reflect your professionalism from the very first second. We design and develop practical, clear, and easy-to-use websites and apps that help visitors understand your brand and make a decision.",
+        "hasOffer": false,
+        "features": [
+          "Modern websites, responsive across all devices.",
+          "An easy, fast user experience.",
+          "Effective, practical e-commerce solutions and apps.",
+          "Content and structure suited to search engines."
+        ],
+        "value": "We give your brand a digital home that builds trust and turns visits into real engagement."
+      },
+      {
+        "title": "Photography & Video",
+        "intro": "Image and video are among the most powerful means of persuading an audience and driving purchase decisions. We produce professional visual content that reflects your brand's personality and presents your products and services in an attractive, impactful way.",
+        "hasOffer": false,
+        "features": [
+          "Professional photography of products and services with the finest detail.",
+          "Creative shoots for teams, events, and campaigns.",
+          "Marketing videos with a cinematic touch.",
+          "Polished editing suited to different digital platforms."
+        ],
+        "value": "We produce visual content that isn't just beautiful, but tells a story and builds a genuine connection with your audience."
+      },
+      {
+        "title": "Exhibition Stand Design & Execution",
+        "intro": "Exhibitions are an opportunity to make an unforgettable first impression of your brand. We design and build exhibition stands that reflect the brand's identity, attract visitors, and create a strong on-the-ground presence.",
+        "hasOffer": false,
+        "features": [
+          "Innovative stand designs that highlight your brand identity.",
+          "High-quality execution using suitable materials and techniques.",
+          "End-to-end event management from idea to installation.",
+          "An integrated presence experience that supports your goals at the show."
+        ],
+        "value": "We design a presence experience for your brand that draws visitors and leaves an impact that lasts beyond the exhibition."
+      },
+      {
+        "title": "Digital Screens & Outdoor Advertising",
+        "intro": "Outdoor advertising gives the brand a direct presence on the street, at exhibitions, and at real touchpoints with the audience. We help you design clear, impactful visual messages that land quickly and leave a strong impression.",
+        "hasOffer": true,
+        "features": [
+          "Designing ads for outdoor screens",
+          "Designing boards and Outdoor materials",
+          "Short, direct visual messages",
+          "Adapting designs to sizes and platforms",
+          "Linking outdoor advertising to digital campaigns"
+        ],
+        "value": "We give your brand a clear visual presence in the places your audience sees every day."
+      },
+      {
+        "title": "Promotional Gifts & Print",
+        "intro": "Print and promotional gifts are an effective way to keep your brand in the customer's mind after the first encounter. We design and produce promotional materials that reflect your brand's professionalism and support its presence at events, meetings, and exhibitions.",
+        "hasOffer": false,
+        "features": [
+          "Designing professional brochures, catalogues, and business cards.",
+          "Innovative promotional gifts carrying your company's identity.",
+          "High-quality materials and printing.",
+          "Designs consistent with the brand's visual identity."
+        ],
+        "value": "We help your brand stay present in your customers' minds long after the first impression."
+      }
+    ],
+    "faq": {
+      "heading": "Frequently Asked Questions About Buyue's Services",
+      "items": [
+        {
+          "q": "Does Buyue offer individual marketing services or integrated packages?",
+          "a": "Buyue offers both; you can request a single specific service, or an integrated marketing package that combines several services based on the project's needs."
+        },
+        {
+          "q": "Does Buyue work with small companies and startups?",
+          "a": "Yes, Buyue works with brands at different growth stages — from startups to large companies and government entities."
+        },
+        {
+          "q": "Can a full campaign be executed from strategy to production?",
+          "a": "Yes, Buyue has a team able to manage the campaign from idea and strategy, through content, design, and photography, all the way to launch and measurement."
+        }
+      ],
+      "cta": "Need one of our services? Start your project"
+    }
+  },
+  "clients": {
+    "_note": "PROVISIONAL English — translated per Doc 08 method, pending client approval (audit C-10). Not final.",
+    "meta": {
+      "title": "Our Clients"
+    },
+    "intro": {
+      "heading": "Our Clients",
+      "statPrefix": "+",
+      "statValue": 30,
+      "body": "More than 30 brands and entities — local and global — have trusted us, across telecom, technology, food & beverage, real estate, retail, banking, automotive, industry, and government and cultural bodies."
+    },
+    "gallery": {
+      "heading": "From Our Projects",
+      "categories": [
+        "Exhibition stand photos",
+        "Campaign photos",
+        "Product photography",
+        "Event photos",
+        "Promotional material photos",
+        "Outdoor execution photos"
+      ]
+    },
+    "finalCta": {
+      "heading": "Ready to build a stronger presence for your brand?",
+      "body": "Whether you're launching a new brand, developing your current presence, or need an integrated marketing campaign, the Buyue team is ready to start with you — from idea to execution.",
+      "cta": "Get in touch"
+    },
+    "faq": {
+      "heading": "Frequently Asked Questions About Buyue's Work",
+      "items": [
+        {
+          "q": "Has Buyue worked with global brands?",
+          "a": "Yes, Buyue's clients include global brands such as Vodafone, Coca-Cola, and Red Bull, alongside government entities and major regional brands."
+        },
+        {
+          "q": "Which sectors does Buyue work in?",
+          "a": "Buyue works across many sectors, including telecom, food & beverage, real estate, retail, banking, automotive, industry, and government and cultural bodies."
+        },
+        {
+          "q": "Does Buyue provide detailed project case studies?",
+          "a": "Detailed case studies can be prepared by project type — covering the goal, challenge, idea, execution, and results — when data is available."
+        }
+      ],
+      "cta": "Want to work together on your next project? Book a consultation"
+    }
+  },
+  "contact": {
+    "_note": "PROVISIONAL English — translated per Doc 08 method, pending client approval (audit C-10). Not final.",
+    "meta": {
+      "title": "Contact Us | Buyue – Marketing Agency in Al-Khobar, Saudi Arabia",
+      "description": "Get in touch with Buyue to discuss your next marketing project. Our offices are in Al-Khobar, Saudi Arabia, and we serve clients across Saudi Arabia and Egypt.",
+      "keywords": "contact marketing agency, marketing agency Al-Khobar, marketing quote, Buyue Saudi Arabia, marketing agency Saudi Arabia"
+    },
+    "intro": {
+      "heading": "Contact Us",
+      "subheading": "Do you have a brand or a marketing project you want to bring to life?",
+      "body": "Get in touch with the Buyue team now, and we'll start by understanding your project and goals before any execution — to define the best way to build your presence and achieve clear results."
+    },
+    "details": {
+      "heading": "Contact Details",
+      "addressLabel": "Address",
+      "address": "3347 Dhahran Road, Al-Thuqbah, Al-Khobar, Saudi Arabia",
+      "phoneLabel": "Phone",
+      "phones": ["+966 561 141 947", "+966 541 25 27 73"],
+      "emailLabel": "Email",
+      "email": "info@beuyue.com"
+    },
+    "why": {
+      "heading": "Why contact Buyue?",
+      "items": [
+        "We respond to your inquiry within a short time.",
+        "We start with a session to understand your project and goals.",
+        "We propose the most suitable solution based on your needs — not a ready-made template.",
+        "One team covering everything you need, from strategy to execution."
+      ]
+    },
+    "form": {
+      "heading": "Contact Form",
+      "fields": {
+        "name": "Name",
+        "company": "Company name",
+        "email": "Email",
+        "phone": "Phone number",
+        "service": "Service needed",
+        "message": "A short message about the project"
+      },
+      "submit": "Send your request",
+      "_microcopyNote": "PROVISIONAL functional UI strings (validation/success/error) — pending approved microcopy (audit H-07).",
+      "required": "This field is required",
+      "invalidEmail": "Please enter a valid email address",
+      "success": "Your request was sent successfully. We'll be in touch soon.",
+      "error": "Your request couldn't be sent. Please try again."
+    }
+  },
+  "footer": {
+    "copyright": "© {year} Buyue"
+  }
+}
