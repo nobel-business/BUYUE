@@ -1,16 +1,17 @@
-# Source material that the application never imports. Excluding it keeps the
-# deployment source small — docs/assets alone is ~11 MB of client PDFs, and
-# brand-assets/ holds 30 unprocessed logo originals.
+# Paths excluded from the deployment source.
 #
-# Anything the browser actually loads lives in public/ and must NOT be listed
-# here. Nothing under docs/ or brand-assets/ is imported by src/.
-docs
-brand-assets
+# ⚠ Patterns follow .gitignore semantics: a bare name is UNANCHORED and matches
+# at any depth. `data` matches src/lib/data/ as well as ./data. Every directory
+# pattern below is therefore anchored with a leading slash so it can only match
+# at the repository root. Do not remove those slashes.
+#
+# Anything the browser loads lives in public/ and must never be listed here.
 
-# Local-only dev scaffold for the interim admin store (audit C-02). Never
-# deployed: the Vercel filesystem is read-only, so this cannot be written to.
-data
+# Source material the application never imports — docs/assets alone is ~11 MB
+# of client PDFs, and brand-assets/ holds 30 unprocessed logo originals.
+/docs
+/brand-assets
 
-# Tooling config with no role in a Vercel build.
-.github
-lighthouserc.json
+# CI config and Lighthouse budgets play no part in a Vercel build.
+/.github
+/lighthouserc.json
