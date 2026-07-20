@@ -58,10 +58,11 @@ function renderTitleWords(heading: string): ReactNode[] {
  * value cards stagger in; on the way out the exact fold reverses and the cover
  * closes back to the dark world.
  *
- * ScrollTrigger owns the pin with `pinType: 'transform'` (never a fixed pin, which
- * glitches under the page-transition transform ancestor) and sizes its own spacer,
- * so there is no leftover empty space. The fold is a scrubbed timeline that peels
- * from the first pixel of scroll, refreshed once the transition settles.
+ * The stage holds via CSS `position: sticky` (not a GSAP pin), and a single scrubbed
+ * timeline drives the fold. The trigger starts as the section ENTERS the viewport, so
+ * the cover peels open across the approach — there is no dead dark scroll before the
+ * reveal — then the stage sticks full-screen for the title, cards, hold and close.
+ * Refreshed once the page transition settles.
  */
 export function ValuesScene({ heading, items }: { heading: string; items: ValueItem[] }) {
   const root = useRef<HTMLElement>(null);
@@ -92,7 +93,6 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
       const mm = gsap.matchMedia();
 
       mm.add('(min-width: 900px)', () => {
-        const stage = el.querySelector<HTMLElement>('[data-stage]');
         const cover = el.querySelector<HTMLElement>('[data-cover]');
         const shade = el.querySelector<HTMLElement>('[data-shade]');
         const spec = el.querySelector<HTMLElement>('[data-spec]');
@@ -143,33 +143,33 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
         };
 
         // ── One scrubbed master timeline: OPEN → title → cards → hold → CLOSE ──
-        // ScrollTrigger OWNS the pin (pinType 'transform', never fixed → no glitch
-        // under the page-transition ancestor) and sizes the pin-spacer to the exact
-        // scroll distance, so there is never leftover empty space around the section.
-        // The pin (+=190%) gives the fold room to complete well inside the pinned range
-        // and keeps per-pixel motion gentle; the warm paper still holds for most of the
-        // scroll. A low scrub keeps the fold locked to the scroll at both handoffs.
+        // The .stage holds via CSS `position: sticky` (see the module CSS), NOT a GSAP
+        // pin — the same approach the ClientLogoMosaic scroll-stage uses. A single scrub
+        // trigger drives the whole fold, and because it starts as the section ENTERS
+        // ('top bottom', not 'top top'), the cover peels open across the approach rather
+        // than after it — so there is no dead dark scroll before the reveal.
+        // `end: 'bottom bottom'` maps the full .scene track (200vh) onto the timeline;
+        // the stage sticks from ~50% progress (its top reaching the viewport top)
+        // through to release at 100%. The lit page holds to the release and then scrolls
+        // away as the FAQ rises — it is NOT closed back to dark, so there is no empty
+        // dark cover to scroll past between the two sections.
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: el,
-            start: 'top top',
-            end: '+=190%',
-            pin: stage ?? true,
-            pinType: 'transform',
-            // `scrub` is a CATCH-UP LAG, but pin engage/release is instant at the
-            // boundary — so a large value desynchronises the two and the section
-            // unpins while the cover is still mid-fold. 0.5 still smooths the
-            // stepped native wheel (there is no Lenis smoothing) without the fold
-            // visibly trailing the scroll at the handoff.
+            start: 'top bottom',
+            end: 'bottom bottom',
+            // Low catch-up lag: smooths the stepped native wheel (there is no Lenis
+            // smoothing) without the fold visibly trailing the scroll. There is no pin
+            // engage/release boundary to desynchronise against anymore.
             scrub: 0.5,
             invalidateOnRefresh: true,
             onUpdate: (self) => {
-              // Spotlight walks the cards only while the book is held open. Measured in
-              // TIMELINE TIME, not scroll progress, so these bounds stay aligned with the
-              // tween positions below even when the timeline's total duration changes.
-              const p = self.progress * tl.totalDuration();
-              const lo = 0.5;
-              const hi = 0.9;
+              // Spotlight walks the cards only during the open HOLD. Bounds are in
+              // scroll-progress space and match the card/hold window in the timeline
+              // below (totalDuration is normalised to 1).
+              const p = self.progress;
+              const lo = 0.77;
+              const hi = 0.97;
               if (p < lo || p > hi) return;
               const idx = Math.min(
                 cards.length - 1,
@@ -180,33 +180,39 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
           },
         });
 
-        // OPEN — the page peels from the FIRST pixel of scroll (power2.out moves
-        // immediately, no flat/static-dark start), lifting off the page as it opens.
+        // The timeline runs in scroll-progress space (totalDuration = 1). The OPEN
+        // occupies the approach (0 → ~0.47, before the stage sticks at ~0.50); the title
+        // and cards settle once locked, then the lit page holds to the release and
+        // scrolls away into the FAQ — no close-to-dark, so no empty dark exit gap.
+
+        // OPEN — the cover peels from the first pixel the section enters (power2.out
+        // moves immediately, no flat/static-dark start), lifting off the page as it
+        // opens, and completes just before the stage locks to the viewport.
         tl.to(
           cover,
-          { rotateY: openDeg, z: 60, yPercent: -2, ease: 'power2.out', duration: 0.26 },
+          { rotateY: openDeg, z: 60, yPercent: -2, ease: 'power2.out', duration: 0.47 },
           0,
         );
         // Crease inner-shadow deepens through the bend, then clears as it flattens.
-        tl.to(shade, { opacity: 0.55, ease: 'power1.inOut', duration: 0.13 }, 0);
-        tl.to(shade, { opacity: 0, ease: 'power1.in', duration: 0.13 }, 0.13);
+        tl.to(shade, { opacity: 0.55, ease: 'power1.inOut', duration: 0.23 }, 0);
+        tl.to(shade, { opacity: 0, ease: 'power1.in', duration: 0.23 }, 0.23);
         // Specular highlight sweeps across the folding edge.
-        tl.to(spec, { autoAlpha: 0.9, duration: 0.05, ease: 'sine.out' }, 0.02);
-        tl.to(spec, { xPercent: specTo, ease: 'sine.inOut', duration: 0.22 }, 0.02);
-        tl.to(spec, { autoAlpha: 0, duration: 0.07, ease: 'sine.in' }, 0.21);
+        tl.to(spec, { autoAlpha: 0.9, duration: 0.07, ease: 'sine.out' }, 0.04);
+        tl.to(spec, { xPercent: specTo, ease: 'sine.inOut', duration: 0.39 }, 0.04);
+        tl.to(spec, { autoAlpha: 0, duration: 0.09, ease: 'sine.in' }, 0.38);
         // Contact shadow beneath the lifting page shrinks toward the spine and fades.
-        tl.to(contact, { opacity: 0, scaleX: 0.3, ease: 'power2.in', duration: 0.26 }, 0);
+        tl.to(contact, { opacity: 0, scaleX: 0.3, ease: 'power2.in', duration: 0.47 }, 0);
 
-        // TITLE sets onto the open page — words rise into place (0.24 → 0.38).
+        // TITLE sets onto the now-locked open page — words rise into place.
         tl.to(
           words,
-          { autoAlpha: 1, yPercent: 0, ease: 'power3.out', duration: 0.14, stagger: 0.045 },
-          0.24,
+          { autoAlpha: 1, yPercent: 0, ease: 'power3.out', duration: 0.09, stagger: 0.03 },
+          0.52,
         );
         // Diamond divider draws outward under the title.
-        tl.to(ornament, { autoAlpha: 1, scaleX: 1, ease: 'power2.out', duration: 0.1 }, 0.3);
+        tl.to(ornament, { autoAlpha: 1, scaleX: 1, ease: 'power2.out', duration: 0.06 }, 0.55);
 
-        // CARDS lay down onto the page one by one, with a soft settle (0.3 → 0.52).
+        // CARDS lay down onto the page one by one, with a soft settle.
         tl.to(
           cards,
           {
@@ -216,46 +222,23 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
             rotate: 0,
             rotationX: 0,
             ease: 'back.out(1.5)',
-            duration: 0.2,
-            stagger: 0.055,
+            duration: 0.11,
+            stagger: 0.03,
           },
-          0.3,
+          0.57,
         );
 
-        // HOLD open + readable (0.52 → 0.9) — most of the pin: the chapter breathes.
-
-        // LEAVE — cards lift back off, then the cover closes to the dark world (0.9 → 1).
-        tl.to(
-          cards,
-          {
-            autoAlpha: 0,
-            y: -32,
-            scale: 0.97,
-            rotationX: 12,
-            ease: 'power2.in',
-            duration: 0.05,
-            stagger: 0.025,
-          },
-          0.9,
-        );
-        tl.to(words, { autoAlpha: 0, yPercent: -60, ease: 'power2.in', duration: 0.04 }, 0.91);
-        tl.to(contact, { opacity: 0.55, scaleX: 1, ease: 'power2.out', duration: 0.1 }, 0.92);
-        tl.to(shade, { opacity: 0.42, ease: 'power1.inOut', duration: 0.05 }, 0.93);
-        tl.to(shade, { opacity: 0.16, ease: 'power1.in', duration: 0.05 }, 0.98);
-        tl.to(
-          spec,
-          { autoAlpha: 0.7, xPercent: specFrom, ease: 'sine.inOut', duration: 0.06 },
-          0.92,
-        );
-        tl.to(spec, { autoAlpha: 0, duration: 0.04 }, 0.99);
-        tl.to(cover, { rotateY: 0, z: 0, yPercent: 0, ease: 'power2.inOut', duration: 0.1 }, 0.92);
-
-        // SETTLE — an empty trailing tween that only extends the timeline. ScrollTrigger
-        // maps scroll 0→1 onto totalDuration, so without this the final tween lands
-        // exactly ON the unpin point and the section detaches the same frame the cover
-        // stops moving. This reserves the last ~7% of the pin as a fully-closed dark
-        // cover, identical to the section's unpinned state, so the release is invisible.
-        tl.to({}, { duration: 0.08 }, 1.03);
+        // HOLD to release (0.77 → 1.0) — the open, lit chapter holds full-screen and
+        // then simply scrolls away as the FAQ rises. We deliberately do NOT close the
+        // cover back to dark: a closed-cover exit left a full viewport of empty dark
+        // scrolling past before the FAQ (the reported "gap"). Keeping the lit page —
+        // cards, title and all — on screen through the exit turns that same travel into
+        // a continuous light→dark scroll with content the whole way, and no dark void.
+        //
+        // The trailing empty tween only extends the timeline to progress 1 (the sticky
+        // release) so the scrub mapping stays correct across the full 200vh track; there
+        // is no reverse-fold to animate anymore.
+        tl.to({}, { duration: 0.23 }, 0.77);
 
         // Reconcile ScrollTrigger with the page-transition ancestor once its blur/lift
         // has settled, so start/end land at the right scroll offsets.
