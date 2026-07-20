@@ -5,8 +5,10 @@ out
 coverage
 .lighthouseci
 
-# Single-source-of-truth documentation — hand-formatted, not to be reflowed
-Documentation
+# Single-source-of-truth documentation — hand-formatted, not to be reflowed.
+# Reflowing these is actively unsafe: Doc 02 holds the approved Arabic content
+# verbatim, and Prettier collapses the significant whitespace around it.
+docs
 
 # Binary / source design assets
 *.pdf

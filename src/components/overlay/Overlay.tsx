@@ -3,7 +3,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import { duration, easing } from '@/lib/motion/tokens';
 import styles from './Overlay.module.css';
 

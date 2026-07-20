@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { Section } from '@/components/primitives/Section';
-import { Container } from '@/components/primitives/Container';
-import { Stack } from '@/components/primitives/Stack';
-import { Heading, Text } from '@/components/typography/Typography';
-import { Card } from '@/components/Card/Card';
-import { Button } from '@/components/Button/Button';
-import { Input } from '@/components/form/Input';
-import { Textarea } from '@/components/form/Textarea';
-import { Icon } from '@/components/Icon/Icon';
+import { Section } from '@/components/layout/Section';
+import { Container } from '@/components/layout/Container';
+import { Stack } from '@/components/layout/Stack';
+import { Heading, Text } from '@/components/ui/Typography';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/forms/Input';
+import { Textarea } from '@/components/forms/Textarea';
+import { Icon } from '@/components/ui/Icon';
 import styles from './admin.module.css';
 
 type Testimonial = { id: string; quote: string; author: string; role?: string };

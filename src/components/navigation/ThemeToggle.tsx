@@ -2,8 +2,8 @@
 
 import { useLayoutEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { getTheme, setTheme, type Theme } from '@/lib/theme';
+import { cn } from '@/lib/utils/cn';
+import { getTheme, setTheme, type Theme } from '@/lib/config/theme';
 import styles from './ThemeToggle.module.css';
 
 /**

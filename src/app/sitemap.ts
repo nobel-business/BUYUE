@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
-import { siteUrl } from '@/lib/seo';
+import { siteUrl } from '@/lib/config/seo';
 
 const paths = ['', '/about', '/services', '/clients', '/contact'] as const;
 

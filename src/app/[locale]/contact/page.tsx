@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { localeAlternates } from '@/lib/seo';
-import { Section } from '@/components/primitives/Section';
-import { Container } from '@/components/primitives/Container';
-import { Stack } from '@/components/primitives/Stack';
-import { Grid } from '@/components/primitives/Grid';
-import { Heading, Text } from '@/components/typography/Typography';
-import { SectionHeader } from '@/components/SectionHeader/SectionHeader';
-import { ContactForm } from '@/components/form/ContactForm';
+import { localeAlternates } from '@/lib/config/seo';
+import { Section } from '@/components/layout/Section';
+import { Container } from '@/components/layout/Container';
+import { Stack } from '@/components/layout/Stack';
+import { Grid } from '@/components/layout/Grid';
+import { Heading, Text } from '@/components/ui/Typography';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { ContactForm } from '@/components/forms/ContactForm';
 import { SceneReveal } from '@/lib/motion/SceneReveal';
 import styles from './contact.module.css';
 

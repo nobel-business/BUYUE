@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { Magnetic } from '@/lib/motion/Magnetic';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './LanguageSwitcher.module.css';
 
 /** Language endonyms for accessible names. */

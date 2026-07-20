@@ -40,5 +40,6 @@ yarn-error.log*
 !.vscode/extensions.json
 .idea
 
-# NOTE: source design PDFs and the Documentation/ package are kept in the repo
+# NOTE: source design PDFs (docs/assets/), the docs/ package, and brand-assets/ are kept
+# in the repo
 # as the single source of truth and are intentionally NOT ignored.

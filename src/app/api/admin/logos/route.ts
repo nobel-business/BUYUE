@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getStore, saveStore } from '@/lib/adminStore';
+import { getStore, saveStore } from '@/lib/data/adminStore';
 
 // Add a client logo (by name). Dev scaffold — no auth (audit C-02).
 export async function POST(request: Request) {

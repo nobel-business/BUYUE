@@ -2,28 +2,21 @@
 
 import { useState } from 'react';
 import { notFound } from 'next/navigation';
-import {
-  Button,
-  ButtonGroup,
-  Card,
-  Container,
-  Drawer,
-  EmptyState,
-  ErrorState,
-  Eyebrow,
-  Grid,
-  Heading,
-  Modal,
-  Section,
-  SectionHeader,
-  Skeleton,
-  Stack,
-  SuccessState,
-  Text,
-  TextLink,
-  ToastProvider,
-  useToast,
-} from '@/components';
+import { Container } from '@/components/layout/Container';
+import { Grid } from '@/components/layout/Grid';
+import { Section } from '@/components/layout/Section';
+import { Stack } from '@/components/layout/Stack';
+import { Drawer } from '@/components/overlay/Drawer';
+import { Modal } from '@/components/overlay/Modal';
+import { Button } from '@/components/ui/Button';
+import { ButtonGroup } from '@/components/ui/ButtonGroup';
+import { Card } from '@/components/ui/Card';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState, ErrorState, SuccessState } from '@/components/ui/StatusState';
+import { TextLink } from '@/components/ui/TextLink';
+import { ToastProvider, useToast } from '@/components/ui/Toast';
+import { Eyebrow, Heading, Text } from '@/components/ui/Typography';
 import { Reveal, Stagger, StaggerItem } from '@/lib/motion';
 
 /**

@@ -8,7 +8,7 @@ import { Footer } from '@/components/navigation/Footer';
 import { SmoothScrollProvider } from '@/lib/motion/SmoothScrollProvider';
 import { Preloader } from '@/components/motion/Preloader';
 import { AmbientBackground } from '@/components/motion/AmbientBackground';
-import { THEME_INIT_SCRIPT } from '@/lib/theme';
+import { THEME_INIT_SCRIPT } from '@/lib/config/theme';
 // Global styles, imported in cascade order (reset → tokens → globals).
 import '@/styles/reset.css';
 import '@/styles/tokens.css';

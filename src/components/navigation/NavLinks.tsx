@@ -3,8 +3,8 @@
 import { motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
-import { primaryLinks } from '@/lib/nav';
-import { cn } from '@/lib/cn';
+import { primaryLinks } from '@/lib/config/nav';
+import { cn } from '@/lib/utils/cn';
 import styles from './NavLinks.module.css';
 
 type NavLinksProps = {
