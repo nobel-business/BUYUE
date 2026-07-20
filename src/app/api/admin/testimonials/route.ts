@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
-import { getStore, saveStore } from '@/lib/adminStore';
+import { getStore, saveStore } from '@/lib/data/adminStore';
 
 // Add a testimonial. Dev scaffold — no auth (audit C-02).
 export async function POST(request: Request) {

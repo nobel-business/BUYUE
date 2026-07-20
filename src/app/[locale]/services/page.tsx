@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { localeAlternates } from '@/lib/seo';
+import { localeAlternates } from '@/lib/config/seo';
 import { Section } from '@/components/primitives/Section';
 import { Container } from '@/components/primitives/Container';
 import { Stack } from '@/components/primitives/Stack';

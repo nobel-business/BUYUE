@@ -1,5 +1,5 @@
 import NextImage, { type ImageProps as NextImageProps } from 'next/image';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './Image.module.css';
 
 type AppImageProps = Omit<NextImageProps, 'fill'> & {

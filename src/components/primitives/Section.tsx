@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, ElementType } from 'react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './Section.module.css';
 
 type SectionProps = ComponentPropsWithoutRef<'section'> & {

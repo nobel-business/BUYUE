@@ -4,7 +4,7 @@ import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from '@/lib/motion/gsap';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './TiltCard.module.css';
 
 type TiltCardProps = {

@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation';
 import { Drawer } from '@/components/overlay/Drawer';
 import { Icon } from '@/components/Icon/Icon';
 import { buttonClasses } from '@/components/Button/Button';
-import { contactItem } from '@/lib/nav';
+import { contactItem } from '@/lib/config/nav';
 import { NavLinks } from './NavLinks';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import styles from './MobileMenu.module.css';

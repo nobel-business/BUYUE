@@ -5,7 +5,7 @@ import { useReducedMotion } from 'motion/react';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger } from '@/lib/motion/gsap';
 import { Container } from '@/components/primitives/Container';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './ValuesScene.module.css';
 
 type ValueItem = { title: string; body: string };

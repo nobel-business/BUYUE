@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, ElementType } from 'react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './Container.module.css';
 
 type ContainerProps = ComponentPropsWithoutRef<'div'> & {

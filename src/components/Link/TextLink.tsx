@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { Link } from '@/i18n/navigation';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './TextLink.module.css';
 
 type InternalHref = ComponentProps<typeof Link>['href'];

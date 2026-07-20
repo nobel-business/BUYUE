@@ -30,7 +30,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 01_Project_Overview.md
+## Doc 01 — Project Overview
 
 **Executive Summary:** Excellent scope-setting document; positioning, audience, IA, CTAs, and constraints are clearly articulated and honest about open items. Its weakness is that it surfaces critical unknowns as "constraints/assumptions" without assigning an owner or a resolution deadline — which, in a no-PO-contact model, converts them into silent blockers.
 
@@ -70,7 +70,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 02_Content_Master.md
+## Doc 02 — Content Master
 
 **Executive Summary:** The most operationally important document and largely well-executed — the verbatim rule and source-integrity note are exactly right. However, it contains **internal content conflicts inherited from the source** and **omits several content types the site actually needs**, which will block Services/Clients/Contact/error UI.
 
@@ -115,7 +115,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 03_Brand_Guidelines.md
+## Doc 03 — Brand Guidelines
 
 **Executive Summary:** A genuinely strong, tokenized design system — but it contains a **self-admitted, unresolved contrast failure** and several "derived/confirm" values that are effectively undocumented decisions.
 
@@ -155,7 +155,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 04_Creative_Direction.md
+## Doc 04 — Creative Direction
 
 **Executive Summary:** Inspiring and coherent; low technical risk. Its main hazard is that it sets a **cinematic/luxury motion expectation** that Doc 07's performance budget may not permit — a tension it doesn't acknowledge.
 
@@ -189,7 +189,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 05_Animation_System.md
+## Doc 05 — Animation System
 
 **Executive Summary:** Comprehensive and well-tokenized motion spec with strong reduced-motion discipline. Its gap is **implementation technology and a performance-cost model** — it specifies *what* to animate but never *with what*, and never budgets the cost against Doc 07's targets.
 
@@ -229,7 +229,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 06_Reference_Library.md
+## Doc 06 — Reference Library
 
 **Executive Summary:** Correct structure and rules, but **functionally empty** — the two benchmark sites are listed with `[to observe]` placeholders and never actually analyzed, so the "benchmark" provides no operational guidance yet.
 
@@ -263,7 +263,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 07_Development_Rules.md
+## Doc 07 — Development Rules
 
 **Executive Summary:** A rigorous engineering standard — arguably the backbone of the package. Its weaknesses are **omissions of the "how"** (stack, backend, security, data, deployment specifics) and a **DoD that now exists in four places** (here, Doc 09, Doc 10, Doc 11) risking divergence.
 
@@ -303,7 +303,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 08_Translation_Guidelines.md
+## Doc 08 — Translation Guidelines
 
 **Executive Summary:** Excellent methodology; the risk is process, not content — **English doesn't exist, isn't scheduled, and isn't owned**, and the doc's own example translations could be mistaken for approved copy.
 
@@ -341,7 +341,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 09_UI_UX_Blueprint.md
+## Doc 09 — UI/UX Blueprint
 
 **Executive Summary:** Very strong UX reasoning and per-page structure — but it is **prose, not design**. For an unsupported team it narrows but does not eliminate layout ambiguity, and it embeds several unresolved "confirm with client" decisions and the phase-ordering dependency on admin data.
 
@@ -381,7 +381,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 10_Component_System.md
+## Doc 10 — Component System
 
 **Executive Summary:** Exhaustive and professional component catalog — the package's strongest engineering asset. Risks are **scope ambiguity** (many "optional/future" components could be mis-built) and **dependence on undefined foundations** (semantic colors, admin schema, animation tech).
 
@@ -421,7 +421,7 @@ The package is **unusually strong as a design/brand/UX/motion articulation** —
 
 ---
 
-## 11_Build_Workflow.md
+## Doc 11 — Build Workflow
 
 **Executive Summary:** A disciplined, review-gated process — genuinely enterprise-grade. It contains one **hard logical flaw (phase ordering)**, assumes **an approver/PO who the premise says is unreachable**, and omits the **technical-foundation and content-production phases** that everything else depends on.
 

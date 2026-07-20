@@ -1,7 +1,7 @@
 # 03 — Brand Guidelines & Design System
 ### Buyue (بيوع) — Visual Language Specification
 
-> **Purpose:** Define the complete, reusable visual system so any designer or engineer can produce on-brand screens without guessing. All values here derive from the supplied brand identity file (`buyue Branding.pdf`). Colors, fonts, and logo are **fixed** — this document systematizes them for web.
+> **Purpose:** Define the complete, reusable visual system so any designer or engineer can produce on-brand screens without guessing. All values here derive from the supplied brand identity file (`docs/assets/buyue-branding.pdf`). Colors, fonts, and logo are **fixed** — this document systematizes them for web.
 
 ---
 

@@ -1,4 +1,4 @@
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './Icon.module.css';
 
 /** Baseline geometric line-icon set (Doc 03 §18). Extend as components need. */

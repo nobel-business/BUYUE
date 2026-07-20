@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { Icon } from '@/components/Icon/Icon';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './Accordion.module.css';
 
 export type AccordionItem = { id: string; question: ReactNode; answer: ReactNode };

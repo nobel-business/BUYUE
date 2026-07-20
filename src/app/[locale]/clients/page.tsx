@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { localeAlternates } from '@/lib/seo';
+import { localeAlternates } from '@/lib/config/seo';
 import { Section } from '@/components/primitives/Section';
 import { Container } from '@/components/primitives/Container';
 import { Stack } from '@/components/primitives/Stack';
@@ -13,7 +13,7 @@ import { Statistic } from '@/components/clients/Statistic';
 import { ClientLogoMosaic } from '@/components/clients/ClientLogoMosaic';
 import { ProjectGallery } from '@/components/clients/ProjectGallery';
 import { Testimonials } from '@/components/clients/Testimonials';
-import { getStore } from '@/lib/adminStore';
+import { getStore } from '@/lib/data/adminStore';
 import { buttonClasses } from '@/components/Button/Button';
 import { SceneReveal } from '@/lib/motion/SceneReveal';
 import { Magnetic } from '@/lib/motion/Magnetic';

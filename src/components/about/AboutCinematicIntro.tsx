@@ -6,7 +6,7 @@ import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger } from '@/lib/motion/gsap';
 import { onPreloaderDone } from '@/lib/motion/preloader-signal';
 import { Container } from '@/components/primitives/Container';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './AboutCinematicIntro.module.css';
 
 type AboutCinematicIntroProps = {

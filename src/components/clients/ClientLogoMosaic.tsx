@@ -5,8 +5,8 @@ import { useReducedMotion } from 'motion/react';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger } from '@/lib/motion/gsap';
 import { Heading, Text } from '@/components/typography/Typography';
-import { clientLogos, type ClientLogo } from '@/lib/clientLogos';
-import { cn } from '@/lib/cn';
+import { clientLogos, type ClientLogo } from '@/lib/data/clientLogos';
+import { cn } from '@/lib/utils/cn';
 import styles from './ClientLogoMosaic.module.css';
 
 /**

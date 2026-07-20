@@ -7,7 +7,7 @@ import { useGSAP } from '@gsap/react';
 import { gsap } from '@/lib/motion/gsap';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/primitives/Container';
-import { navItems } from '@/lib/nav';
+import { navItems } from '@/lib/config/nav';
 import { Icon } from '@/components/Icon/Icon';
 import { Logo } from './Logo';
 import styles from './Footer.module.css';

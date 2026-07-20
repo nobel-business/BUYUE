@@ -29,7 +29,7 @@
 
 ### 🔎 Source-integrity note for engineers (mandatory)
 
-This document transcribes the Arabic content from the client-supplied file **`website content.pdf`**. Arabic text extracted from PDFs can occasionally acquire artifacts (dropped diacritics, reordered fragments, or joined words). Therefore:
+This document transcribes the Arabic content from the client-supplied file **`docs/assets/website-content.pdf`**. Arabic text extracted from PDFs can occasionally acquire artifacts (dropped diacritics, reordered fragments, or joined words). Therefore:
 
 - **The client's original content file is the ultimate source of truth.** Before build sign-off, every Arabic string below **must be verified character-by-character against the original supplied file** by an Arabic-literate reviewer.
 - Where a passage in the source appeared visually garbled during extraction, it is transcribed here to the best faithful reading and marked **`⚠ VERIFY`**. These are the *first* strings to re-check against the original — but the rule stands for **all** strings.

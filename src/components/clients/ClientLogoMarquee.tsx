@@ -4,7 +4,7 @@ import { useRef, type PointerEvent as ReactPointerEvent } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from '@/lib/motion/gsap';
-import { clientLogos, type ClientLogo } from '@/lib/clientLogos';
+import { clientLogos, type ClientLogo } from '@/lib/data/clientLogos';
 import styles from './ClientLogoMarquee.module.css';
 
 /**

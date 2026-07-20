@@ -1,5 +1,5 @@
 import { Link } from '@/i18n/navigation';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './Logo.module.css';
 
 /**

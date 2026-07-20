@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import { Icon, type IconName } from '@/components/Icon/Icon';
 import { Heading, Text } from '@/components/typography/Typography';
 import styles from './StatusState.module.css';

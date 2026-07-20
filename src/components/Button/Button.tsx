@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import { Icon, type IconName } from '@/components/Icon/Icon';
 import styles from './Button.module.css';
 

@@ -4,9 +4,10 @@ Premium, bilingual (**Arabic-first / English-second**) marketing website for
 **بيوع | Buyue**, an integrated marketing & branding agency (operating brand of
 Noble Business Group).
 
-> **Single source of truth:** the [`Documentation/`](./Documentation) package
-> (Docs 01–12). No implementation decision may contradict it. Arabic content is
-> **final and verbatim** (Doc 02) — never rewrite, translate, or invent it.
+> **Single source of truth:** the [`docs/`](./docs) package (Docs 01–12, grouped by
+> discipline — start at [`docs/README.md`](./docs/README.md)). No implementation decision
+> may contradict it. Arabic content is **final and verbatim** (Doc 02) — never rewrite,
+> translate, or invent it.
 
 ## Stack
 
@@ -30,14 +31,22 @@ Noble Business Group).
 
 ```
 src/
-  app/[locale]/     App Router (locale-segmented): layout, page, not-found
+  app/[locale]/     App Router (locale-segmented): layout, pages, not-found
+  app/api/          route handlers (contact, admin scaffold)
   i18n/             routing + per-request message config
   messages/         ar.json / en.json  (verbatim content, added per phase)
   styles/           reset · tokens (brand colors) · globals
-  lib/              fonts (loader architecture)
-  components/        (Phase 2+)
-public/fonts/        drop licensed 29LT Zarid + Articulat V3 here (see README)
+  lib/              config · data · motion · utils
+  components/       ui · layout · forms · overlay · navigation · sections
+public/
+  fonts/            drop licensed 29LT Zarid + Articulat V3 here (see README)
+  brand/ logos/     web-optimised assets served to the browser
+docs/               the specification package (Docs 01–12) + source PDFs
+brand-assets/       original identity marks + unprocessed client logo files
 ```
+
+> `docs/` and `brand-assets/` hold **source** material and are never served.
+> Anything the browser loads lives in `public/`.
 
 ## Build status (per Doc 11 — Build Workflow)
 

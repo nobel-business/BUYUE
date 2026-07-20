@@ -15,7 +15,7 @@ import { SceneReveal } from '@/lib/motion/SceneReveal';
 import { TextReveal } from '@/lib/motion/TextReveal';
 import { Stagger, StaggerItem } from '@/lib/motion/Stagger';
 import { Magnetic } from '@/lib/motion/Magnetic';
-import { localeAlternates } from '@/lib/seo';
+import { localeAlternates } from '@/lib/config/seo';
 import styles from './home.module.css';
 
 type PageParams = { params: Promise<{ locale: string }> };

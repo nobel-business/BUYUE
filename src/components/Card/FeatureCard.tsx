@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Card } from './Card';
 import { Heading, Text } from '@/components/typography/Typography';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import styles from './FeatureCard.module.css';
 
 type FeatureCardProps = {

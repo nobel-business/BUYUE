@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { MotionConfig } from 'motion/react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils/cn';
 import { Logo } from './Logo';
 import { NavLinks } from './NavLinks';
 import { LanguageSwitcher } from './LanguageSwitcher';
