@@ -150,8 +150,9 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
         // than after it — so there is no dead dark scroll before the reveal.
         // `end: 'bottom bottom'` maps the full .scene track (200vh) onto the timeline;
         // the stage sticks from ~50% progress (its top reaching the viewport top)
-        // through to release at 100%, where the CLOSE lands — so the cover shuts just
-        // as the section hands off to the (dark) FAQ, with no dark held gap between.
+        // through to release at 100%. The lit page holds to the release and then scrolls
+        // away as the FAQ rises — it is NOT closed back to dark, so there is no empty
+        // dark cover to scroll past between the two sections.
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: el,
@@ -168,7 +169,7 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
               // below (totalDuration is normalised to 1).
               const p = self.progress;
               const lo = 0.77;
-              const hi = 0.86;
+              const hi = 0.97;
               if (p < lo || p > hi) return;
               const idx = Math.min(
                 cards.length - 1,
@@ -180,9 +181,9 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
         });
 
         // The timeline runs in scroll-progress space (totalDuration = 1). The OPEN
-        // occupies the approach (0 → ~0.47, before the stage sticks at ~0.50); title,
-        // cards and hold play while the stage is locked; the CLOSE lands at the very
-        // end so the cover shuts just as the section releases into the FAQ — no dark gap.
+        // occupies the approach (0 → ~0.47, before the stage sticks at ~0.50); the title
+        // and cards settle once locked, then the lit page holds to the release and
+        // scrolls away into the FAQ — no close-to-dark, so no empty dark exit gap.
 
         // OPEN — the cover peels from the first pixel the section enters (power2.out
         // moves immediately, no flat/static-dark start), lifting off the page as it
@@ -227,39 +228,17 @@ export function ValuesScene({ heading, items }: { heading: string; items: ValueI
           0.57,
         );
 
-        // HOLD open + readable (0.77 → 0.86) — the chapter breathes.
-
-        // LEAVE / CLOSE — cards lift back off, then the cover shuts, finishing right as
-        // the stage releases so the handoff into the dark FAQ carries no dark held gap.
-        tl.to(
-          cards,
-          {
-            autoAlpha: 0,
-            y: -32,
-            scale: 0.97,
-            rotationX: 12,
-            ease: 'power2.in',
-            duration: 0.035,
-            stagger: 0.02,
-          },
-          0.86,
-        );
-        tl.to(words, { autoAlpha: 0, yPercent: -60, ease: 'power2.in', duration: 0.03 }, 0.87);
-        tl.to(contact, { opacity: 0.55, scaleX: 1, ease: 'power2.out', duration: 0.06 }, 0.88);
-        tl.to(shade, { opacity: 0.42, ease: 'power1.inOut', duration: 0.035 }, 0.88);
-        tl.to(shade, { opacity: 0.16, ease: 'power1.in', duration: 0.035 }, 0.95);
-        tl.to(
-          spec,
-          { autoAlpha: 0.7, xPercent: specFrom, ease: 'sine.inOut', duration: 0.05 },
-          0.88,
-        );
-        tl.to(spec, { autoAlpha: 0, duration: 0.03 }, 0.96);
-        tl.to(cover, { rotateY: 0, z: 0, yPercent: 0, ease: 'power2.inOut', duration: 0.1 }, 0.88);
-
-        // SETTLE — a short trailing hold so the cover reaches fully-closed a hair before
-        // the sticky release, keeping that release on a closed frame (identical to the
-        // dark tail that scrolls away toward the FAQ).
-        tl.to({}, { duration: 0.02 }, 0.98);
+        // HOLD to release (0.77 → 1.0) — the open, lit chapter holds full-screen and
+        // then simply scrolls away as the FAQ rises. We deliberately do NOT close the
+        // cover back to dark: a closed-cover exit left a full viewport of empty dark
+        // scrolling past before the FAQ (the reported "gap"). Keeping the lit page —
+        // cards, title and all — on screen through the exit turns that same travel into
+        // a continuous light→dark scroll with content the whole way, and no dark void.
+        //
+        // The trailing empty tween only extends the timeline to progress 1 (the sticky
+        // release) so the scrub mapping stays correct across the full 200vh track; there
+        // is no reverse-fold to animate anymore.
+        tl.to({}, { duration: 0.23 }, 0.77);
 
         // Reconcile ScrollTrigger with the page-transition ancestor once its blur/lift
         // has settled, so start/end land at the right scroll offsets.

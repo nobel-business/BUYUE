@@ -3,9 +3,10 @@
   /* Tall scroll track. The .stage sticks within it (CSS sticky, not a GSAP pin) and
      a single scrub ScrollTrigger maps this height onto the fold timeline. The section
      ENTERS this track before it sticks, and that approach drives the cover-open — so
-     there is no dead dark scroll before the reveal, and the fold's CLOSE is timed to
-     land right as the stage releases — so the exit hands off to the FAQ without a dark
-     held gap. Mobile / reduced-motion collapse this back to auto (below). */
+     there is no dead dark scroll before the reveal. On the way out the lit page holds
+     and scrolls away into the FAQ (it is NOT closed back to dark), so there is no empty
+     dark cover to scroll past between the two sections. Mobile / reduced-motion collapse
+     this back to auto (below). */
   min-block-size: 200vh;
 
   /* Deeper, elegant warm palette (brand-derived, never bright). */
