@@ -28,6 +28,7 @@ docs/
 ## Reading order
 
 New to the project? Read 01 → 02 → 03 → 04 → 05 → 07 → 09 → 10 → 11, then 12.
+Shipping it? Read [13 — Deployment](05-engineering/13-deployment.md).
 
 ### 01 — Project
 
@@ -65,6 +66,7 @@ New to the project? Read 01 → 02 → 03 → 04 → 05 → 07 → 09 → 10 →
 |---|----------|-----------------|
 | 07 | [Development Rules](05-engineering/07-development-rules.md) | Engineering rulebook — content, Arabic/RTL, components, a11y, perf, SEO, Definition of Done, QA |
 | 11 | [Build Workflow](05-engineering/11-build-workflow.md) | Phased, review-gated implementation process — 15 reviews, quality gates, polish, launch |
+| 13 | [Deployment](05-engineering/13-deployment.md) | Vercel hosting — import, env vars, custom domain, rollback, production gaps, pre-launch checklist |
 
 ## Foundation facts (source of truth)
 

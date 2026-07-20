@@ -64,6 +64,26 @@ brand-assets/       original identity marks + unprocessed client logo files
 | **10 — Assembly**            | 🔄 In progress — Home teasers + SEO done; legal/404/analytics remaining                         |
 | 11 — Polish → 12 — Deploy    | ⏳ Not started                                                                                  |
 
+## Deployment
+
+Hosted on **Vercel** with continuous deployment from `main` (push → build →
+live); pull requests get their own preview URL. The GitHub Actions workflow
+(`.github/workflows/ci.yml`) is a quality gate that runs typecheck, lint,
+stylelint, format check and a production build — it does **not** deploy, and
+holds no Vercel credentials.
+
+Build settings live in `vercel.json`; Node is pinned to 20 via `.nvmrc` for
+both CI and Vercel. No environment variables are required for a first deploy —
+`siteUrl()` falls back to the URL Vercel injects at build time, so a deploy can
+never publish `localhost` canonicals.
+
+> ⚠ Not launch-ready: the contact form has no destination (C-09) and the admin
+> panel cannot persist on serverless (C-02). See §5 of the deployment doc.
+
+Full guide — Vercel import, env vars, custom domain and DNS, rollback,
+troubleshooting and the pre-launch checklist — in
+**[`docs/05-engineering/13-deployment.md`](./docs/05-engineering/13-deployment.md)**.
+
 ## Known blockers carried from the audit (Doc 12)
 
 - **C-11** brand webfonts not licensed/present → running on fallback stacks.

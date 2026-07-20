@@ -1,26 +1,49 @@
 name: CI
 
+# Quality gate — this workflow does NOT deploy.
+#
+# Deployment is handled entirely by Vercel's Git integration:
+#   push to main   -> Production deploy
+#   pull request   -> Preview deploy
+#
+# This job exists to catch failures *before* Vercel builds, and to catch the
+# class of bug Windows hides: the runner is Linux and therefore case-sensitive,
+# so `@/components/ui/button` vs `.../Button` fails here but passes locally.
+
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
+
+# Supersede in-flight runs on the same ref instead of queuing them.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  quality:
-    name: Typecheck · Lint · Build
+  verify:
+    name: Typecheck · Lint · Styles · Format · Build
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # .nvmrc is the single source of Node truth, shared with Vercel.
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: npm
 
+      # `npm ci` (not `npm install`) — installs strictly from the lockfile and
+      # fails loudly if it has drifted from package.json. Vercel runs the same.
       - name: Install dependencies
         run: npm ci
 
+      # Kept as separate steps rather than a single `npm run verify` so that a
+      # failure names the offending gate directly in the Actions UI.
       - name: Type check
         run: npm run typecheck
 
@@ -35,3 +58,9 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # Absolute URL so the build exercises the same metadata path as
+          # production (canonical, hreflang, sitemap, OG). The value itself is
+          # irrelevant — this artifact is discarded, never deployed — but
+          # `new URL()` in metadataBase requires an absolute URL to parse.
+          NEXT_PUBLIC_SITE_URL: https://ci.invalid
