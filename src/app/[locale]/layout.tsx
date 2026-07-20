@@ -9,6 +9,7 @@ import { SmoothScrollProvider } from '@/lib/motion/SmoothScrollProvider';
 import { Preloader } from '@/components/motion/Preloader';
 import { AmbientBackground } from '@/components/motion/AmbientBackground';
 import { THEME_INIT_SCRIPT } from '@/lib/config/theme';
+import { siteUrl } from '@/lib/config/seo';
 // Global styles, imported in cascade order (reset → tokens → globals).
 import '@/styles/reset.css';
 import '@/styles/tokens.css';
@@ -20,11 +21,13 @@ export function generateStaticParams() {
 
 /**
  * Base metadata. Page-level titles/descriptions/keywords (verbatim from Doc 02)
- * are added per page in later phases. `metadataBase` uses the confirmed site URL.
+ * are added per page in later phases. `metadataBase` resolves through
+ * `siteUrl()` so the base URL has a single source of truth shared with the
+ * canonical/hreflang helpers, the sitemap and robots.txt.
  * TODO(C-08): confirm canonical production domain.
  */
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(siteUrl()),
   title: {
     // The default title is intentionally the brand token only; no marketing
     // copy is invented here (Doc 07 §1). Page titles come from Doc 02.
@@ -45,7 +48,7 @@ const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Buyue',
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+  url: siteUrl(),
   areaServed: ['SA', 'EG'],
 };
 

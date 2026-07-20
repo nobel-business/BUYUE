@@ -1,0 +1,16 @@
+# Source material that the application never imports. Excluding it keeps the
+# deployment source small — docs/assets alone is ~11 MB of client PDFs, and
+# brand-assets/ holds 30 unprocessed logo originals.
+#
+# Anything the browser actually loads lives in public/ and must NOT be listed
+# here. Nothing under docs/ or brand-assets/ is imported by src/.
+docs
+brand-assets
+
+# Local-only dev scaffold for the interim admin store (audit C-02). Never
+# deployed: the Vercel filesystem is read-only, so this cannot be written to.
+data
+
+# Tooling config with no role in a Vercel build.
+.github
+lighthouserc.json
