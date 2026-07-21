@@ -155,17 +155,14 @@
   will-change: transform, opacity;
 }
 
-/* ══════════ Right column — the network canvas ══════════ */
-.visual {
-  position: relative;
-  block-size: min(86vh, 50rem);
-}
-
+/* ══════════ The network canvas — full-scene, behind the copy ══════════ */
 .network {
   position: absolute;
   inset: 0;
+  z-index: 1; /* above the ::before atmosphere, below the copy (container z-index: 2) */
   inline-size: 100%;
   block-size: 100%;
+  pointer-events: none;
 }
 
 /* ══════════ Responsive — mobile stacks, no full-height (as the About hero does) ══ */
@@ -182,8 +179,8 @@
     gap: 2.5rem;
   }
 
-  .visual {
-    block-size: 22rem;
-    order: 2;
+  /* Behind the stacked copy on mobile → dim it so the text stays legible. */
+  .network {
+    opacity: 0.5;
   }
 }

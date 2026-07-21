@@ -89,7 +89,7 @@ function mountNetwork(
     return {
       bx: core.x + Math.cos(ang) * rad * 0.9,
       by: core.y + Math.sin(ang) * rad * 1.05,
-      r: 5 + rnd() * 6, // base node radius, scaled by `k` at draw time
+      r: 3 + rnd() * 6, // base node radius (exact design value)
       ph: rnd() * Math.PI * 2,
       sp: 0.3 + rnd() * 0.5,
       amp: 0.006 + rnd() * 0.012,
@@ -137,29 +137,27 @@ function mountNetwork(
 
     ctx.clearRect(0, 0, W, H);
 
-    // Wide panel box (as in the design) → an airy, expansive spread. `k` scales every
-    // drawn dimension (nodes, hub, links, glows, pulses) with the panel so the graph
-    // stays large and clear on big screens instead of shrinking to specks.
-    const k = Math.max(0.9, Math.min(2.6, Math.min(W, H) / 560));
+    // Exact design mapping: the canvas spans the whole scene, and the graph sits in a
+    // wide box across the right two-thirds — identical composition and (fixed) sizes to
+    // the approved mockup. Only the light-theme tint deviates so it reads on ivory.
     const bx = W * 0.3;
     const by = H * 0.1;
     const bw = W * 0.66;
     const bh = H * 0.8;
     const P = (nx: number, ny: number, depth = 1) => ({
-      x: bx + nx * bw + mx * 24 * depth,
-      y: by + ny * bh + my * 18 * depth,
+      x: bx + nx * bw + mx * 22 * depth,
+      y: by + ny * bh + my * 16 * depth,
     });
     const hub = P(core.x, core.y);
 
     // Hub bloom.
-    const bloomR = Math.max(180, bw * 0.34);
-    const bloom = ctx.createRadialGradient(hub.x, hub.y, 0, hub.x, hub.y, bloomR);
-    bloom.addColorStop(0, rgba(SOFT, (light ? 0.16 : 0.24) * ee));
-    bloom.addColorStop(0.4, rgba(FLAME, (light ? 0.08 : 0.11) * ee));
+    const bloom = ctx.createRadialGradient(hub.x, hub.y, 0, hub.x, hub.y, 180);
+    bloom.addColorStop(0, rgba(SOFT, (light ? 0.16 : 0.22) * ee));
+    bloom.addColorStop(0.4, rgba(FLAME, (light ? 0.08 : 0.1) * ee));
     bloom.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = bloom;
     ctx.beginPath();
-    ctx.arc(hub.x, hub.y, bloomR, 0, 7);
+    ctx.arc(hub.x, hub.y, 180, 0, 7);
     ctx.fill();
 
     // Live node positions (gentle idle drift + per-node parallax depth).
@@ -180,10 +178,10 @@ function mountNetwork(
       const ey = A.y + (B.y - A.y) * drawn;
       const lg = ctx.createLinearGradient(A.x, A.y, B.x, B.y);
       lg.addColorStop(0, rgba(FLAME, 0));
-      lg.addColorStop(0.5, rgba(light ? FLAME : SOFT, light ? 0.36 : 0.34));
-      lg.addColorStop(1, rgba(light ? FLAME : GOLD, light ? 0.05 : 0.08));
+      lg.addColorStop(0.5, rgba(light ? FLAME : SOFT, light ? 0.32 : 0.28));
+      lg.addColorStop(1, rgba(light ? FLAME : GOLD, 0.05));
       ctx.strokeStyle = lg;
-      ctx.lineWidth = (L.a === -1 ? 1.7 : 1.1) * k;
+      ctx.lineWidth = L.a === -1 ? 1.4 : 0.9;
       ctx.beginPath();
       ctx.moveTo(A.x, A.y);
       ctx.lineTo(ex, ey);
@@ -192,13 +190,13 @@ function mountNetwork(
         const pp = (t * 0.28 + L.pulse) % 1;
         const px = A.x + (B.x - A.x) * pp;
         const py = A.y + (B.y - A.y) * pp;
-        ctx.fillStyle = rgba(light ? [176, 74, 40] : GOLD, light ? 0.9 : 0.95);
+        ctx.fillStyle = rgba(light ? [176, 74, 40] : GOLD, light ? 0.85 : 0.9);
         ctx.beginPath();
-        ctx.arc(px, py, 2.2 * k, 0, 7);
+        ctx.arc(px, py, 1.8, 0, 7);
         ctx.fill();
-        ctx.fillStyle = rgba(SOFT, light ? 0.2 : 0.28);
+        ctx.fillStyle = rgba(SOFT, light ? 0.18 : 0.25);
         ctx.beginPath();
-        ctx.arc(px, py, 5 * k, 0, 7);
+        ctx.arc(px, py, 4, 0, 7);
         ctx.fill();
       }
     }
@@ -209,33 +207,32 @@ function mountNetwork(
       const sc = Math.min(1, Math.max(0, ee * 1.5 - i * 0.05));
       if (sc <= 0) continue;
       const p = pos[i]!;
-      const r = n.r * k * sc;
+      const r = n.r * sc;
       const gg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 4);
-      gg.addColorStop(0, rgba(n.col, light ? 0.6 : 0.95));
-      gg.addColorStop(0.4, rgba(n.col, light ? 0.24 : 0.42));
+      gg.addColorStop(0, rgba(n.col, light ? 0.55 : 0.9));
+      gg.addColorStop(0.4, rgba(n.col, light ? 0.22 : 0.4));
       gg.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = gg;
       ctx.beginPath();
       ctx.arc(p.x, p.y, r * 4, 0, 7);
       ctx.fill();
-      ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 250, 244], light ? 0.9 : 0.98);
+      ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 250, 244], light ? 0.85 : 0.95);
       ctx.beginPath();
-      ctx.arc(p.x, p.y, r * 0.62, 0, 7);
+      ctx.arc(p.x, p.y, r * 0.6, 0, 7);
       ctx.fill();
     }
 
     // Hub centre + halo (drawn last so it sits on top).
-    const haloR = 34 * k;
-    const halo = ctx.createRadialGradient(hub.x, hub.y, 0, hub.x, hub.y, haloR);
-    halo.addColorStop(0, rgba(GOLD, (light ? 0.45 : 0.65) * ee));
+    ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 244, 232], ee);
+    ctx.beginPath();
+    ctx.arc(hub.x, hub.y, 7 * ee, 0, 7);
+    ctx.fill();
+    const halo = ctx.createRadialGradient(hub.x, hub.y, 0, hub.x, hub.y, 26);
+    halo.addColorStop(0, rgba(GOLD, (light ? 0.4 : 0.6) * ee));
     halo.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = halo;
     ctx.beginPath();
-    ctx.arc(hub.x, hub.y, haloR, 0, 7);
-    ctx.fill();
-    ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 244, 232], ee);
-    ctx.beginPath();
-    ctx.arc(hub.x, hub.y, 10 * k * ee, 0, 7);
+    ctx.arc(hub.x, hub.y, 26, 0, 7);
     ctx.fill();
   };
 
@@ -406,6 +403,9 @@ export function ClientsHero({
 
   return (
     <section ref={root} className={styles.scene}>
+      {/* The Constellation Network — a full-scene canvas behind the copy (exactly as
+          in the design: the graph spans the whole scene, not a boxed column). */}
+      <canvas ref={canvas} className={styles.network} data-visual aria-hidden="true" />
       <Container size="wide" className={styles.container}>
         <div className={styles.grid}>
           {/* Left — content */}
@@ -431,10 +431,8 @@ export function ClientsHero({
             </div>
           </div>
 
-          {/* Right — The Constellation Network (canvas) */}
-          <div className={styles.visual} data-visual aria-hidden="true">
-            <canvas ref={canvas} className={styles.network} />
-          </div>
+          {/* Right cell — empty; the canvas behind fills this space. */}
+          <div aria-hidden="true" />
         </div>
       </Container>
     </section>
