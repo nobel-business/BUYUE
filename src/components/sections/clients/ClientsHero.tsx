@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type CSSProperties, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger } from '@/lib/motion/gsap';
@@ -10,7 +10,6 @@ import { Icon } from '@/components/ui/Icon';
 import { buttonClasses } from '@/components/ui/Button';
 import { Magnetic } from '@/lib/motion/Magnetic';
 import { onPreloaderDone } from '@/lib/motion/preloader-signal';
-import { clientLogos } from '@/lib/data/clientLogos';
 import styles from './ClientsHero.module.css';
 
 type ClientsHeroProps = {
@@ -21,40 +20,6 @@ type ClientsHeroProps = {
   ctaLabel: string;
   ctaHref: string;
 };
-
-/**
- * Interlacing threads (SVG viewBox 0 0 500 560, stretched to the box). Each is a
- * relationship woven through the others into one luminous fabric; `grad` alternates the
- * warm gradient direction so crossings read as over/under, and `delay` desynchronises
- * the travelling light.
- */
-const THREADS: { d: string; grad: 1 | 2; width: number; opacity: number; delay: string }[] = [
-  { d: 'M -30 150 C 140 60, 360 300, 540 210', grad: 1, width: 10, opacity: 0.72, delay: '0s' },
-  { d: 'M -30 300 C 150 400, 350 120, 540 300', grad: 2, width: 8, opacity: 0.62, delay: '-1s' },
-  { d: 'M -30 230 C 170 300, 330 230, 540 270', grad: 1, width: 12, opacity: 0.55, delay: '-2s' },
-  { d: 'M 90 -30 C 210 200, 300 360, 250 590', grad: 2, width: 7, opacity: 0.6, delay: '-1.5s' },
-  { d: 'M 380 -30 C 250 200, 210 360, 300 590', grad: 1, width: 9, opacity: 0.5, delay: '-3s' },
-  { d: 'M -30 420 C 180 360, 340 470, 540 400', grad: 2, width: 8, opacity: 0.46, delay: '-2.5s' },
-];
-
-/** Real client logos seated at the knots of the weave (where relationships hold). */
-const KNOTS: { left: string; top: string; logo: number; delay: string }[] = [
-  { left: '30%', top: '26%', logo: 1, delay: '0s' }, // Al Ahly SC
-  { left: '66%', top: '32%', logo: 4, delay: '-1.5s' },
-  { left: '24%', top: '58%', logo: 8, delay: '-3s' },
-  { left: '74%', top: '62%', logo: 0, delay: '-0.8s' }, // Concrete
-  { left: '50%', top: '46%', logo: 28, delay: '-2.2s' }, // Juhayna
-  { left: '62%', top: '73%', logo: 16, delay: '-1.2s' },
-  { left: '44%', top: '82%', logo: 29, delay: '-4s' }, // Mazzika
-];
-
-/** Hand-placed motes (deterministic — server and client render identically). */
-const MOTES: { top: string; left: string; delay: string }[] = [
-  { top: '30%', left: '62%', delay: '0s' },
-  { top: '64%', left: '34%', delay: '-4s' },
-  { top: '22%', left: '38%', delay: '-7s' },
-  { top: '78%', left: '66%', delay: '-2s' },
-];
 
 function renderHeadingWords(heading: string): ReactNode[] {
   const tokens = heading.split(/(\s+)/).filter((t) => t.length > 0);
@@ -77,15 +42,224 @@ function renderHeadingWords(heading: string): ReactNode[] {
   );
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   The Constellation Network — a canvas relationship graph.
+
+   A warm central hub (Buyue) is linked to a field of abstract partner nodes; light
+   pulses travel the links so the relationships read as LIVING, not a static diagram.
+   Node + link + centre is the one composition a first-time visitor decodes instantly
+   as "a connected network of trusted partners" — the page's purpose, without logos.
+
+   Layout is seeded (stable across reloads); the whole visual is decorative
+   (aria-hidden). Drawing is theme-aware, read fresh each frame so a theme toggle is
+   picked up live. Entrance is gated by the same clock the copy uses (set on the
+   preloader hand-off); reduced motion renders one still, legible frame and never
+   loops. Cleanup cancels the frame loop and the resize observer.
+   ══════════════════════════════════════════════════════════════════════════════ */
+type RGB = [number, number, number];
+const FLAME: RGB = [207, 81, 56];
+const SOFT: RGB = [255, 122, 69];
+const GOLD: RGB = [234, 196, 107];
+const rgba = (c: RGB, a: number) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+function mountNetwork(
+  canvas: HTMLCanvasElement,
+  reduce: boolean,
+  mouse: { tx: number; ty: number },
+  clock: { start: number },
+): () => void {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return () => {};
+
+  // ── Seeded layout (deterministic → identical every load; no hydration concern
+  //    since the canvas is client-only). Nodes are placed around the hub in an
+  //    organic ring so the graph reads as relationships, not a symmetric mesh.
+  let seed = 1337;
+  const rnd = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+  const core = { x: 0.6, y: 0.46 };
+  const N = 16;
+  const nodes = Array.from({ length: N }, (_, i) => {
+    const ang = rnd() * Math.PI * 2;
+    const rad = 0.16 + rnd() * 0.42;
+    return {
+      bx: core.x + Math.cos(ang) * rad * 0.9,
+      by: core.y + Math.sin(ang) * rad * 1.05,
+      r: 3 + rnd() * 6,
+      ph: rnd() * Math.PI * 2,
+      sp: 0.3 + rnd() * 0.5,
+      amp: 0.006 + rnd() * 0.012,
+      col: i % 3 === 0 ? GOLD : i % 3 === 1 ? SOFT : FLAME,
+      depth: 0.5 + rnd() * 0.5,
+    };
+  });
+  type Link = { a: number; b: number; pulse: number };
+  const links: Link[] = nodes.map((_, i) => ({ a: -1, b: i, pulse: rnd() })); // a = -1 → hub
+  for (let k = 0; k < 7; k++) {
+    const a = Math.floor(rnd() * N);
+    const b = Math.floor(rnd() * N);
+    if (a !== b) links.push({ a, b, pulse: rnd() });
+  }
+
+  let W = 0;
+  let H = 0;
+  let mx = 0;
+  let my = 0;
+  let raf = 0;
+  const dpr = () => Math.min(2, window.devicePixelRatio || 1);
+  const resize = () => {
+    const d = dpr();
+    W = canvas.clientWidth;
+    H = canvas.clientHeight;
+    canvas.width = Math.max(1, Math.round(W * d));
+    canvas.height = Math.max(1, Math.round(H * d));
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+  };
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas);
+  resize();
+
+  const draw = (now: number) => {
+    const light = document.documentElement.getAttribute('data-theme') === 'light';
+    // Entrance progress (easeOutCubic). 0 until the preloader clock starts; 1 at
+    // once for reduced motion.
+    const ee = reduce
+      ? 1
+      : clock.start
+        ? 1 - Math.pow(1 - Math.min(1, (now - clock.start) / 1800), 3)
+        : 0;
+    const t = reduce ? 0 : now / 1000;
+    mx += (mouse.tx - mx) * 0.06;
+    my += (mouse.ty - my) * 0.06;
+
+    // Right-panel box, offset by the eased cursor parallax.
+    const bx = W * 0.3;
+    const by = H * 0.1;
+    const bw = W * 0.66;
+    const bh = H * 0.8;
+    const P = (nx: number, ny: number, depth = 1) => ({
+      x: bx + nx * bw + mx * 22 * depth,
+      y: by + ny * bh + my * 16 * depth,
+    });
+
+    ctx.clearRect(0, 0, W, H);
+
+    const cp = P(core.x, core.y);
+
+    // Hub bloom.
+    const bloom = ctx.createRadialGradient(cp.x, cp.y, 0, cp.x, cp.y, Math.max(120, bw * 0.28));
+    bloom.addColorStop(0, rgba(SOFT, (light ? 0.16 : 0.22) * ee));
+    bloom.addColorStop(0.4, rgba(FLAME, (light ? 0.08 : 0.1) * ee));
+    bloom.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = bloom;
+    ctx.beginPath();
+    ctx.arc(cp.x, cp.y, Math.max(120, bw * 0.28), 0, 7);
+    ctx.fill();
+
+    // Live node positions (gentle idle drift).
+    const pos = nodes.map((n) => {
+      const dx = Math.cos(t * n.sp + n.ph) * n.amp;
+      const dy = Math.sin(t * n.sp * 1.1 + n.ph) * n.amp;
+      return P(n.bx + dx, n.by + dy, n.depth);
+    });
+
+    // Links — draw outward on entrance (staggered), then a light pulse travels.
+    for (let i = 0; i < links.length; i++) {
+      const L = links[i]!;
+      const A = L.a === -1 ? cp : pos[L.a]!;
+      const B = pos[L.b]!;
+      const drawn = Math.min(1, Math.max(0, ee * 1.4 - i * 0.02));
+      if (drawn <= 0) continue;
+      const ex = A.x + (B.x - A.x) * drawn;
+      const ey = A.y + (B.y - A.y) * drawn;
+      const lg = ctx.createLinearGradient(A.x, A.y, B.x, B.y);
+      lg.addColorStop(0, rgba(FLAME, 0));
+      lg.addColorStop(0.5, rgba(light ? FLAME : SOFT, light ? 0.32 : 0.28));
+      lg.addColorStop(1, rgba(light ? FLAME : GOLD, light ? 0.04 : 0.05));
+      ctx.strokeStyle = lg;
+      ctx.lineWidth = L.a === -1 ? 1.4 : 0.9;
+      ctx.beginPath();
+      ctx.moveTo(A.x, A.y);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+      if (drawn >= 1) {
+        const pp = (t * 0.28 + L.pulse) % 1;
+        const px = A.x + (B.x - A.x) * pp;
+        const py = A.y + (B.y - A.y) * pp;
+        ctx.fillStyle = rgba(light ? [176, 74, 40] : GOLD, light ? 0.85 : 0.9);
+        ctx.beginPath();
+        ctx.arc(px, py, 1.8, 0, 7);
+        ctx.fill();
+        ctx.fillStyle = rgba(SOFT, light ? 0.18 : 0.25);
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, 7);
+        ctx.fill();
+      }
+    }
+
+    // Nodes — pop on (scale) in a stagger; a warm glow + a bright centre dot.
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i]!;
+      const sc = Math.min(1, Math.max(0, ee * 1.5 - i * 0.05));
+      if (sc <= 0) continue;
+      const p = pos[i]!;
+      const r = n.r * sc;
+      const gg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 4);
+      gg.addColorStop(0, rgba(n.col, light ? 0.55 : 0.9));
+      gg.addColorStop(0.4, rgba(n.col, light ? 0.22 : 0.4));
+      gg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = gg;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r * 4, 0, 7);
+      ctx.fill();
+      ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 250, 244], light ? 0.85 : 0.95);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r * 0.6, 0, 7);
+      ctx.fill();
+    }
+
+    // Hub centre + halo (drawn last so it sits on top).
+    ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 244, 232], ee);
+    ctx.beginPath();
+    ctx.arc(cp.x, cp.y, 7 * ee, 0, 7);
+    ctx.fill();
+    const halo = ctx.createRadialGradient(cp.x, cp.y, 0, cp.x, cp.y, 26);
+    halo.addColorStop(0, rgba(GOLD, (light ? 0.4 : 0.6) * ee));
+    halo.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(cp.x, cp.y, 26, 0, 7);
+    ctx.fill();
+  };
+
+  if (reduce) {
+    draw(0);
+    return () => ro.disconnect();
+  }
+
+  const loop = (now: number) => {
+    if (!document.hidden) draw(now);
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return () => {
+    cancelAnimationFrame(raf);
+    ro.disconnect();
+  };
+}
+
 /**
- * Clients page hero — "The Weave" (Doc 09 Page 4; content verbatim).
+ * Clients page hero — "The Constellation Network" (Doc 09 Page 4; content verbatim).
  *
- * Full-first-screen scene sized like AboutCinematicIntro. The right column weaves the
- * client relationships as interlacing threads of light, with the real client logos
- * seated at the knots — a single thread is fragile, woven together they hold. Motion
- * follows the shared hero contract: preloader-gated entrance (with a +count-up on the
- * trust stat), cursor parallax of the whole fabric, a scrubbed scroll exit; idle loops
- * are CSS on independent channels. Reduced motion → still, legible scene.
+ * Full-first-screen scene sized like AboutCinematicIntro. The right column is a
+ * living relationship graph on a canvas: a warm Buyue hub linked to abstract partner
+ * nodes, with light pulsing along the links. It communicates a connected network of
+ * trusted clients WITHOUT logos (the wall below owns those). Motion follows the
+ * shared hero contract: preloader-gated entrance (with a +count-up on the trust
+ * stat), cursor parallax, a scrubbed scroll exit; the canvas is self-contained and
+ * theme-aware. Reduced motion → one still, legible frame.
  */
 export function ClientsHero({
   heading,
@@ -96,70 +270,63 @@ export function ClientsHero({
   ctaHref,
 }: ClientsHeroProps) {
   const root = useRef<HTMLElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
   const reduce = useReducedMotion();
 
   useGSAP(
     () => {
       const el = root.current;
-      if (reduce || !el) return;
-      const q = gsap.utils.selector(el);
+      const cv = canvas.current;
+      if (!el || !cv) return;
 
+      // Shared state the canvas reads: cursor targets + the entrance clock.
+      const mouse = { tx: 0, ty: 0 };
+      const clock = { start: reduce ? 1 : 0 };
+      const stopNetwork = mountNetwork(cv, !!reduce, mouse, clock);
+
+      if (reduce) return stopNetwork;
+
+      const q = gsap.utils.selector(el);
       const words = q<HTMLElement>('[data-word]');
       const stat = q('[data-stat]');
       const statNum = el.querySelector<HTMLElement>('[data-statnum]');
       const divider = q('[data-divider]');
       const bodyEl = q('[data-body]');
       const cta = q('[data-cta]');
-      const bloom = q('[data-bloom]');
-      const threads = q('[data-threads]');
-      const knots = q('[data-knot]');
-      const motes = q('[data-mote]');
       const content = q('[data-content]');
       const visual = q('[data-visual]');
 
-      // ── Cursor parallax (fine pointers) — the whole fabric shifts as one unit.
+      // ── Cursor parallax (fine pointers) — feeds the canvas its target offset.
       let frame = 0;
-      let mvx = 0;
-      let mvy = 0;
       const onMove = (event: PointerEvent) => {
         const r = el.getBoundingClientRect();
-        mvx = ((event.clientX - r.left) / r.width - 0.5) * 2;
-        mvy = ((event.clientY - r.top) / r.height - 0.5) * 2;
+        const nx = ((event.clientX - r.left) / r.width - 0.5) * 2;
+        const ny = ((event.clientY - r.top) / r.height - 0.5) * 2;
         if (frame) return;
         frame = requestAnimationFrame(() => {
           frame = 0;
-          el.style.setProperty('--mx', mvx.toFixed(3));
-          el.style.setProperty('--my', mvy.toFixed(3));
+          mouse.tx = nx;
+          mouse.ty = ny;
         });
       };
       const fine = window.matchMedia('(pointer: fine)').matches;
       if (fine) el.addEventListener('pointermove', onMove);
 
-      // ── Hidden entrance states (CSS defaults are the SHOWN state → reduced motion /
-      //    no-JS render everything visible).
+      // ── Hidden entrance states (CSS defaults are the SHOWN state → reduced motion
+      //    / no-JS render everything visible).
       gsap.set(words, { autoAlpha: 0, yPercent: 60, filter: 'blur(8px)' });
       gsap.set(stat, { autoAlpha: 0, y: 18 });
       gsap.set(divider, { scaleX: 0, transformOrigin: 'left center' });
       gsap.set(bodyEl, { autoAlpha: 0, y: 20 });
       gsap.set(cta, { autoAlpha: 0, y: 20 });
-      gsap.set(bloom, { autoAlpha: 0, scale: 0.7 });
-      gsap.set(threads, { autoAlpha: 0 });
-      gsap.set(knots, { autoAlpha: 0, scale: 0.5 });
-      gsap.set(motes, { autoAlpha: 0 });
+      gsap.set(visual, { autoAlpha: 0 });
       if (statNum) statNum.textContent = '0';
 
-      // ── Entrance (paused; plays on the preloader hand-off). The bloom lights, the
-      //    weave threads fade in, the logo knots pop on, then the copy sets over it.
+      // ── Entrance (paused; plays on the preloader hand-off). The canvas fades up
+      //    and starts drawing its network (via the shared clock), while the copy sets.
       const counter = { v: 0 };
       const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
-      tl.to(bloom, { autoAlpha: 1, scale: 1, duration: 1.2, ease: 'expo.out' }, 0)
-        .to(threads, { autoAlpha: 1, duration: 1, ease: 'power2.out' }, 0.2)
-        .to(
-          knots,
-          { autoAlpha: 1, scale: 1, duration: 0.7, stagger: 0.08, ease: 'back.out(1.5)' },
-          0.55,
-        )
-        .to(motes, { autoAlpha: 1, duration: 0.8, stagger: 0.06 }, 1)
+      tl.to(visual, { autoAlpha: 1, duration: 1, ease: 'power2.out' }, 0)
         .to(
           words,
           {
@@ -194,13 +361,14 @@ export function ClientsHero({
       const play = () => {
         if (played) return;
         played = true;
+        clock.start = performance.now();
         tl.play();
       };
       const off = onPreloaderDone(play);
       const safety = window.setTimeout(play, 1400);
 
-      // ── Scrubbed scroll exit (desktop) — the scene drifts up and fades as the reader
-      //    moves into the logo wall below.
+      // ── Scrubbed scroll exit (desktop) — the scene drifts up and fades as the
+      //    reader moves into the logo wall below.
       const mm = gsap.matchMedia();
       mm.add('(min-width: 900px)', () => {
         gsap.to(visual, {
@@ -219,72 +387,11 @@ export function ClientsHero({
 
       const refresh = window.setTimeout(() => ScrollTrigger.refresh(), 700);
 
-      // ── Logo rotation — the knots cycle the FULL roster. One knot at a time
-      //    crossfades its logo out and the next from a shuffled bag in, so every
-      //    client appears (fair coverage) in a random-feeling order. Runs only
-      //    after mount, so the server render keeps the fixed KNOTS set (no
-      //    hydration mismatch); reduced motion never reaches here. The crossfade
-      //    lives on the img's OWN opacity channel — independent of the tile's
-      //    GSAP transform and its CSS twinkle. The src swaps while the img is
-      //    invisible, so the tile resizes to the new logo unseen.
-      const knotImgs = q<HTMLImageElement>('[data-knot] img');
-      const shown = KNOTS.map((k) => k.logo);
-      const bag = gsap.utils.shuffle(
-        clientLogos.map((_, i) => i).filter((i) => !shown.includes(i)),
-      );
-      let lastKnot = -1;
-      let swapTimer = 0;
-      let killed = false;
-
-      const swapOne = () => {
-        if (bag.length === 0 || knotImgs.length === 0) return;
-        // Pick a knot other than the one swapped last, so it never clumps.
-        let k = Math.floor(Math.random() * knotImgs.length);
-        if (knotImgs.length > 1 && k === lastKnot) k = (k + 1) % knotImgs.length;
-        lastKnot = k;
-        const img = knotImgs[k];
-        const retired = shown[k];
-        const nextIdx = bag.shift();
-        if (!img || retired === undefined || nextIdx === undefined) return;
-        const next = clientLogos[nextIdx];
-        if (!next) return;
-        shown[k] = nextIdx;
-        bag.push(retired);
-
-        // Preload the incoming logo so the tile never collapses mid-swap.
-        const pre = new Image();
-        pre.onload = () => {
-          if (killed) return;
-          gsap.to(img, {
-            autoAlpha: 0,
-            duration: 0.4,
-            ease: 'power1.in',
-            onComplete: () => {
-              img.src = next.src;
-              gsap.to(img, { autoAlpha: 1, duration: 0.55, ease: 'power1.out' });
-            },
-          });
-        };
-        pre.src = next.src;
-      };
-
-      const scheduleSwap = () => {
-        swapTimer = window.setTimeout(
-          () => {
-            swapOne();
-            scheduleSwap();
-          },
-          2500 + Math.random() * 1500,
-        );
-      };
-      scheduleSwap();
-
       return () => {
         off();
-        killed = true;
+        stopNetwork();
         window.clearTimeout(safety);
         window.clearTimeout(refresh);
-        window.clearTimeout(swapTimer);
         if (fine) el.removeEventListener('pointermove', onMove);
         if (frame) cancelAnimationFrame(frame);
         mm.revert();
@@ -320,89 +427,9 @@ export function ClientsHero({
             </div>
           </div>
 
-          {/* Right — The Weave */}
+          {/* Right — The Constellation Network (canvas) */}
           <div className={styles.visual} data-visual aria-hidden="true">
-            <span className={styles.bloom} data-bloom />
-
-            <div className={styles.field}>
-              <svg
-                className={styles.threads}
-                data-threads
-                viewBox="0 0 500 560"
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  {/* Brand warm gradients — literal hex; CSS vars don't resolve in SVG. */}
-                  <linearGradient id="ch-g1" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0" stopColor="#cf5138" />
-                    <stop offset="0.5" stopColor="#ff7a45" />
-                    <stop offset="1" stopColor="#eac46b" />
-                  </linearGradient>
-                  <linearGradient id="ch-g2" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0" stopColor="#eac46b" />
-                    <stop offset="0.5" stopColor="#ff7a45" />
-                    <stop offset="1" stopColor="#cf5138" />
-                  </linearGradient>
-                </defs>
-                {THREADS.map((t, i) => (
-                  <path
-                    key={i}
-                    className={styles.thread}
-                    d={t.d}
-                    style={
-                      {
-                        stroke: t.grad === 1 ? "url('#ch-g1')" : "url('#ch-g2')",
-                        strokeWidth: t.width,
-                        opacity: t.opacity,
-                        '--delay': t.delay,
-                      } as CSSProperties
-                    }
-                  />
-                ))}
-              </svg>
-
-              {KNOTS.map((k, i) => {
-                const logo = clientLogos[k.logo] ?? clientLogos[0]!;
-                return (
-                  <span
-                    key={i}
-                    data-knot
-                    className={styles.star}
-                    style={
-                      {
-                        insetInlineStart: k.left,
-                        insetBlockStart: k.top,
-                        '--delay': k.delay,
-                      } as CSSProperties
-                    }
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element -- static client logo, sized by CSS */}
-                    <img
-                      className={styles.starImg}
-                      src={logo.src}
-                      alt=""
-                      loading="lazy"
-                      draggable={false}
-                    />
-                  </span>
-                );
-              })}
-
-              {MOTES.map((m, i) => (
-                <span
-                  key={i}
-                  data-mote
-                  className={styles.mote}
-                  style={
-                    {
-                      insetBlockStart: m.top,
-                      insetInlineStart: m.left,
-                      '--delay': m.delay,
-                    } as CSSProperties
-                  }
-                />
-              ))}
-            </div>
+            <canvas ref={canvas} className={styles.network} />
           </div>
         </div>
       </Container>
