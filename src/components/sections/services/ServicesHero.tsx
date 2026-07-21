@@ -22,33 +22,86 @@ type ServicesHeroProps = {
 /** Curve the content path travels along (SVG viewBox 0 0 500 560, stretched to the box). */
 const PATH_D = 'M120 250 C 210 340, 220 300, 300 380 S 360 430, 350 440';
 
-/** Content chips riding the path — position (% of the visual), tint, drift phase. */
-const CHIPS: { top: string; left: string; color: string; delay: string; icon: ReactNode }[] = [
+/** Content chips streaming along the path — position (% of the visual), size, tint,
+ *  drift phase, and a recognisable service icon. A richer cluster of "content in
+ *  transit" from the phone toward the stand. */
+const CHIPS: {
+  top: string;
+  left: string;
+  size: string;
+  color: string;
+  delay: string;
+  icon: ReactNode;
+}[] = [
   {
-    top: '40%',
-    left: '30%',
+    top: '38%',
+    left: '31%',
+    size: '2.5rem',
     color: 'var(--color-quilt-gold)',
     delay: '-1s',
     icon: <path d="M8 5v14l11-7z" fill="currentColor" />,
   },
   {
-    top: '52%',
-    left: '43%',
+    top: '29%',
+    left: '46%',
+    size: '2.1rem',
+    color: 'var(--color-quilt-gold)',
+    delay: '-2.4s',
+    icon: (
+      <>
+        <rect x="3" y="7" width="18" height="13" rx="2" />
+        <circle cx="12" cy="13.5" r="3.2" />
+        <path d="M8.5 7l1.2-2h4.6l1.2 2" />
+      </>
+    ),
+  },
+  {
+    top: '50%',
+    left: '42%',
+    size: '2.3rem',
     color: 'var(--color-soft-orange)',
-    delay: '-3s',
+    delay: '-3.2s',
     icon: (
       <path d="M12 21s-7-4.5-9.5-9C1 9 2.5 5.5 6 5.5c2 0 3.2 1.2 4 2.4.8-1.2 2-2.4 4-2.4 3.5 0 5 3.5 3.5 6.5C19 16.5 12 21 12 21z" />
     ),
   },
   {
-    top: '60%',
-    left: '20%',
+    top: '61%',
+    left: '23%',
+    size: '2rem',
     color: 'var(--color-lime-taffy)',
     delay: '-4.5s',
     icon: (
       <>
         <circle cx="11" cy="11" r="7" />
         <path d="M21 21l-4-4" />
+      </>
+    ),
+  },
+  {
+    top: '57%',
+    left: '54%',
+    size: '2.2rem',
+    color: 'var(--color-soft-orange)',
+    delay: '-1.8s',
+    icon: (
+      <>
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <circle cx="8.5" cy="9" r="1.6" />
+        <path d="M4 16l5-4 4 3 3-2 4 3" />
+      </>
+    ),
+  },
+  {
+    top: '71%',
+    left: '36%',
+    size: '1.9rem',
+    color: 'var(--color-lime-taffy)',
+    delay: '-5.5s',
+    icon: (
+      <>
+        <path d="M4 10v4h3l6 4V6L7 10H4z" />
+        <path d="M16 9a3 3 0 010 6" />
       </>
     ),
   },
@@ -292,6 +345,8 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
                   {
                     insetBlockStart: chip.top,
                     insetInlineStart: chip.left,
+                    inlineSize: chip.size,
+                    blockSize: chip.size,
                     color: chip.color,
                     '--delay': chip.delay,
                   } as CSSProperties
@@ -341,10 +396,15 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
               <span className={styles.floor} data-standpart />
               <span className={styles.side} data-standpart />
               <div className={styles.wall} data-standpart>
-                <span className={styles.wallMark} />
+                {/* eslint-disable-next-line @next/next/no-img-element -- static brand mark, sized by CSS */}
+                <img
+                  className={styles.wallLogo}
+                  src="/brand/buyue-mark-trim.png"
+                  alt=""
+                  draggable={false}
+                />
               </div>
               <div className={styles.sign} data-sign>
-                <span className={styles.signDot} />
                 Buyue
               </div>
               <div className={styles.counter} data-standpart />

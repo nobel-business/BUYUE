@@ -283,9 +283,11 @@
   will-change: transform, opacity;
 }
 
+/* Icon scales WITH the chip (percentage, centred) so it never distorts, whatever
+   the chip size. */
 .chip svg {
-  inline-size: 1.2rem;
-  block-size: 1.2rem;
+  inline-size: 52%;
+  block-size: 52%;
 }
 
 @keyframes sh-bob {
@@ -489,16 +491,16 @@
   will-change: transform, opacity;
 }
 
-.wallMark {
+/* The real Buyue mark (public/brand) — a clear logo, contained so it never distorts. */
+.wallLogo {
   position: absolute;
-  inset-block-start: 50%;
+  inset-block-start: 46%;
   inset-inline-start: 50%;
   transform: translate(-50%, -50%);
-  inline-size: 4.5rem;
-  block-size: 4.5rem;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, var(--color-bonfire-flame), var(--color-quilt-gold));
-  box-shadow: 0 0 24px color-mix(in srgb, var(--color-soft-orange) 40%, transparent);
+  inline-size: 48%;
+  block-size: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--color-bonfire-flame) 45%, transparent));
 }
 
 .side {
@@ -532,9 +534,10 @@
   justify-content: center;
   gap: 0.5rem;
   color: #fff;
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
   box-shadow:
     0 0 34px color-mix(in srgb, var(--color-soft-orange) 60%, transparent),
     0 8px 22px rgba(0, 0, 0, 0.45),
@@ -559,14 +562,6 @@
       0 8px 22px rgba(0, 0, 0, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.4);
   }
-}
-
-.signDot {
-  inline-size: 0.95rem;
-  block-size: 0.95rem;
-  border-radius: 4px;
-  background: #fff;
-  box-shadow: 0 0 10px #fff;
 }
 
 .counter {
