@@ -224,13 +224,13 @@
   inset-block-start: 48%;
   inset-inline-start: 50%;
   translate: -50% -50%;
-  inline-size: 5rem;
-  block-size: 5rem;
+  inline-size: 5.4rem;
+  block-size: 5.4rem;
   border-radius: 50%;
   z-index: 4;
   display: grid;
   place-items: center;
-  padding: 1.05rem;
+  padding: 0;
   background: radial-gradient(
     circle at 36% 30%,
     rgba(255, 255, 255, 0.28),
@@ -261,9 +261,13 @@
   }
 }
 
+/* The mark sits well inside the round medallion — capped to its own aspect within a
+   2.6rem box (of the 5.4rem circle), so its edges never touch or cross the circle. */
 .coreImg {
-  inline-size: 100%;
-  block-size: 100%;
+  inline-size: auto;
+  block-size: auto;
+  max-inline-size: 2.6rem;
+  max-block-size: 2.6rem;
   object-fit: contain;
   filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-bonfire-flame) 40%, transparent));
 }
