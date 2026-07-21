@@ -158,7 +158,7 @@
 /* ══════════ Right column — the network canvas ══════════ */
 .visual {
   position: relative;
-  block-size: min(80vh, 46rem);
+  block-size: min(86vh, 50rem);
 }
 
 .network {

@@ -72,29 +72,27 @@ function mountNetwork(
   if (!ctx) return () => {};
 
   // ── Seeded layout (deterministic → identical every load; no hydration concern
-  //    since the canvas is client-only). Nodes are placed around the hub in an
-  //    organic ring so the graph reads as relationships, not a symmetric mesh.
+  //    since the canvas is client-only). Nodes sit in POLAR coordinates around the
+  //    hub (angle + radius fraction), so the constellation scales uniformly with the
+  //    panel — no horizontal stretch — and reads as an organic ring of relationships.
   let seed = 1337;
   const rnd = () => {
     seed = (seed * 16807) % 2147483647;
     return (seed - 1) / 2147483646;
   };
-  const core = { x: 0.6, y: 0.46 };
+  const core = { x: 0.6, y: 0.5 }; // hub centre, as a fraction of the canvas
   const N = 16;
-  const nodes = Array.from({ length: N }, (_, i) => {
-    const ang = rnd() * Math.PI * 2;
-    const rad = 0.16 + rnd() * 0.42;
-    return {
-      bx: core.x + Math.cos(ang) * rad * 0.9,
-      by: core.y + Math.sin(ang) * rad * 1.05,
-      r: 3 + rnd() * 6,
-      ph: rnd() * Math.PI * 2,
-      sp: 0.3 + rnd() * 0.5,
-      amp: 0.006 + rnd() * 0.012,
-      col: i % 3 === 0 ? GOLD : i % 3 === 1 ? SOFT : FLAME,
-      depth: 0.5 + rnd() * 0.5,
-    };
-  });
+  const nodes = Array.from({ length: N }, (_, i) => ({
+    ang: rnd() * Math.PI * 2,
+    rad: 0.24 + rnd() * 0.72, // fraction of the radius budget (0.24 → 0.96)
+    r: 5 + rnd() * 6, // base node radius, scaled by `k` at draw time
+    ph: rnd() * Math.PI * 2,
+    sp: 0.3 + rnd() * 0.5,
+    amp: 0.01 + rnd() * 0.02, // radial drift amplitude (fraction)
+    aph: rnd() * 0.4, // angular drift amplitude (radians)
+    col: i % 3 === 0 ? GOLD : i % 3 === 1 ? SOFT : FLAME,
+    depth: 0.5 + rnd() * 0.5,
+  }));
   type Link = { a: number; b: number; pulse: number };
   const links: Link[] = nodes.map((_, i) => ({ a: -1, b: i, pulse: rnd() })); // a = -1 → hub
   for (let k = 0; k < 7; k++) {
@@ -134,41 +132,43 @@ function mountNetwork(
     mx += (mouse.tx - mx) * 0.06;
     my += (mouse.ty - my) * 0.06;
 
-    // Right-panel box, offset by the eased cursor parallax.
-    const bx = W * 0.3;
-    const by = H * 0.1;
-    const bw = W * 0.66;
-    const bh = H * 0.8;
-    const P = (nx: number, ny: number, depth = 1) => ({
-      x: bx + nx * bw + mx * 22 * depth,
-      y: by + ny * bh + my * 16 * depth,
-    });
-
     ctx.clearRect(0, 0, W, H);
 
-    const cp = P(core.x, core.y);
+    // Uniform scale: the radius budget and every drawn dimension key off the SHORTER
+    // side, so the constellation grows large and clear with the panel and never
+    // stretches thin on a wide screen. `k` scales node/line/glow sizes together.
+    const unit = Math.min(W, H);
+    const Rmax = unit * 0.46;
+    const k = Math.max(0.85, Math.min(2.4, unit / 620));
+    const cx = W * core.x + mx * 26;
+    const cy = H * core.y + my * 18;
 
     // Hub bloom.
-    const bloom = ctx.createRadialGradient(cp.x, cp.y, 0, cp.x, cp.y, Math.max(120, bw * 0.28));
-    bloom.addColorStop(0, rgba(SOFT, (light ? 0.16 : 0.22) * ee));
-    bloom.addColorStop(0.4, rgba(FLAME, (light ? 0.08 : 0.1) * ee));
+    const bloomR = Rmax * 0.85;
+    const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, bloomR);
+    bloom.addColorStop(0, rgba(SOFT, (light ? 0.16 : 0.24) * ee));
+    bloom.addColorStop(0.4, rgba(FLAME, (light ? 0.08 : 0.11) * ee));
     bloom.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = bloom;
     ctx.beginPath();
-    ctx.arc(cp.x, cp.y, Math.max(120, bw * 0.28), 0, 7);
+    ctx.arc(cx, cy, bloomR, 0, 7);
     ctx.fill();
 
-    // Live node positions (gentle idle drift).
+    // Live node positions (gentle polar idle drift + per-node parallax depth).
     const pos = nodes.map((n) => {
-      const dx = Math.cos(t * n.sp + n.ph) * n.amp;
-      const dy = Math.sin(t * n.sp * 1.1 + n.ph) * n.amp;
-      return P(n.bx + dx, n.by + dy, n.depth);
+      const rr = (n.rad + Math.cos(t * n.sp + n.ph) * n.amp) * Rmax;
+      const aa = n.ang + Math.sin(t * n.sp * 0.9 + n.ph) * n.aph;
+      return {
+        x: cx + Math.cos(aa) * rr + mx * 22 * n.depth,
+        y: cy + Math.sin(aa) * rr + my * 16 * n.depth,
+      };
     });
+    const hub = { x: cx, y: cy };
 
     // Links — draw outward on entrance (staggered), then a light pulse travels.
     for (let i = 0; i < links.length; i++) {
       const L = links[i]!;
-      const A = L.a === -1 ? cp : pos[L.a]!;
+      const A = L.a === -1 ? hub : pos[L.a]!;
       const B = pos[L.b]!;
       const drawn = Math.min(1, Math.max(0, ee * 1.4 - i * 0.02));
       if (drawn <= 0) continue;
@@ -176,10 +176,10 @@ function mountNetwork(
       const ey = A.y + (B.y - A.y) * drawn;
       const lg = ctx.createLinearGradient(A.x, A.y, B.x, B.y);
       lg.addColorStop(0, rgba(FLAME, 0));
-      lg.addColorStop(0.5, rgba(light ? FLAME : SOFT, light ? 0.32 : 0.28));
-      lg.addColorStop(1, rgba(light ? FLAME : GOLD, light ? 0.04 : 0.05));
+      lg.addColorStop(0.5, rgba(light ? FLAME : SOFT, light ? 0.36 : 0.34));
+      lg.addColorStop(1, rgba(light ? FLAME : GOLD, light ? 0.05 : 0.08));
       ctx.strokeStyle = lg;
-      ctx.lineWidth = L.a === -1 ? 1.4 : 0.9;
+      ctx.lineWidth = (L.a === -1 ? 1.7 : 1.1) * k;
       ctx.beginPath();
       ctx.moveTo(A.x, A.y);
       ctx.lineTo(ex, ey);
@@ -188,13 +188,13 @@ function mountNetwork(
         const pp = (t * 0.28 + L.pulse) % 1;
         const px = A.x + (B.x - A.x) * pp;
         const py = A.y + (B.y - A.y) * pp;
-        ctx.fillStyle = rgba(light ? [176, 74, 40] : GOLD, light ? 0.85 : 0.9);
+        ctx.fillStyle = rgba(light ? [176, 74, 40] : GOLD, light ? 0.9 : 0.95);
         ctx.beginPath();
-        ctx.arc(px, py, 1.8, 0, 7);
+        ctx.arc(px, py, 2.2 * k, 0, 7);
         ctx.fill();
-        ctx.fillStyle = rgba(SOFT, light ? 0.18 : 0.25);
+        ctx.fillStyle = rgba(SOFT, light ? 0.2 : 0.28);
         ctx.beginPath();
-        ctx.arc(px, py, 4, 0, 7);
+        ctx.arc(px, py, 5 * k, 0, 7);
         ctx.fill();
       }
     }
@@ -205,32 +205,33 @@ function mountNetwork(
       const sc = Math.min(1, Math.max(0, ee * 1.5 - i * 0.05));
       if (sc <= 0) continue;
       const p = pos[i]!;
-      const r = n.r * sc;
+      const r = n.r * k * sc;
       const gg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 4);
-      gg.addColorStop(0, rgba(n.col, light ? 0.55 : 0.9));
-      gg.addColorStop(0.4, rgba(n.col, light ? 0.22 : 0.4));
+      gg.addColorStop(0, rgba(n.col, light ? 0.6 : 0.95));
+      gg.addColorStop(0.4, rgba(n.col, light ? 0.24 : 0.42));
       gg.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = gg;
       ctx.beginPath();
       ctx.arc(p.x, p.y, r * 4, 0, 7);
       ctx.fill();
-      ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 250, 244], light ? 0.85 : 0.95);
+      ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 250, 244], light ? 0.9 : 0.98);
       ctx.beginPath();
-      ctx.arc(p.x, p.y, r * 0.6, 0, 7);
+      ctx.arc(p.x, p.y, r * 0.62, 0, 7);
       ctx.fill();
     }
 
     // Hub centre + halo (drawn last so it sits on top).
-    ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 244, 232], ee);
-    ctx.beginPath();
-    ctx.arc(cp.x, cp.y, 7 * ee, 0, 7);
-    ctx.fill();
-    const halo = ctx.createRadialGradient(cp.x, cp.y, 0, cp.x, cp.y, 26);
-    halo.addColorStop(0, rgba(GOLD, (light ? 0.4 : 0.6) * ee));
+    const haloR = 34 * k;
+    const halo = ctx.createRadialGradient(hub.x, hub.y, 0, hub.x, hub.y, haloR);
+    halo.addColorStop(0, rgba(GOLD, (light ? 0.45 : 0.65) * ee));
     halo.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = halo;
     ctx.beginPath();
-    ctx.arc(cp.x, cp.y, 26, 0, 7);
+    ctx.arc(hub.x, hub.y, haloR, 0, 7);
+    ctx.fill();
+    ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 244, 232], ee);
+    ctx.beginPath();
+    ctx.arc(hub.x, hub.y, 10 * k * ee, 0, 7);
     ctx.fill();
   };
 
