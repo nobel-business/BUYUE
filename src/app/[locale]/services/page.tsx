@@ -2,14 +2,10 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { localeAlternates } from '@/lib/config/seo';
 import { Section } from '@/components/layout/Section';
-import { Container } from '@/components/layout/Container';
-import { Stack } from '@/components/layout/Stack';
-import { Heading } from '@/components/ui/Typography';
 import type { AccordionItem } from '@/components/ui/Accordion';
 import { FaqSection } from '@/components/sections/faq/FaqSection';
 import { ServicesStack } from '@/components/sections/services/ServicesStack';
-import { TextReveal } from '@/lib/motion/TextReveal';
-import { ReadingParagraphs } from '@/components/sections/about/ReadingParagraphs';
+import { ServicesHero } from '@/components/sections/services/ServicesHero';
 
 type PageParams = { params: Promise<{ locale: string }> };
 
@@ -59,17 +55,14 @@ export default async function ServicesPage({ params }: PageParams) {
 
   return (
     <main id="main-content">
-      {/* Intro — word-by-word heading reveal + magazine reading-focus paragraphs */}
-      <Section tone="page">
-        <Container>
-          <Stack gap="5" style={{ maxInlineSize: 'var(--container-narrow)' }}>
-            <Heading level={1} size="h1">
-              <TextReveal text={t('intro.heading')} />
-            </Heading>
-            <ReadingParagraphs paragraphs={introParagraphs} />
-          </Stack>
-        </Container>
-      </Section>
+      {/* Hero — "The Refractor": full-first-screen scene with the prism light metaphor.
+          One beam refracts into a warm brand spectrum = integrated creative services. */}
+      <ServicesHero
+        heading={t('intro.heading')}
+        paragraphs={introParagraphs}
+        ctaLabel={ctaLabel}
+        ctaHref="/contact"
+      />
 
       {/* Services — 3D stacked-cards story (content verbatim; interaction only) */}
       <Section tone="page" spacing="none">

@@ -1,0 +1,509 @@
+/* ServicesHero — "The Refractor".
+ *
+ * A full-first-screen hero (mirrors AboutCinematicIntro sizing) whose right column
+ * is a cinematic light metaphor: one beam enters a glass crystal and refracts into a
+ * warm brand spectrum — "one idea, refracted into a full spectrum of creative
+ * services". Theme-aware via scene tokens; the refraction blend flips screen→multiply
+ * so the warm light reads on both the dark and the ivory ground.
+ *
+ * Motion contract (same as the other heroes): GSAP owns entrance + scroll on the
+ * OUTER elements; every idle loop is a CSS animation on a NESTED element, so the two
+ * never share a transform channel. Cursor parallax uses the CSS `translate` property
+ * (independent of `transform`) driven by --mx/--my. CSS defaults are the *shown*
+ * state, so reduced-motion (GSAP bails, loops disabled) yields a still, legible scene.
+ */
+
+.scene {
+  --nav-offset: 7rem;
+  --refract-blend: screen; /* warm light GLOWS on the dark ground */
+
+  position: relative;
+  min-block-size: 90vh;
+  /* Pull up behind the sticky nav so the whole first screen is one scene. */
+  margin-block-start: calc(-1 * var(--nav-offset));
+  padding-block: calc(var(--nav-offset) + 2rem) clamp(2.5rem, 4vh, 4rem);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: var(--scene-surface);
+  color: var(--scene-ink);
+}
+
+/* Light theme: warm light can't glow on ivory, so refraction tints via multiply and
+   the ambient glows soften. Geometry and timeline are identical. */
+:global(html[data-theme='light']) .scene {
+  --refract-blend: multiply;
+}
+
+/* Static warm ambience + focus vignette behind everything. */
+.scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 90% at 80% 26%,
+      color-mix(in srgb, var(--color-bonfire-flame) 16%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      90% 80% at 10% 92%,
+      color-mix(in srgb, var(--scene-glow-warm) 14%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(130% 120% at 50% 40%, transparent 52%, var(--scene-vignette) 100%);
+}
+
+/* 22vh fade that melts the hero into the section below (no seam on load). */
+.scene::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 22vh;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--surface-page));
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+/* ══════════ Left column ══════════ */
+.content {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+/* Reading-progress rail (01 → 10), the same structural device as the About hero. */
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--scene-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.railLine {
+  position: relative;
+  inline-size: 1px;
+  flex: 1;
+  min-block-size: 8rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--scene-ink) 14%, transparent);
+}
+
+.railFill {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: 22%;
+  background: linear-gradient(var(--color-bonfire-flame), var(--color-quilt-gold));
+}
+
+.railDot {
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background: var(--color-quilt-gold);
+  box-shadow: 0 0 10px var(--color-quilt-gold);
+  animation: sh-dot 3.2s ease-in-out infinite;
+}
+
+@keyframes sh-dot {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+.copy {
+  max-inline-size: 34rem;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-display);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-weight: var(--font-weight-bold);
+  text-wrap: balance;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Accent gradient on the key word — matches the About hero's titleAccent. */
+.accent {
+  background: linear-gradient(
+    100deg,
+    var(--color-bonfire-flame) 8%,
+    var(--color-soft-orange) 48%,
+    var(--color-quilt-gold)
+  );
+  background-clip: text;
+  color: transparent;
+}
+
+.divider {
+  inline-size: 3.5rem;
+  block-size: 2px;
+  margin: 1.6rem 0;
+  background: linear-gradient(to right, var(--color-bonfire-flame), transparent);
+  will-change: transform;
+}
+
+:global(html[dir='rtl']) .divider {
+  background: linear-gradient(to left, var(--color-bonfire-flame), transparent);
+}
+
+.lead {
+  margin: 0 0 1.1rem;
+  max-inline-size: 40ch;
+  font-size: var(--font-size-body-l);
+  line-height: 1.6;
+  color: var(--scene-ink);
+}
+
+.sub {
+  margin: 0 0 2.2rem;
+  max-inline-size: 42ch;
+  font-size: var(--font-size-body);
+  line-height: 1.65;
+  color: var(--scene-ink-soft);
+}
+
+.cta {
+  will-change: transform, opacity;
+}
+
+/* ══════════ Right column — The Refractor ══════════ */
+.visual {
+  position: relative;
+  block-size: min(78vh, 44rem);
+  /* cursor parallax (independent of transform) */
+  translate: calc(var(--mx, 0) * 10px) calc(var(--my, 0) * 8px);
+  transition: translate 0.6s var(--ease-out-soft);
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1400px;
+}
+
+/* Mirror the light metaphor in RTL so the beam enters from the reading-start side. */
+:global(html[dir='rtl']) .stage {
+  transform: scaleX(-1);
+}
+
+/* Warm bloom behind the crystal. GSAP owns entrance; the nested core does the pulse. */
+.bloom {
+  position: absolute;
+  inline-size: 60%;
+  aspect-ratio: 1;
+  translate: calc(var(--mx, 0) * -6px) calc(var(--my, 0) * -5px);
+}
+
+.bloomCore {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-soft-orange) 34%, transparent),
+    color-mix(in srgb, var(--color-bonfire-flame) 14%, transparent) 45%,
+    transparent 68%
+  );
+  filter: blur(30px);
+  animation: sh-bloom 9s ease-in-out infinite;
+}
+
+@keyframes sh-bloom {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+/* Refracted spectrum — a warm fan leaving the crystal. Each .band holds its fixed fan
+   angle; the inner <i> is GSAP-revealed (scaleX) and CSS-shimmered (opacity only). */
+.spectrum {
+  position: absolute;
+  inset: 0;
+  translate: calc(var(--mx, 0) * 14px) calc(var(--my, 0) * 10px);
+}
+
+.band {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: 58%;
+  block-size: 12px;
+  transform-origin: left center;
+  transform: rotate(var(--r));
+}
+
+.band i {
+  display: block;
+  block-size: 100%;
+  border-radius: 999px;
+  filter: blur(7px);
+  mix-blend-mode: var(--refract-blend);
+  opacity: var(--o);
+  background: linear-gradient(to right, var(--c), transparent 82%);
+  transform-origin: left center;
+  will-change: transform, opacity;
+  animation: sh-shimmer 7s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes sh-shimmer {
+  0%,
+  100% {
+    opacity: var(--o);
+  }
+
+  50% {
+    opacity: calc(var(--o) + 0.16);
+  }
+}
+
+/* Incoming beam. */
+.beam {
+  position: absolute;
+  inset-block-start: 22%;
+  inset-inline-start: -6%;
+  inline-size: 62%;
+  block-size: 3px;
+  transform-origin: right center;
+  transform: rotate(28deg);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 244, 224, 0.15) 20%,
+    rgba(255, 250, 240, 0.9)
+  );
+  filter: blur(1.5px);
+  mix-blend-mode: var(--refract-blend);
+  will-change: transform, opacity;
+}
+
+.beam::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -4px;
+  inset-block-start: 50%;
+  inline-size: 26px;
+  block-size: 26px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 250, 240, 0.9), transparent 70%);
+  filter: blur(3px);
+}
+
+/* Glass crystal. GSAP owns entrance (scale/blur/opacity) + parallax; the nested
+   .crystalSpin does the idle tilt on a separate transform channel. */
+.crystal {
+  position: relative;
+  inline-size: 8.5rem;
+  block-size: 13rem;
+  z-index: 3;
+  translate: calc(var(--mx, 0) * 18px) calc(var(--my, 0) * 14px);
+  will-change: transform, opacity;
+}
+
+.crystalSpin {
+  position: absolute;
+  inset: 0;
+  animation: sh-tilt 15s ease-in-out infinite;
+}
+
+@keyframes sh-tilt {
+  0%,
+  100% {
+    transform: rotate(-3deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(4deg) translateY(-10px);
+  }
+}
+
+.clip {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0, 90% 26%, 82% 100%, 18% 100%, 10% 26%);
+}
+
+/* Glowing warm edge behind the glass. */
+.edge {
+  inset: -2px;
+  background: linear-gradient(
+    150deg,
+    rgba(255, 244, 224, 0.9),
+    var(--color-soft-orange) 45%,
+    var(--color-bonfire-flame)
+  );
+  filter: blur(9px);
+  opacity: 0.75;
+}
+
+/* Glass body — uses the theme-aware glass tokens. */
+.glass {
+  background:
+    linear-gradient(
+      118deg,
+      var(--glass-sheen) 0%,
+      color-mix(in srgb, var(--glass-sheen) 40%, transparent) 30%,
+      transparent 46%
+    ),
+    linear-gradient(
+      300deg,
+      color-mix(in srgb, var(--color-soft-orange) 28%, transparent),
+      transparent 55%
+    ),
+    var(--glass-fill-strong);
+  backdrop-filter: blur(4px);
+  box-shadow: inset 0 0 40px var(--glass-sheen);
+}
+
+/* Interior facet lines. */
+.facet {
+  background:
+    linear-gradient(
+      to right,
+      transparent calc(50% - 0.5px),
+      var(--glass-border-strong) 50%,
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(155deg, transparent 24%, var(--glass-border-strong) 25%, transparent 26%),
+    linear-gradient(205deg, transparent 24%, rgba(255, 244, 224, 0.16) 25%, transparent 26%);
+}
+
+/* Bright specular where the beam strikes — its own element, opacity loop only. */
+.spark {
+  position: absolute;
+  inset-block-start: 8%;
+  inset-inline-start: 20%;
+  inline-size: 30px;
+  block-size: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), transparent 70%);
+  filter: blur(2px);
+  animation: sh-spark 5s ease-in-out infinite;
+}
+
+@keyframes sh-spark {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Drifting light motes. GSAP sets opacity (entrance); CSS drifts transform. */
+.mote {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--scene-particle);
+  opacity: 0.5;
+  filter: blur(0.5px);
+  animation: sh-float 12s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes sh-float {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-8px, -14px);
+  }
+}
+
+/* ══════════ Responsive — mobile stacks, no full-height (as the About hero does) ══ */
+@media (max-width: 899px) {
+  .scene {
+    display: block;
+    min-block-size: auto;
+    margin-block-start: 0;
+    padding-block: calc(var(--nav-offset) + 1.5rem) 3rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .rail {
+    display: none;
+  }
+
+  .visual {
+    block-size: 22rem;
+    order: 2;
+    translate: none;
+  }
+}
+
+/* ══════════ Reduced motion — still, legible scene (GSAP also bails in the TSX) ══ */
+@media (prefers-reduced-motion: reduce) {
+  .visual,
+  .bloom,
+  .spectrum,
+  .crystal {
+    translate: none;
+  }
+
+  .bloomCore,
+  .band i,
+  .crystalSpin,
+  .spark,
+  .mote,
+  .railDot {
+    animation: none;
+  }
+}
