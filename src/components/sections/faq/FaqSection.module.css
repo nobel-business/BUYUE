@@ -312,11 +312,9 @@
 
 .ctaBtn {
   position: relative;
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
+  /* Inline flow (not a wrapping flex row) so the arrow trails the last word of the
+     label instead of dropping to its own centred line when the sentence is long. */
+  display: inline-block;
   max-inline-size: min(100%, 34rem);
   overflow: hidden;
   isolation: isolate;
@@ -392,6 +390,10 @@
 }
 
 .ctaArrow {
+  /* Sits inline right after the label text, vertically centred on it. */
+  display: inline-block;
+  vertical-align: -0.18em;
+  margin-inline-start: 0.5rem;
   transition: transform 200ms var(--ease-out-soft);
 }
 
