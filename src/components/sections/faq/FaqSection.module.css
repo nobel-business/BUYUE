@@ -313,9 +313,11 @@
 .ctaBtn {
   position: relative;
   /* Inline flow (not a wrapping flex row) so the arrow trails the last word of the
-     label instead of dropping to its own centred line when the sentence is long. */
+     label. The width budget is wide enough for the whole sentence PLUS the arrow to sit
+     on one line on desktop — the old 34rem was exactly the sentence width, which forced
+     the arrow onto a second line. Narrow screens still cap at 100% and wrap gracefully. */
   display: inline-block;
-  max-inline-size: min(100%, 34rem);
+  max-inline-size: min(100%, 46rem);
   overflow: hidden;
   isolation: isolate;
   padding-block: 1rem;
