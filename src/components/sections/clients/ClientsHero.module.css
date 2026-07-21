@@ -268,18 +268,17 @@
   filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-bonfire-flame) 40%, transparent));
 }
 
-/* Client-logo "stars" — a light tile so every mark reads on the dark scene. GSAP
-   scales/fades them in; CSS twinkles the glow (box-shadow, independent of transform). */
+/* Client-logo "stars" — a light tile so every mark reads on the dark scene. The tile
+   has NO fixed size: it hugs its logo, so each shape (wide wordmark, tall crest, square
+   badge) gets a tile that fits it — variety, not one forced box. GSAP scales/fades them
+   in; CSS twinkles the glow (box-shadow, independent of transform). */
 .star {
   position: absolute;
   translate: -50% -50%;
-  inline-size: 5rem;
-  block-size: 3.3rem;
   border-radius: 0.8rem;
   z-index: 3;
-  display: grid;
-  place-items: center;
-  padding: 0.55rem 0.7rem;
+  display: inline-flex;
+  padding: 0.6rem 0.75rem;
   background: color-mix(in srgb, #fff 90%, var(--color-quilt-gold) 10%);
   border: 1px solid var(--glass-border-strong);
   box-shadow:
@@ -305,9 +304,17 @@
   }
 }
 
+/* The logo sizes to its own aspect ratio within a shared budget (max 6.75rem wide ×
+   2.9rem tall), so every mark scales to fit — never stretched, never cropped — and the
+   tile above hugs whatever shape results. A minimum width keeps a very narrow mark (a
+   tall crest) from producing a sliver of a tile. */
 .starImg {
-  inline-size: 100%;
-  block-size: 100%;
+  display: block;
+  inline-size: auto;
+  block-size: auto;
+  max-inline-size: 6.75rem;
+  max-block-size: 2.9rem;
+  min-inline-size: 1.6rem;
   object-fit: contain;
 }
 
