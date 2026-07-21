@@ -63,9 +63,9 @@ const SOFT: RGB = [255, 122, 69];
 const GOLD: RGB = [234, 196, 107];
 const rgba = (c: RGB, a: number) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
-/** Icon variants seated on marked network nodes. The `*Ring` variants are the
- *  distinct ones — a networked globe and a radar pin — used for the later points. */
-type IconKind = 'globe' | 'pin' | 'globeRing' | 'pinRing' | null;
+/** Planet icons seated on marked network nodes: an Earth globe and a ringed
+ *  (Saturn-style) globe. Used to make the local-and-global story explicit. */
+type IconKind = 'globe' | 'globeRing' | null;
 
 function mountNetwork(
   canvas: HTMLCanvasElement,
@@ -103,20 +103,18 @@ function mountNetwork(
     };
   });
 
-  // Mark spread-out nodes as "global reach" points — the network's local-and-global
-  // story made explicit: globes (planet Earth) and location pins (countries), with the
-  // later points using the distinct "networked" variants (orbit globe / radar pin).
+  // Mark spread-out nodes as "global reach" planets — the network's local-and-global
+  // story made explicit: Earth globes and ringed (Saturn-style) globes, alternating.
   // Each target picks the node nearest its direction around the hub (biased to the mid/
   // outer ring) so the icons are distributed, not clustered.
   const iconTargets: { ang: number; icon: Exclude<IconKind, null> }[] = [
     { ang: -Math.PI * 0.72, icon: 'globe' },
-    { ang: -Math.PI * 0.45, icon: 'pin' },
+    { ang: -Math.PI * 0.45, icon: 'globeRing' },
     { ang: -Math.PI * 0.15, icon: 'globe' },
-    { ang: Math.PI * 0.05, icon: 'pin' },
-    // The later points use the distinct "networked" variants.
-    { ang: Math.PI * 0.3, icon: 'globeRing' },
-    { ang: Math.PI * 0.78, icon: 'pinRing' },
-    { ang: Math.PI * 0.99, icon: 'globeRing' },
+    { ang: Math.PI * 0.05, icon: 'globeRing' },
+    { ang: Math.PI * 0.3, icon: 'globe' },
+    { ang: Math.PI * 0.78, icon: 'globeRing' },
+    { ang: Math.PI * 0.99, icon: 'globe' },
   ];
   const usedIcons = new Set<number>();
   for (const target of iconTargets) {
@@ -197,30 +195,7 @@ function mountNetwork(
     ctx.restore();
   };
 
-  // Location pin (country): a filled teardrop head with a bright inner dot, tip down.
-  const drawPin = (cxp: number, cyp: number, R: number, fill: RGB, dot: RGB, alpha: number) => {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    const headY = cyp - R * 0.35;
-    const rr = R * 0.72;
-    ctx.fillStyle = rgba(fill, 0.95);
-    ctx.beginPath();
-    ctx.moveTo(cxp - rr * 0.86, headY + rr * 0.5);
-    ctx.lineTo(cxp + rr * 0.86, headY + rr * 0.5);
-    ctx.lineTo(cxp, cyp + R); // tip
-    ctx.closePath();
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(cxp, headY, rr, 0, 7);
-    ctx.fill();
-    ctx.fillStyle = rgba(dot, 0.95);
-    ctx.beginPath();
-    ctx.arc(cxp, headY, rr * 0.42, 0, 7);
-    ctx.fill();
-    ctx.restore();
-  };
-
-  // Networked globe: a globe wrapped in a tilted orbit with a travelling satellite.
+  // Ringed (Saturn-style) globe: a globe wrapped in a tilted orbit with a travelling satellite.
   const drawGlobeRing = (
     cxp: number,
     cyp: number,
@@ -244,29 +219,6 @@ function mountNetwork(
     ctx.beginPath();
     ctx.arc(Math.cos(oa) * R * 1.55, Math.sin(oa) * R * 0.5, Math.max(1.4, R * 0.17), 0, 7);
     ctx.fill();
-    ctx.restore();
-  };
-
-  // Radar pin: a location marker with a ping ring expanding out of its head.
-  const drawPinRing = (
-    cxp: number,
-    cyp: number,
-    R: number,
-    fill: RGB,
-    dot: RGB,
-    alpha: number,
-    tt: number,
-  ) => {
-    drawPin(cxp, cyp, R, fill, dot, alpha);
-    const headY = cyp - R * 0.35;
-    const p = (tt * 0.6) % 1;
-    ctx.save();
-    ctx.globalAlpha = alpha * (1 - p) * 0.85;
-    ctx.strokeStyle = rgba(fill, 0.9);
-    ctx.lineWidth = Math.max(1, R * 0.1);
-    ctx.beginPath();
-    ctx.arc(cxp, headY, R * 0.72 + p * R * 1.3, 0, 7);
-    ctx.stroke();
     ctx.restore();
   };
 
@@ -365,15 +317,10 @@ function mountNetwork(
       ctx.arc(p.x, p.y, glowR, 0, 7);
       ctx.fill();
 
-      const pinFill: RGB = light ? [176, 74, 40] : GOLD;
       if (n.icon === 'globe') {
         drawGlobe(p.x, p.y, Math.max(9, r * 1.8), inkBright, sc);
       } else if (n.icon === 'globeRing') {
         drawGlobeRing(p.x, p.y, Math.max(9, r * 1.8), inkBright, sc, t);
-      } else if (n.icon === 'pin') {
-        drawPin(p.x, p.y, Math.max(10, r * 2), pinFill, inkBright, sc);
-      } else if (n.icon === 'pinRing') {
-        drawPinRing(p.x, p.y, Math.max(10, r * 2), pinFill, inkBright, sc, t);
       } else {
         ctx.fillStyle = rgba(inkBright, light ? 0.85 : 0.95);
         ctx.beginPath();
