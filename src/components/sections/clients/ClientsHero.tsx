@@ -105,9 +105,12 @@ function mountNetwork(
   // outer ring) so the icons are distributed, not clustered.
   const iconTargets: { ang: number; icon: 'globe' | 'pin' }[] = [
     { ang: -Math.PI * 0.72, icon: 'globe' },
-    { ang: -Math.PI * 0.18, icon: 'pin' },
-    { ang: Math.PI * 0.28, icon: 'globe' },
+    { ang: -Math.PI * 0.45, icon: 'pin' },
+    { ang: -Math.PI * 0.15, icon: 'globe' },
+    { ang: Math.PI * 0.05, icon: 'pin' },
+    { ang: Math.PI * 0.3, icon: 'globe' },
     { ang: Math.PI * 0.78, icon: 'pin' },
+    { ang: Math.PI * 0.99, icon: 'globe' },
   ];
   const usedIcons = new Set<number>();
   for (const target of iconTargets) {
