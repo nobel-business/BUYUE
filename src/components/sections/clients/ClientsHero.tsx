@@ -63,10 +63,6 @@ const SOFT: RGB = [255, 122, 69];
 const GOLD: RGB = [234, 196, 107];
 const rgba = (c: RGB, a: number) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
-/** Planet icons seated on marked network nodes: an Earth globe and a ringed
- *  (Saturn-style) globe. Used to make the local-and-global story explicit. */
-type IconKind = 'globe' | 'globeRing' | null;
-
 function mountNetwork(
   canvas: HTMLCanvasElement,
   reduce: boolean,
@@ -99,21 +95,21 @@ function mountNetwork(
       amp: 0.006 + rnd() * 0.012,
       col: i % 3 === 0 ? GOLD : i % 3 === 1 ? SOFT : FLAME,
       depth: 0.5 + rnd() * 0.5,
-      icon: null as IconKind,
+      icon: null as 'globe' | 'pin' | null,
     };
   });
 
-  // Mark spread-out nodes as "global reach" planets — the network's local-and-global
-  // story made explicit: Earth globes and ringed (Saturn-style) globes, alternating.
-  // Each target picks the node nearest its direction around the hub (biased to the mid/
+  // Mark 4 spread-out nodes as "global reach" points — the network's local-and-global
+  // story made explicit: two globes (planet Earth) and two location pins (countries).
+  // Pick the node nearest each of 4 directions around the hub (and biased to the mid/
   // outer ring) so the icons are distributed, not clustered.
-  const iconTargets: { ang: number; icon: Exclude<IconKind, null> }[] = [
+  const iconTargets: { ang: number; icon: 'globe' | 'pin' }[] = [
     { ang: -Math.PI * 0.72, icon: 'globe' },
-    { ang: -Math.PI * 0.45, icon: 'globeRing' },
+    { ang: -Math.PI * 0.45, icon: 'pin' },
     { ang: -Math.PI * 0.15, icon: 'globe' },
-    { ang: Math.PI * 0.05, icon: 'globeRing' },
+    { ang: Math.PI * 0.05, icon: 'pin' },
     { ang: Math.PI * 0.3, icon: 'globe' },
-    { ang: Math.PI * 0.78, icon: 'globeRing' },
+    { ang: Math.PI * 0.78, icon: 'pin' },
     { ang: Math.PI * 0.99, icon: 'globe' },
   ];
   const usedIcons = new Set<number>();
@@ -195,29 +191,25 @@ function mountNetwork(
     ctx.restore();
   };
 
-  // Ringed (Saturn-style) globe: a globe wrapped in a tilted orbit with a travelling satellite.
-  const drawGlobeRing = (
-    cxp: number,
-    cyp: number,
-    R: number,
-    ink: RGB,
-    alpha: number,
-    tt: number,
-  ) => {
-    drawGlobe(cxp, cyp, R, ink, alpha);
+  // Location pin (country): a filled teardrop head with a bright inner dot, tip down.
+  const drawPin = (cxp: number, cyp: number, R: number, fill: RGB, dot: RGB, alpha: number) => {
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.translate(cxp, cyp);
-    ctx.rotate(-0.35);
-    ctx.strokeStyle = rgba(ink, 0.8);
-    ctx.lineWidth = Math.max(1, R * 0.1);
+    const headY = cyp - R * 0.35;
+    const rr = R * 0.72;
+    ctx.fillStyle = rgba(fill, 0.95);
     ctx.beginPath();
-    ctx.ellipse(0, 0, R * 1.55, R * 0.5, 0, 0, 7);
-    ctx.stroke();
-    const oa = tt * 0.9;
-    ctx.fillStyle = rgba(ink, 0.95);
+    ctx.moveTo(cxp - rr * 0.86, headY + rr * 0.5);
+    ctx.lineTo(cxp + rr * 0.86, headY + rr * 0.5);
+    ctx.lineTo(cxp, cyp + R); // tip
+    ctx.closePath();
+    ctx.fill();
     ctx.beginPath();
-    ctx.arc(Math.cos(oa) * R * 1.55, Math.sin(oa) * R * 0.5, Math.max(1.4, R * 0.17), 0, 7);
+    ctx.arc(cxp, headY, rr, 0, 7);
+    ctx.fill();
+    ctx.fillStyle = rgba(dot, 0.95);
+    ctx.beginPath();
+    ctx.arc(cxp, headY, rr * 0.42, 0, 7);
     ctx.fill();
     ctx.restore();
   };
@@ -319,8 +311,8 @@ function mountNetwork(
 
       if (n.icon === 'globe') {
         drawGlobe(p.x, p.y, Math.max(9, r * 1.8), inkBright, sc);
-      } else if (n.icon === 'globeRing') {
-        drawGlobeRing(p.x, p.y, Math.max(9, r * 1.8), inkBright, sc, t);
+      } else if (n.icon === 'pin') {
+        drawPin(p.x, p.y, Math.max(10, r * 2), light ? [176, 74, 40] : GOLD, inkBright, sc);
       } else {
         ctx.fillStyle = rgba(inkBright, light ? 0.85 : 0.95);
         ctx.beginPath();
