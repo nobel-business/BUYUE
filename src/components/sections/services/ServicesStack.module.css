@@ -512,13 +512,13 @@
 
   /* All cards share the centre cell; GSAP places each in depth. Hidden until GSAP
      assigns depth (prevents a first-paint flash); no-JS shows the first card.
-     Every card is the SAME fixed size, so the story reads as one consistent panel
-     whatever a service's copy length — content is laid out to FIT (no inner scroll),
-     and the two-column offer list keeps even the longest service inside this frame. */
+     Original width; the card is as tall as its own copy — a service with more to say
+     simply makes it LONGER — with no inner scroll. Only capped to the viewport so a
+     very long service can't overflow the pinned scene; the title stays at the top. */
   .card {
     grid-area: 1 / 1;
-    inline-size: min(92vw, 52rem);
-    block-size: min(86vh, 38rem);
+    inline-size: min(88vw, 46rem);
+    max-block-size: calc(100vh - 6rem);
     opacity: 0;
     transform-style: preserve-3d;
     backface-visibility: hidden;
@@ -529,20 +529,11 @@
     opacity: 1;
   }
 
-  /* Fills the fixed card, content top-aligned so the title is always at the top and
-     never scrolls away. NO inner scroll — the card is sized (and the offer list runs
-     two columns) so every service fits. Floats faintly, independent of depth. */
+  /* No inner scroll and no forced height — the card grows with its copy, the title
+     stays at the top, and the base single-column layout and spacing are unchanged.
+     Floats faintly, independent of the depth transform. */
   .inner {
     animation: card-float 8s ease-in-out infinite;
-    block-size: 100%;
-    gap: var(--space-4);
-    padding: clamp(1.5rem, 1rem + 1.6vw, 2.5rem);
-  }
-
-  /* Offer list in two columns — halves its height so the longest service still fits. */
-  .features {
-    grid-template-columns: 1fr 1fr;
-    column-gap: var(--space-5);
   }
 
   .progress {
