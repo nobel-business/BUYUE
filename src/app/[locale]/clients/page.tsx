@@ -5,11 +5,10 @@ import { localeAlternates } from '@/lib/config/seo';
 import { Section } from '@/components/layout/Section';
 import { Container } from '@/components/layout/Container';
 import { Stack } from '@/components/layout/Stack';
-import { Heading, Text } from '@/components/ui/Typography';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import type { AccordionItem } from '@/components/ui/Accordion';
 import { FaqSection } from '@/components/sections/faq/FaqSection';
-import { Statistic } from '@/components/sections/clients/Statistic';
+import { ClientsHero } from '@/components/sections/clients/ClientsHero';
 import { ClientLogoMosaic } from '@/components/sections/clients/ClientLogoMosaic';
 import { ProjectGallery } from '@/components/sections/clients/ProjectGallery';
 import { Testimonials } from '@/components/sections/clients/Testimonials';
@@ -51,24 +50,16 @@ export default async function ClientsPage({ params }: PageParams) {
 
   return (
     <main id="main-content">
-      {/* Intro + stat — heading assembles (mask), stat counts up, body resolves from blur */}
-      <Section tone="page">
-        <Container>
-          <Stack gap="5">
-            <SceneReveal variant="mask">
-              <Heading level={1} size="h1">
-                {t('intro.heading')}
-              </Heading>
-            </SceneReveal>
-            <Statistic value={statValue} prefix={t('intro.statPrefix')} />
-            <SceneReveal variant="blur">
-              <Text size="body-l" tone="secondary" style={{ maxInlineSize: '60ch' }}>
-                {t('intro.body')}
-              </Text>
-            </SceneReveal>
-          </Stack>
-        </Container>
-      </Section>
+      {/* Hero — "Constellation of Trust": the roster as a sky of client logos linked to
+          the Buyue mark. Full-first-screen, so the logo wall no longer peeks on load. */}
+      <ClientsHero
+        heading={t('intro.heading')}
+        statValue={statValue}
+        statPrefix={t('intro.statPrefix')}
+        body={t('intro.body')}
+        ctaLabel={t('finalCta.cta')}
+        ctaHref="/contact"
+      />
 
       {/* Logo wall — static dark band (no scroll track); spotlight walks all 30 */}
       <ClientLogoMosaic interactive={false} />

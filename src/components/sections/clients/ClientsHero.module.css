@@ -1,0 +1,367 @@
+/* ClientsHero — "Constellation of Trust".
+ *
+ * A full-first-screen hero (mirrors AboutCinematicIntro sizing). The right column is a
+ * constellation of REAL client logos as glass "stars", linked by softly pulsing light
+ * lines to a central Buyue mark — the roster as a sky of trusted partners, the lines the
+ * relationships. Theme-aware via scene + glass tokens.
+ *
+ * Motion contract (same as the other heroes): GSAP owns entrance + scroll on the OUTER
+ * elements; idle loops are CSS on independent channels (box-shadow / stroke-dashoffset /
+ * transform on the motes), never the transform channel GSAP drives. Cursor parallax moves
+ * the whole star-field as one unit (via the CSS `translate` property) so the lines stay
+ * anchored to their stars. CSS defaults are the shown state → reduced motion is legible.
+ */
+
+.scene {
+  --nav-offset: 7rem;
+
+  position: relative;
+  min-block-size: 90vh;
+  margin-block-start: calc(-1 * var(--nav-offset));
+  padding-block: calc(var(--nav-offset) + 2rem) clamp(2.5rem, 4vh, 4rem);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: var(--scene-surface);
+  color: var(--scene-ink);
+}
+
+.scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 90% at 80% 26%,
+      color-mix(in srgb, var(--color-bonfire-flame) 15%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      90% 80% at 10% 92%,
+      color-mix(in srgb, var(--scene-glow-warm) 12%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(130% 120% at 50% 40%, transparent 52%, var(--scene-vignette) 100%);
+}
+
+.scene::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 22vh;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--surface-page));
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+/* ══════════ Left column ══════════ */
+.copy {
+  max-inline-size: 34rem;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-display);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-weight: var(--font-weight-bold);
+  text-wrap: balance;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.accent {
+  background: linear-gradient(
+    100deg,
+    var(--color-bonfire-flame) 8%,
+    var(--color-soft-orange) 48%,
+    var(--color-quilt-gold)
+  );
+  background-clip: text;
+  color: transparent;
+}
+
+/* The +30 trust stat — counts up on entrance. */
+.stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-block: 1.1rem 0;
+  will-change: transform, opacity;
+}
+
+.statPrefix,
+.statValue {
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  background: linear-gradient(
+    120deg,
+    var(--color-bonfire-flame),
+    var(--color-soft-orange) 60%,
+    var(--color-quilt-gold)
+  );
+  background-clip: text;
+  color: transparent;
+}
+
+.statPrefix {
+  font-size: clamp(2rem, 1.4rem + 2vw, 3rem);
+}
+
+.statValue {
+  font-size: clamp(3rem, 2rem + 3vw, 4.4rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.divider {
+  inline-size: 3.5rem;
+  block-size: 2px;
+  margin: 1.4rem 0;
+  background: linear-gradient(to right, var(--color-bonfire-flame), transparent);
+  will-change: transform;
+}
+
+:global(html[dir='rtl']) .divider {
+  background: linear-gradient(to left, var(--color-bonfire-flame), transparent);
+}
+
+.body {
+  margin: 0 0 2rem;
+  max-inline-size: 46ch;
+  font-size: var(--font-size-body-l);
+  line-height: 1.65;
+  color: var(--scene-ink-soft);
+}
+
+.cta {
+  will-change: transform, opacity;
+}
+
+/* ══════════ Right column — Constellation of Trust ══════════ */
+.visual {
+  position: relative;
+  block-size: min(80vh, 46rem);
+}
+
+.bloom {
+  position: absolute;
+  inset-block-start: 48%;
+  inset-inline-start: 50%;
+  inline-size: 22rem;
+  block-size: 22rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-soft-orange) 20%, transparent),
+    color-mix(in srgb, var(--color-bonfire-flame) 8%, transparent) 45%,
+    transparent 68%
+  );
+  filter: blur(40px);
+  translate: calc(-50% + var(--mx, 0) * -6px) calc(-50% + var(--my, 0) * -4px);
+}
+
+/* The star-field moves as ONE unit on parallax so lines stay anchored to their stars. */
+.field {
+  position: absolute;
+  inset: 0;
+  translate: calc(var(--mx, 0) * 12px) calc(var(--my, 0) * 9px);
+  transition: translate 0.6s var(--ease-out-soft);
+}
+
+.links {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  z-index: 1;
+}
+
+.lineBase {
+  fill: none;
+  stroke: color-mix(in srgb, var(--scene-ink) 9%, transparent);
+  stroke-width: 1;
+}
+
+.linePulse {
+  fill: none;
+  stroke: url('#ch-linegrad');
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--color-soft-orange) 60%, transparent));
+  stroke-dasharray: 4 92;
+  animation: ch-travel 3.6s linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes ch-travel {
+  to {
+    stroke-dashoffset: -96;
+  }
+}
+
+/* Central Buyue mark. GSAP scales/fades it in; CSS pulses its glow (box-shadow). */
+.core {
+  position: absolute;
+  inset-block-start: 48%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  inline-size: 5rem;
+  block-size: 5rem;
+  border-radius: 50%;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  padding: 1.05rem;
+  background: radial-gradient(
+    circle at 36% 30%,
+    rgba(255, 255, 255, 0.28),
+    var(--glass-fill-strong) 40%,
+    rgba(255, 255, 255, 0.05)
+  );
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 0 34px color-mix(in srgb, var(--color-soft-orange) 50%, transparent),
+    inset 0 1px 0 var(--glass-sheen);
+  backdrop-filter: blur(8px);
+  animation: ch-core 5s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes ch-core {
+  0%,
+  100% {
+    box-shadow:
+      0 0 30px color-mix(in srgb, var(--color-soft-orange) 42%, transparent),
+      inset 0 1px 0 var(--glass-sheen);
+  }
+
+  50% {
+    box-shadow:
+      0 0 50px color-mix(in srgb, var(--color-soft-orange) 72%, transparent),
+      inset 0 1px 0 var(--glass-sheen);
+  }
+}
+
+.coreImg {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-bonfire-flame) 40%, transparent));
+}
+
+/* Client-logo "stars" — a light tile so every mark reads on the dark scene. GSAP
+   scales/fades them in; CSS twinkles the glow (box-shadow, independent of transform). */
+.star {
+  position: absolute;
+  translate: -50% -50%;
+  inline-size: 5rem;
+  block-size: 3.3rem;
+  border-radius: 0.8rem;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 0.55rem 0.7rem;
+  background: color-mix(in srgb, #fff 90%, var(--color-quilt-gold) 10%);
+  border: 1px solid var(--glass-border-strong);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.45),
+    0 0 16px color-mix(in srgb, var(--color-soft-orange) 12%, transparent);
+  animation: ch-twinkle 6s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform, opacity;
+}
+
+@keyframes ch-twinkle {
+  0%,
+  100% {
+    box-shadow:
+      0 8px 22px rgba(0, 0, 0, 0.45),
+      0 0 16px color-mix(in srgb, var(--color-soft-orange) 12%, transparent);
+  }
+
+  50% {
+    box-shadow:
+      0 8px 22px rgba(0, 0, 0, 0.45),
+      0 0 28px color-mix(in srgb, var(--color-soft-orange) 30%, transparent);
+  }
+}
+
+.starImg {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+}
+
+/* Drifting motes. GSAP fades in; CSS drifts (transform). */
+.mote {
+  position: absolute;
+  inline-size: 3px;
+  block-size: 3px;
+  border-radius: 50%;
+  background: var(--scene-particle);
+  animation: ch-drift 12s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform, opacity;
+}
+
+@keyframes ch-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-6px, -12px);
+  }
+}
+
+/* ══════════ Responsive — mobile stacks, no full-height (as the About hero does) ══ */
+@media (max-width: 899px) {
+  .scene {
+    display: block;
+    min-block-size: auto;
+    margin-block-start: 0;
+    padding-block: calc(var(--nav-offset) + 1.5rem) 3rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .visual {
+    block-size: 24rem;
+    order: 2;
+  }
+}
+
+/* ══════════ Reduced motion — still, legible scene (GSAP also bails in the TSX).
+   Parallax needs no reset: --mx/--my default to 0, so .bloom stays centred and .field
+   stays put; only the CSS idle loops are disabled. ══════════ */
+@media (prefers-reduced-motion: reduce) {
+  .linePulse,
+  .core,
+  .star,
+  .mote {
+    animation: none;
+  }
+}
