@@ -218,8 +218,12 @@ function mountNetwork(
     const light = document.documentElement.getAttribute('data-theme') === 'light';
     // Entrance progress (easeOutCubic). 0 until the preloader clock starts; 1 at
     // once for reduced motion.
-    const ee = reduce ? 1 : 1 - Math.pow(1 - Math.min(1, (now - start) / 1800), 3);
-    const t = reduce ? 0 : now / 1000;
+    // Clamp progress to [0,1]: the rAF timestamp can be a hair EARLIER than the
+    // performance.now() captured at mount, making (now - start) negative on the first
+    // frame — which would make `ee` (and radii like `7 * ee`) negative and throw.
+    const p = reduce ? 1 : Math.max(0, Math.min(1, (now - start) / 1800));
+    const ee = 1 - Math.pow(1 - p, 3);
+    const t = reduce ? 0 : Math.max(0, now) / 1000;
     mx += (mouse.tx - mx) * 0.06;
     my += (mouse.ty - my) * 0.06;
 
@@ -335,21 +339,39 @@ function mountNetwork(
     ctx.fill();
   };
 
-  // Observe AFTER `draw` exists (resize() may draw in reduced motion).
+  // Observe AFTER `draw` exists (resize() may draw in reduced motion). Belt-and-braces
+  // against the canvas mounting before layout: measure now, again next frame, and once
+  // the page has fully loaded — so it never gets stuck at a 0×0 size drawn empty.
   const ro = new ResizeObserver(resize);
   ro.observe(canvas);
   resize();
+  requestAnimationFrame(resize);
+  const onLoad = () => resize();
+  if (document.readyState !== 'complete') window.addEventListener('load', onLoad);
 
-  if (reduce) return () => ro.disconnect();
+  if (reduce) {
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('load', onLoad);
+    };
+  }
 
   const loop = (now: number) => {
-    if (!document.hidden) draw(now);
-    raf = requestAnimationFrame(loop);
+    // Self-heal: if we ever find ourselves at zero size (mounted before layout,
+    // and the observer hasn't fired yet), re-measure so the next frame draws.
+    if (W === 0 || H === 0) resize();
+    // try/finally so a stray single-frame draw error can NEVER stop the loop.
+    try {
+      if (!document.hidden) draw(now);
+    } finally {
+      raf = requestAnimationFrame(loop);
+    }
   };
   raf = requestAnimationFrame(loop);
   return () => {
     cancelAnimationFrame(raf);
     ro.disconnect();
+    window.removeEventListener('load', onLoad);
   };
 }
 
