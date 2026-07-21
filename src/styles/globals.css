@@ -12,6 +12,17 @@ html {
   color: var(--text-primary);
   font-size: 100%; /* respect user base font size */
   scroll-behavior: smooth; /* anchor jumps only; disabled under reduced-motion */
+
+  /* Hide the native scrollbar site-wide (scrolling itself is unaffected). The design
+     leans on a full-bleed cinematic canvas; the browser's chrome scrollbar broke the
+     edge, so it is hidden. NOTE: this also removes the browser's built-in scroll-
+     position indicator and click/drag-in-the-track affordance. */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Chromium / WebKit / Safari — the pseudo-element form. */
+html::-webkit-scrollbar {
+  display: none;
 }
 
 /* Native scroll-lock — set on <html> while the intro cover is up or a section
