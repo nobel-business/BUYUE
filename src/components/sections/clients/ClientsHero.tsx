@@ -95,8 +95,43 @@ function mountNetwork(
       amp: 0.006 + rnd() * 0.012,
       col: i % 3 === 0 ? GOLD : i % 3 === 1 ? SOFT : FLAME,
       depth: 0.5 + rnd() * 0.5,
+      icon: null as 'globe' | 'pin' | null,
     };
   });
+
+  // Mark 4 spread-out nodes as "global reach" points — the network's local-and-global
+  // story made explicit: two globes (planet Earth) and two location pins (countries).
+  // Pick the node nearest each of 4 directions around the hub (and biased to the mid/
+  // outer ring) so the icons are distributed, not clustered.
+  const iconTargets: { ang: number; icon: 'globe' | 'pin' }[] = [
+    { ang: -Math.PI * 0.72, icon: 'globe' },
+    { ang: -Math.PI * 0.18, icon: 'pin' },
+    { ang: Math.PI * 0.28, icon: 'globe' },
+    { ang: Math.PI * 0.78, icon: 'pin' },
+  ];
+  const usedIcons = new Set<number>();
+  for (const target of iconTargets) {
+    let best = -1;
+    let bestScore = Infinity;
+    for (let i = 0; i < nodes.length; i++) {
+      if (usedIcons.has(i)) continue;
+      const n = nodes[i]!;
+      const a = Math.atan2(n.by - core.y, n.bx - core.x);
+      let d = Math.abs(a - target.ang);
+      if (d > Math.PI) d = Math.PI * 2 - d;
+      const rad = Math.hypot(n.bx - core.x, n.by - core.y);
+      const score = d + Math.max(0, 0.26 - rad) * 3; // penalise nodes hugging the hub
+      if (score < bestScore) {
+        bestScore = score;
+        best = i;
+      }
+    }
+    if (best >= 0) {
+      usedIcons.add(best);
+      nodes[best]!.icon = target.icon;
+    }
+  }
+
   type Link = { a: number; b: number; pulse: number };
   const links: Link[] = nodes.map((_, i) => ({ a: -1, b: i, pulse: rnd() })); // a = -1 → hub
   for (let k = 0; k < 7; k++) {
@@ -124,6 +159,56 @@ function mountNetwork(
     ctx.setTransform(d, 0, 0, d, 0, 0);
     // Reduced motion doesn't loop — redraw the still frame whenever the size is known.
     if (reduce) draw(performance.now());
+  };
+
+  // Globe (Earth): outer ring + a meridian ellipse + equator and two parallels.
+  const drawGlobe = (cxp: number, cyp: number, R: number, ink: RGB, alpha: number) => {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = rgba(ink, 0.95);
+    ctx.lineWidth = Math.max(1, R * 0.12);
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.arc(cxp, cyp, R, 0, 7);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(cxp, cyp, R * 0.46, R, 0, 0, 7);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cxp - R, cyp);
+    ctx.lineTo(cxp + R, cyp);
+    ctx.stroke();
+    const par = R * 0.86; // half-chord of the parallels at ±0.5R
+    for (const oy of [-R * 0.5, R * 0.5]) {
+      ctx.beginPath();
+      ctx.moveTo(cxp - par, cyp + oy);
+      ctx.lineTo(cxp + par, cyp + oy);
+      ctx.stroke();
+    }
+    ctx.restore();
+  };
+
+  // Location pin (country): a filled teardrop head with a bright inner dot, tip down.
+  const drawPin = (cxp: number, cyp: number, R: number, fill: RGB, dot: RGB, alpha: number) => {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const headY = cyp - R * 0.35;
+    const rr = R * 0.72;
+    ctx.fillStyle = rgba(fill, 0.95);
+    ctx.beginPath();
+    ctx.moveTo(cxp - rr * 0.86, headY + rr * 0.5);
+    ctx.lineTo(cxp + rr * 0.86, headY + rr * 0.5);
+    ctx.lineTo(cxp, cyp + R); // tip
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cxp, headY, rr, 0, 7);
+    ctx.fill();
+    ctx.fillStyle = rgba(dot, 0.95);
+    ctx.beginPath();
+    ctx.arc(cxp, headY, rr * 0.42, 0, 7);
+    ctx.fill();
+    ctx.restore();
   };
 
   const draw = (now: number) => {
@@ -201,25 +286,36 @@ function mountNetwork(
       }
     }
 
-    // Nodes — pop on (scale) in a stagger; a warm glow + a bright centre dot.
+    // Nodes — pop on (scale) in a stagger; a warm glow + a bright centre dot. Four
+    // marked nodes render a globe / location-pin icon instead of the plain dot.
+    const inkBright: RGB = light ? [150, 52, 32] : [255, 250, 244];
     for (let i = 0; i < nodes.length; i++) {
       const n = nodes[i]!;
       const sc = Math.min(1, Math.max(0, ee * 1.5 - i * 0.05));
       if (sc <= 0) continue;
       const p = pos[i]!;
       const r = n.r * sc;
-      const gg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 4);
+      // Icon nodes get a slightly stronger glow so they read as the "global" anchors.
+      const glowR = n.icon ? r * 5 : r * 4;
+      const gg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR);
       gg.addColorStop(0, rgba(n.col, light ? 0.55 : 0.9));
       gg.addColorStop(0.4, rgba(n.col, light ? 0.22 : 0.4));
       gg.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = gg;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, r * 4, 0, 7);
+      ctx.arc(p.x, p.y, glowR, 0, 7);
       ctx.fill();
-      ctx.fillStyle = rgba(light ? [150, 52, 32] : [255, 250, 244], light ? 0.85 : 0.95);
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, r * 0.6, 0, 7);
-      ctx.fill();
+
+      if (n.icon === 'globe') {
+        drawGlobe(p.x, p.y, Math.max(9, r * 1.8), inkBright, sc);
+      } else if (n.icon === 'pin') {
+        drawPin(p.x, p.y, Math.max(10, r * 2), light ? [176, 74, 40] : GOLD, inkBright, sc);
+      } else {
+        ctx.fillStyle = rgba(inkBright, light ? 0.85 : 0.95);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r * 0.6, 0, 7);
+        ctx.fill();
+      }
     }
 
     // Hub centre + halo (drawn last so it sits on top).
