@@ -219,10 +219,72 @@ export function ClientsHero({
 
       const refresh = window.setTimeout(() => ScrollTrigger.refresh(), 700);
 
+      // ── Logo rotation — the knots cycle the FULL roster. One knot at a time
+      //    crossfades its logo out and the next from a shuffled bag in, so every
+      //    client appears (fair coverage) in a random-feeling order. Runs only
+      //    after mount, so the server render keeps the fixed KNOTS set (no
+      //    hydration mismatch); reduced motion never reaches here. The crossfade
+      //    lives on the img's OWN opacity channel — independent of the tile's
+      //    GSAP transform and its CSS twinkle. The src swaps while the img is
+      //    invisible, so the tile resizes to the new logo unseen.
+      const knotImgs = q<HTMLImageElement>('[data-knot] img');
+      const shown = KNOTS.map((k) => k.logo);
+      const bag = gsap.utils.shuffle(
+        clientLogos.map((_, i) => i).filter((i) => !shown.includes(i)),
+      );
+      let lastKnot = -1;
+      let swapTimer = 0;
+      let killed = false;
+
+      const swapOne = () => {
+        if (bag.length === 0 || knotImgs.length === 0) return;
+        // Pick a knot other than the one swapped last, so it never clumps.
+        let k = Math.floor(Math.random() * knotImgs.length);
+        if (knotImgs.length > 1 && k === lastKnot) k = (k + 1) % knotImgs.length;
+        lastKnot = k;
+        const img = knotImgs[k];
+        const retired = shown[k];
+        const nextIdx = bag.shift();
+        if (!img || retired === undefined || nextIdx === undefined) return;
+        const next = clientLogos[nextIdx];
+        if (!next) return;
+        shown[k] = nextIdx;
+        bag.push(retired);
+
+        // Preload the incoming logo so the tile never collapses mid-swap.
+        const pre = new Image();
+        pre.onload = () => {
+          if (killed) return;
+          gsap.to(img, {
+            autoAlpha: 0,
+            duration: 0.4,
+            ease: 'power1.in',
+            onComplete: () => {
+              img.src = next.src;
+              gsap.to(img, { autoAlpha: 1, duration: 0.55, ease: 'power1.out' });
+            },
+          });
+        };
+        pre.src = next.src;
+      };
+
+      const scheduleSwap = () => {
+        swapTimer = window.setTimeout(
+          () => {
+            swapOne();
+            scheduleSwap();
+          },
+          2500 + Math.random() * 1500,
+        );
+      };
+      scheduleSwap();
+
       return () => {
         off();
+        killed = true;
         window.clearTimeout(safety);
         window.clearTimeout(refresh);
+        window.clearTimeout(swapTimer);
         if (fine) el.removeEventListener('pointermove', onMove);
         if (frame) cancelAnimationFrame(frame);
         mm.revert();
