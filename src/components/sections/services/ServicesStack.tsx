@@ -147,20 +147,33 @@ export function ServicesStack({
         });
         const st = tween.scrollTrigger!;
 
-        // Click a number → pin that service as the forced snap target, jump the scroll
-        // straight to it (instant, so no snap points are crossed on the way), then
-        // release the pin once the snap has settled. The scrub still eases the cards
-        // across, so it reads as a smooth crossfade to exactly the number you clicked.
+        // Click a number → drive the scroll to that service ourselves and keep the snap
+        // pinned to it for the whole move. Because we animate the scroll continuously
+        // (never an instant jump that lets the snap re-fire mid-settle), and the pin
+        // forces the snap to that exact service throughout, it lands on the number
+        // pressed with no wobble; the scrub follows into a clean crossfade.
+        const scroller = { y: 0 };
+        let clickTween: gsap.core.Tween | null = null;
         let releaseClick = 0;
         const scrollToIndex = (i: number) => {
           const clamped = Math.max(0, Math.min(N - 1, i));
           const p = N > 1 ? clamped / (N - 1) : 0;
           clickTarget = p;
-          window.scrollTo({ top: st.start + p * (st.end - st.start), behavior: 'instant' });
+          clickTween?.kill();
           window.clearTimeout(releaseClick);
-          releaseClick = window.setTimeout(() => {
-            clickTarget = -1;
-          }, 500);
+          scroller.y = st.scroll();
+          clickTween = gsap.to(scroller, {
+            y: st.start + p * (st.end - st.start),
+            duration: 0.45,
+            ease: 'power2.inOut',
+            onUpdate: () => st.scroll(scroller.y),
+            onComplete: () => {
+              // Release the pin a beat after arrival, once the snap has settled.
+              releaseClick = window.setTimeout(() => {
+                clickTarget = -1;
+              }, 120);
+            },
+          });
         };
         const dotHandlers = dots.map((dot, i) => {
           const h = () => scrollToIndex(i);
@@ -191,6 +204,7 @@ export function ServicesStack({
         return () => {
           window.clearTimeout(refresh);
           window.clearTimeout(releaseClick);
+          clickTween?.kill();
           dots.forEach((dot, i) => dot.removeEventListener('click', dotHandlers[i]!));
           exitBtns.forEach((btn, i) => btn.removeEventListener('click', exitHandlers[i]!));
           st.kill();
