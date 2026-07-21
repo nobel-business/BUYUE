@@ -335,14 +335,27 @@ function mountNetwork(
     ctx.fill();
   };
 
-  // Observe AFTER `draw` exists (resize() may draw in reduced motion).
+  // Observe AFTER `draw` exists (resize() may draw in reduced motion). Belt-and-braces
+  // against the canvas mounting before layout: measure now, again next frame, and once
+  // the page has fully loaded — so it never gets stuck at a 0×0 size drawn empty.
   const ro = new ResizeObserver(resize);
   ro.observe(canvas);
   resize();
+  requestAnimationFrame(resize);
+  const onLoad = () => resize();
+  if (document.readyState !== 'complete') window.addEventListener('load', onLoad);
 
-  if (reduce) return () => ro.disconnect();
+  if (reduce) {
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('load', onLoad);
+    };
+  }
 
   const loop = (now: number) => {
+    // Self-heal: if we ever find ourselves at zero size (mounted before layout,
+    // and the observer hasn't fired yet), re-measure so the next frame draws.
+    if (W === 0 || H === 0) resize();
     if (!document.hidden) draw(now);
     raf = requestAnimationFrame(loop);
   };
@@ -350,6 +363,7 @@ function mountNetwork(
   return () => {
     cancelAnimationFrame(raf);
     ro.disconnect();
+    window.removeEventListener('load', onLoad);
   };
 }
 
