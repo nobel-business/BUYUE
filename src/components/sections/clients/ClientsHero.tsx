@@ -52,9 +52,10 @@ function renderHeadingWords(heading: string): ReactNode[] {
 
    Layout is seeded (stable across reloads); the whole visual is decorative
    (aria-hidden). Drawing is theme-aware, read fresh each frame so a theme toggle is
-   picked up live. Entrance is gated by the same clock the copy uses (set on the
-   preloader hand-off); reduced motion renders one still, legible frame and never
-   loops. Cleanup cancels the frame loop and the resize observer.
+   picked up live. The canvas is SELF-DRIVEN — it owns its entrance clock (from mount)
+   and an always-on frame loop, so it never blanks waiting on the GSAP/preloader
+   timeline or a StrictMode re-mount. Reduced motion renders one still, legible frame
+   (redrawn on resize) and never loops. Cleanup cancels the loop and the observer.
    ══════════════════════════════════════════════════════════════════════════════ */
 type RGB = [number, number, number];
 const FLAME: RGB = [207, 81, 56];
@@ -66,7 +67,6 @@ function mountNetwork(
   canvas: HTMLCanvasElement,
   reduce: boolean,
   mouse: { tx: number; ty: number },
-  clock: { start: number },
 ): () => void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return () => {};
@@ -110,6 +110,10 @@ function mountNetwork(
   let mx = 0;
   let my = 0;
   let raf = 0;
+  // Canvas-owned entrance clock: the network animates itself in from mount, so it
+  // NEVER depends on the GSAP/preloader timeline or on an effect re-run. This is what
+  // makes it robust in dev (React StrictMode double-mounts) — every mount draws.
+  const start = performance.now();
   const dpr = () => Math.min(2, window.devicePixelRatio || 1);
   const resize = () => {
     const d = dpr();
@@ -118,20 +122,15 @@ function mountNetwork(
     canvas.width = Math.max(1, Math.round(W * d));
     canvas.height = Math.max(1, Math.round(H * d));
     ctx.setTransform(d, 0, 0, d, 0, 0);
+    // Reduced motion doesn't loop — redraw the still frame whenever the size is known.
+    if (reduce) draw(performance.now());
   };
-  const ro = new ResizeObserver(resize);
-  ro.observe(canvas);
-  resize();
 
   const draw = (now: number) => {
     const light = document.documentElement.getAttribute('data-theme') === 'light';
     // Entrance progress (easeOutCubic). 0 until the preloader clock starts; 1 at
     // once for reduced motion.
-    const ee = reduce
-      ? 1
-      : clock.start
-        ? 1 - Math.pow(1 - Math.min(1, (now - clock.start) / 1800), 3)
-        : 0;
+    const ee = reduce ? 1 : 1 - Math.pow(1 - Math.min(1, (now - start) / 1800), 3);
     const t = reduce ? 0 : now / 1000;
     mx += (mouse.tx - mx) * 0.06;
     my += (mouse.ty - my) * 0.06;
@@ -240,10 +239,12 @@ function mountNetwork(
     ctx.fill();
   };
 
-  if (reduce) {
-    draw(0);
-    return () => ro.disconnect();
-  }
+  // Observe AFTER `draw` exists (resize() may draw in reduced motion).
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas);
+  resize();
+
+  if (reduce) return () => ro.disconnect();
 
   const loop = (now: number) => {
     if (!document.hidden) draw(now);
@@ -285,10 +286,10 @@ export function ClientsHero({
       const cv = canvas.current;
       if (!el || !cv) return;
 
-      // Shared state the canvas reads: cursor targets + the entrance clock.
+      // The canvas is self-driven (its own entrance clock + always-on loop); the
+      // effect only feeds it cursor targets. It never blanks waiting on the timeline.
       const mouse = { tx: 0, ty: 0 };
-      const clock = { start: reduce ? 1 : 0 };
-      const stopNetwork = mountNetwork(cv, !!reduce, mouse, clock);
+      const stopNetwork = mountNetwork(cv, !!reduce, mouse);
 
       if (reduce) return stopNetwork;
 
@@ -325,27 +326,25 @@ export function ClientsHero({
       gsap.set(divider, { scaleX: 0, transformOrigin: 'left center' });
       gsap.set(bodyEl, { autoAlpha: 0, y: 20 });
       gsap.set(cta, { autoAlpha: 0, y: 20 });
-      gsap.set(visual, { autoAlpha: 0 });
       if (statNum) statNum.textContent = '0';
 
-      // ── Entrance (paused; plays on the preloader hand-off). The canvas fades up
-      //    and starts drawing its network (via the shared clock), while the copy sets.
+      // ── Entrance (paused; plays on the preloader hand-off). The copy sets over the
+      //    canvas, which drives its own fade-in independently.
       const counter = { v: 0 };
       const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
-      tl.to(visual, { autoAlpha: 1, duration: 1, ease: 'power2.out' }, 0)
-        .to(
-          words,
-          {
-            autoAlpha: 1,
-            yPercent: 0,
-            filter: 'blur(0px)',
-            duration: 0.9,
-            stagger: 0.08,
-            ease: 'expo.out',
-            onComplete: () => words.forEach((w) => (w.style.willChange = 'auto')),
-          },
-          0.35,
-        )
+      tl.to(
+        words,
+        {
+          autoAlpha: 1,
+          yPercent: 0,
+          filter: 'blur(0px)',
+          duration: 0.9,
+          stagger: 0.08,
+          ease: 'expo.out',
+          onComplete: () => words.forEach((w) => (w.style.willChange = 'auto')),
+        },
+        0.35,
+      )
         .to(stat, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.6)
         .to(
           counter,
@@ -367,7 +366,6 @@ export function ClientsHero({
       const play = () => {
         if (played) return;
         played = true;
-        clock.start = performance.now();
         tl.play();
       };
       const off = onPreloaderDone(play);
