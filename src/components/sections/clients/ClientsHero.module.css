@@ -1,21 +1,19 @@
-/* ClientsHero — "The Weave".
+/* ClientsHero — "The Constellation Network".
  *
- * A full-first-screen hero (mirrors AboutCinematicIntro sizing). The right column weaves
- * the client relationships as interlacing threads of light, with the REAL client logos
- * seated at the knots — a single thread is fragile, woven together they hold. Theme-aware
- * via scene + glass tokens.
+ * A full-first-screen hero (mirrors AboutCinematicIntro sizing). The right column is a
+ * living relationship graph drawn on a <canvas>: a warm Buyue hub linked to abstract
+ * partner nodes, with light pulsing along the links — a connected network of trusted
+ * clients, communicated WITHOUT logos (the wall below owns those). Theme-aware via the
+ * scene tokens; the canvas itself reads the theme each frame.
  *
- * Motion contract (same as the other heroes): GSAP owns entrance + scroll on the OUTER
- * elements; idle loops are CSS on independent channels (stroke-dashoffset on the threads /
- * box-shadow on the knots / transform on the motes), never the transform channel GSAP
- * drives. Cursor parallax moves the whole fabric as one unit (via the CSS `translate`
- * property) so the knots stay anchored to their threads. CSS defaults are the shown state
- * → reduced motion is legible.
+ * Motion contract (same as the other heroes): GSAP owns the copy's entrance + the
+ * scroll exit on the OUTER elements; the canvas is a self-contained visual, gated by
+ * the same preloader clock. CSS defaults are the shown state → reduced motion / no-JS
+ * render the copy legibly (and the canvas paints one still frame).
  */
 
 .scene {
   --nav-offset: 7rem;
-  --thread-blend: screen; /* woven light glows on the dark ground */
 
   position: relative;
   min-block-size: 90vh;
@@ -26,11 +24,6 @@
   align-items: center;
   background: var(--scene-surface);
   color: var(--scene-ink);
-}
-
-/* Light theme: warm light can't glow on ivory, so the weave tints via multiply. */
-:global(html[data-theme='light']) .scene {
-  --thread-blend: multiply;
 }
 
 .scene::before {
@@ -162,138 +155,14 @@
   will-change: transform, opacity;
 }
 
-/* ══════════ Right column — Constellation of Trust ══════════ */
-.visual {
-  position: relative;
-  block-size: min(80vh, 46rem);
-}
-
-.bloom {
-  position: absolute;
-  inset-block-start: 48%;
-  inset-inline-start: 50%;
-  inline-size: 22rem;
-  block-size: 22rem;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--color-soft-orange) 20%, transparent),
-    color-mix(in srgb, var(--color-bonfire-flame) 8%, transparent) 45%,
-    transparent 68%
-  );
-  filter: blur(40px);
-  translate: calc(-50% + var(--mx, 0) * -6px) calc(-50% + var(--my, 0) * -4px);
-}
-
-/* The star-field moves as ONE unit on parallax so lines stay anchored to their stars. */
-.field {
+/* ══════════ The network canvas — full-scene, behind the copy ══════════ */
+.network {
   position: absolute;
   inset: 0;
-  translate: calc(var(--mx, 0) * 12px) calc(var(--my, 0) * 9px);
-  transition: translate 0.6s var(--ease-out-soft);
-}
-
-/* The woven threads — interlacing light. GSAP fades the whole fabric in; CSS travels
-   light along each thread. Per-thread stroke / width / opacity / delay are inline. */
-.threads {
-  position: absolute;
-  inset: 0;
+  z-index: 1; /* above the ::before atmosphere, below the copy (container z-index: 2) */
   inline-size: 100%;
   block-size: 100%;
-  overflow: visible;
-  z-index: 1;
-}
-
-.thread {
-  fill: none;
-  stroke-linecap: round;
-  filter: blur(2.5px);
-  /* Warm light GLOWS on the dark ground (screen); on ivory it tints instead (multiply),
-     so the weave reads on both themes. */
-  mix-blend-mode: var(--thread-blend);
-  stroke-dasharray: 30 34;
-  animation: ch-flow 5s linear infinite;
-  animation-delay: var(--delay, 0s);
-  will-change: stroke-dashoffset;
-}
-
-@keyframes ch-flow {
-  to {
-    stroke-dashoffset: -64;
-  }
-}
-
-/* Client-logo "stars" — a light tile so every mark reads on the dark scene. The tile
-   has NO fixed size: it hugs its logo, so each shape (wide wordmark, tall crest, square
-   badge) gets a tile that fits it — variety, not one forced box. GSAP scales/fades them
-   in; CSS twinkles the glow (box-shadow, independent of transform). */
-.star {
-  position: absolute;
-  translate: -50% -50%;
-  border-radius: 0.8rem;
-  z-index: 3;
-  display: inline-flex;
-  padding: 0.6rem 0.75rem;
-  background: color-mix(in srgb, #fff 90%, var(--color-quilt-gold) 10%);
-  border: 1px solid var(--glass-border-strong);
-  box-shadow:
-    0 8px 22px rgba(0, 0, 0, 0.45),
-    0 0 16px color-mix(in srgb, var(--color-soft-orange) 12%, transparent);
-  animation: ch-twinkle 6s ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
-  will-change: transform, opacity;
-}
-
-@keyframes ch-twinkle {
-  0%,
-  100% {
-    box-shadow:
-      0 8px 22px rgba(0, 0, 0, 0.45),
-      0 0 16px color-mix(in srgb, var(--color-soft-orange) 12%, transparent);
-  }
-
-  50% {
-    box-shadow:
-      0 8px 22px rgba(0, 0, 0, 0.45),
-      0 0 28px color-mix(in srgb, var(--color-soft-orange) 30%, transparent);
-  }
-}
-
-/* The logo sizes to its own aspect ratio within a shared budget (max 6.75rem wide ×
-   2.9rem tall), so every mark scales to fit — never stretched, never cropped — and the
-   tile above hugs whatever shape results. A minimum width keeps a very narrow mark (a
-   tall crest) from producing a sliver of a tile. */
-.starImg {
-  display: block;
-  inline-size: auto;
-  block-size: auto;
-  max-inline-size: 6.75rem;
-  max-block-size: 2.9rem;
-  min-inline-size: 1.6rem;
-  object-fit: contain;
-}
-
-/* Drifting motes. GSAP fades in; CSS drifts (transform). */
-.mote {
-  position: absolute;
-  inline-size: 3px;
-  block-size: 3px;
-  border-radius: 50%;
-  background: var(--scene-particle);
-  animation: ch-drift 12s ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
-  will-change: transform, opacity;
-}
-
-@keyframes ch-drift {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-
-  50% {
-    transform: translate(-6px, -12px);
-  }
+  pointer-events: none;
 }
 
 /* ══════════ Responsive — mobile stacks, no full-height (as the About hero does) ══ */
@@ -310,19 +179,8 @@
     gap: 2.5rem;
   }
 
-  .visual {
-    block-size: 24rem;
-    order: 2;
-  }
-}
-
-/* ══════════ Reduced motion — still, legible scene (GSAP also bails in the TSX).
-   Parallax needs no reset: --mx/--my default to 0, so .bloom stays centred and .field
-   stays put; only the CSS idle loops are disabled. ══════════ */
-@media (prefers-reduced-motion: reduce) {
-  .thread,
-  .star,
-  .mote {
-    animation: none;
+  /* Behind the stacked copy on mobile → dim it so the text stays legible. */
+  .network {
+    opacity: 0.5;
   }
 }
