@@ -20,6 +20,11 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Dev-only: allow the loopback IP as an origin so visiting the site at
+  // http://127.0.0.1:3000 loads the /_next/* client chunks (otherwise Next treats
+  // 127.0.0.1 and localhost as different origins and hydration silently fails —
+  // the SSR HTML shows but client-only components like the hero canvas never mount).
+  allowedDevOrigins: ['127.0.0.1'],
   images: {
     // Doc 07 §14 — modern formats.
     formats: ['image/avif', 'image/webp'],
