@@ -113,10 +113,17 @@ export function ServicesStack({
         };
         paint();
 
+        // Snapping is done through a FUNCTION, not a fixed step, so a number-click can
+        // pin the exact target (see scrollToIndex). Without this the snap re-decides
+        // after the click's scroll and drifts to a neighbouring service. Normally it
+        // just rounds to the nearest service.
+        const step = N > 1 ? 1 / (N - 1) : 1;
+        let clickTarget = -1; // 0–1 while a number-click is being honoured; else -1
+
         // ── One scrubbed tween drives the whole progression. Scroll across the tall
         // track maps 0 → N-1 onto the card position; `scrub` smooths it; `snap` settles
-        // on the nearest service on scroll-end so it always rests centred on a card.
-        // Same sticky-scrub pattern as the Clients logo wall (ClientLogoMosaic).
+        // on the nearest service so it always rests centred on a card. Same sticky-scrub
+        // pattern as the Clients logo wall (ClientLogoMosaic).
         const tween = gsap.to(state, {
           pos: N - 1,
           ease: 'none',
@@ -128,12 +135,9 @@ export function ServicesStack({
             scrub: 0.6,
             invalidateOnRefresh: true,
             ...(N > 1 && {
-              // Snap to the nearest service on scroll-end. `directional` biases the
-              // snap toward the way you're scrolling, so a forward flick advances to
-              // the next service instead of settling back on the current one.
               snap: {
-                snapTo: 1 / (N - 1),
-                directional: true,
+                snapTo: (value: number) =>
+                  clickTarget >= 0 ? clickTarget : Math.round(value / step) * step,
                 duration: { min: 0.15, max: 0.4 },
                 ease: 'power1.inOut',
                 delay: 0.05,
@@ -143,16 +147,20 @@ export function ServicesStack({
         });
         const st = tween.scrollTrigger!;
 
-        // Click a number → jump straight to that service's position on the track.
-        // The jump is INSTANT on purpose: a smooth scroll would travel through the
-        // snap points between here and the target, and the snap would grab one of them
-        // mid-flight — landing on the wrong number, erratically. Jumping to the exact
-        // point avoids that, and the scrub still eases the cards across (smooth
-        // crossfade) over its catch-up time, so it doesn't feel abrupt.
+        // Click a number → pin that service as the forced snap target, jump the scroll
+        // straight to it (instant, so no snap points are crossed on the way), then
+        // release the pin once the snap has settled. The scrub still eases the cards
+        // across, so it reads as a smooth crossfade to exactly the number you clicked.
+        let releaseClick = 0;
         const scrollToIndex = (i: number) => {
           const clamped = Math.max(0, Math.min(N - 1, i));
           const p = N > 1 ? clamped / (N - 1) : 0;
+          clickTarget = p;
           window.scrollTo({ top: st.start + p * (st.end - st.start), behavior: 'instant' });
+          window.clearTimeout(releaseClick);
+          releaseClick = window.setTimeout(() => {
+            clickTarget = -1;
+          }, 500);
         };
         const dotHandlers = dots.map((dot, i) => {
           const h = () => scrollToIndex(i);
@@ -182,6 +190,7 @@ export function ServicesStack({
 
         return () => {
           window.clearTimeout(refresh);
+          window.clearTimeout(releaseClick);
           dots.forEach((dot, i) => dot.removeEventListener('click', dotHandlers[i]!));
           exitBtns.forEach((btn, i) => btn.removeEventListener('click', exitHandlers[i]!));
           st.kill();
