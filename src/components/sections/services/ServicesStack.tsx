@@ -4,9 +4,7 @@ import { useRef, type CSSProperties } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger } from '@/lib/motion/gsap';
-import { Link } from '@/i18n/navigation';
 import { Heading, Text, Eyebrow } from '@/components/ui/Typography';
-import { buttonClasses } from '@/components/ui/Button';
 import styles from './ServicesStack.module.css';
 
 /**
@@ -47,8 +45,6 @@ type ServicesStackProps = {
   cards: ServiceCard[];
   offerLabel: string;
   valueLabel: string;
-  ctaLabel: string;
-  ctaHref: string;
   exitUpLabel: string;
   exitDownLabel: string;
 };
@@ -72,8 +68,6 @@ export function ServicesStack({
   cards,
   offerLabel,
   valueLabel,
-  ctaLabel,
-  ctaHref,
   exitUpLabel,
   exitDownLabel,
 }: ServicesStackProps) {
@@ -119,10 +113,17 @@ export function ServicesStack({
         };
         paint();
 
+        // Snapping is done through a FUNCTION, not a fixed step, so a number-click can
+        // pin the exact target (see scrollToIndex). Without this the snap re-decides
+        // after the click's scroll and drifts to a neighbouring service. Normally it
+        // just rounds to the nearest service.
+        const step = N > 1 ? 1 / (N - 1) : 1;
+        let clickTarget = -1; // 0–1 while a number-click is being honoured; else -1
+
         // ── One scrubbed tween drives the whole progression. Scroll across the tall
         // track maps 0 → N-1 onto the card position; `scrub` smooths it; `snap` settles
-        // on the nearest service on scroll-end so it always rests centred on a card.
-        // Same sticky-scrub pattern as the Clients logo wall (ClientLogoMosaic).
+        // on the nearest service so it always rests centred on a card. Same sticky-scrub
+        // pattern as the Clients logo wall (ClientLogoMosaic).
         const tween = gsap.to(state, {
           pos: N - 1,
           ease: 'none',
@@ -135,21 +136,44 @@ export function ServicesStack({
             invalidateOnRefresh: true,
             ...(N > 1 && {
               snap: {
-                snapTo: 1 / (N - 1),
-                duration: { min: 0.2, max: 0.5 },
-                ease: 'power2.inOut',
-                delay: 0.04,
+                snapTo: (value: number) =>
+                  clickTarget >= 0 ? clickTarget : Math.round(value / step) * step,
+                duration: { min: 0.15, max: 0.4 },
+                ease: 'power1.inOut',
+                delay: 0.05,
               },
             }),
           },
         });
         const st = tween.scrollTrigger!;
 
-        // Click a number → smooth-scroll to that service's position on the track.
+        // Click a number → drive the scroll to that service ourselves and keep the snap
+        // pinned to it for the whole move. Because we animate the scroll continuously
+        // (never an instant jump that lets the snap re-fire mid-settle), and the pin
+        // forces the snap to that exact service throughout, it lands on the number
+        // pressed with no wobble; the scrub follows into a clean crossfade.
+        const scroller = { y: 0 };
+        let clickTween: gsap.core.Tween | null = null;
+        let releaseClick = 0;
         const scrollToIndex = (i: number) => {
           const clamped = Math.max(0, Math.min(N - 1, i));
           const p = N > 1 ? clamped / (N - 1) : 0;
-          window.scrollTo({ top: st.start + p * (st.end - st.start), behavior: 'smooth' });
+          clickTarget = p;
+          clickTween?.kill();
+          window.clearTimeout(releaseClick);
+          scroller.y = st.scroll();
+          clickTween = gsap.to(scroller, {
+            y: st.start + p * (st.end - st.start),
+            duration: 0.45,
+            ease: 'power2.inOut',
+            onUpdate: () => st.scroll(scroller.y),
+            onComplete: () => {
+              // Release the pin a beat after arrival, once the snap has settled.
+              releaseClick = window.setTimeout(() => {
+                clickTarget = -1;
+              }, 120);
+            },
+          });
         };
         const dotHandlers = dots.map((dot, i) => {
           const h = () => scrollToIndex(i);
@@ -164,7 +188,9 @@ export function ServicesStack({
           const top = rect.top + window.scrollY;
           const bottom = rect.bottom + window.scrollY;
           const target = dir === 'down' ? bottom : Math.max(0, top - window.innerHeight);
-          window.scrollTo({ top: target, behavior: 'smooth' });
+          // Instant, for the same reason as the number jumps — a smooth scroll out of
+          // the section would pass through the remaining snap points and be hijacked.
+          window.scrollTo({ top: target, behavior: 'instant' });
         };
         const exitHandlers = exitBtns.map((btn) => {
           const h = onExit(btn.dataset.exit === 'up' ? 'up' : 'down');
@@ -177,6 +203,8 @@ export function ServicesStack({
 
         return () => {
           window.clearTimeout(refresh);
+          window.clearTimeout(releaseClick);
+          clickTween?.kill();
           dots.forEach((dot, i) => dot.removeEventListener('click', dotHandlers[i]!));
           exitBtns.forEach((btn, i) => btn.removeEventListener('click', exitHandlers[i]!));
           st.kill();
@@ -259,12 +287,6 @@ export function ServicesStack({
                 <div className={styles.valueRow}>
                   <Eyebrow>{valueLabel}</Eyebrow>
                   <Text className={styles.value}>{card.value}</Text>
-                </div>
-
-                <div className={styles.ctaRow}>
-                  <Link href={ctaHref} className={buttonClasses('on-dark-primary', 'md')}>
-                    {ctaLabel}
-                  </Link>
                 </div>
               </div>
             </article>

@@ -380,13 +380,12 @@
 
 /* Title takes the place of the old big number: one line, always. Compound selector so
    it reliably overrides the Heading's size class. */
+/* The service title. Wraps freely (long titles like "Website & App Design and
+   Development" must never clip); it stays at the top of the card so it always shows. */
 .inner .title {
   max-inline-size: 100%;
   font-size: clamp(1.05rem, 0.7rem + 1.4vw, 1.75rem);
   line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: clip;
   margin-block-end: var(--space-2);
 }
 
@@ -432,10 +431,6 @@
 
 .value {
   font-weight: var(--font-weight-medium);
-}
-
-.ctaRow {
-  margin-block-start: var(--space-2);
 }
 
 /* ── Progress rail (clickable numbers) ───────────────────────────────────────── */
@@ -490,9 +485,10 @@
    these styles alone would leave services 02–10 permanently invisible. */
 @media (min-width: 861px) and (hover: hover) and (pointer: fine) {
   /* Tall scroll track — its height is the scroll distance the scrubbed progression
-     runs over (~60vh per service). The sticky scene below pins within it. */
+     runs over (~45vh per service). Short enough that a normal scroll comfortably
+     crosses a snap midpoint, so the story advances instead of settling back. */
   .section {
-    min-block-size: calc(var(--count, 10) * 60vh);
+    min-block-size: calc(var(--count, 10) * 45vh);
   }
 
   /* The scene pins to the top of the viewport and stays centred while the track
@@ -515,10 +511,14 @@
   }
 
   /* All cards share the centre cell; GSAP places each in depth. Hidden until GSAP
-     assigns depth (prevents a first-paint flash); no-JS shows the first card. */
+     assigns depth (prevents a first-paint flash); no-JS shows the first card.
+     Original width; the card is as tall as its own copy — a service with more to say
+     simply makes it LONGER — with no inner scroll. Only capped to the viewport so a
+     very long service can't overflow the pinned scene; the title stays at the top. */
   .card {
     grid-area: 1 / 1;
     inline-size: min(88vw, 46rem);
+    max-block-size: calc(100vh - 6rem);
     opacity: 0;
     transform-style: preserve-3d;
     backface-visibility: hidden;
@@ -529,18 +529,11 @@
     opacity: 1;
   }
 
-  /* Active card floats almost imperceptibly (independent of the depth transform). */
-  /* Never let a long service outgrow the viewport: the scene is a fixed 100vh with
-     overflow:hidden, so anything taller was silently cut off (the opening paragraph
-     of a 6-bullet service disappeared above the screen). Cap it and let the copy
-     scroll inside the card — the wheel handler yields to this before stepping. */
+  /* No inner scroll and no forced height — the card grows with its copy, the title
+     stays at the top, and the base single-column layout and spacing are unchanged.
+     Floats faintly, independent of the depth transform. */
   .inner {
     animation: card-float 8s ease-in-out infinite;
-    max-block-size: calc(100vh - 8rem);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--text-primary) 28%, transparent) transparent;
   }
 
   .progress {

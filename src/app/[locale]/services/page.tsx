@@ -70,8 +70,6 @@ export default async function ServicesPage({ params }: PageParams) {
           cards={blocks}
           offerLabel={offerLabel}
           valueLabel={valueLabel}
-          ctaLabel={ctaLabel}
-          ctaHref="/contact"
           exitUpLabel={t('exitUpLabel')}
           exitDownLabel={t('exitDownLabel')}
         />
