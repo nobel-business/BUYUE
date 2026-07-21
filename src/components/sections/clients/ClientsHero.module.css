@@ -1,19 +1,21 @@
-/* ClientsHero — "Constellation of Trust".
+/* ClientsHero — "The Weave".
  *
- * A full-first-screen hero (mirrors AboutCinematicIntro sizing). The right column is a
- * constellation of REAL client logos as glass "stars", linked by softly pulsing light
- * lines to a central Buyue mark — the roster as a sky of trusted partners, the lines the
- * relationships. Theme-aware via scene + glass tokens.
+ * A full-first-screen hero (mirrors AboutCinematicIntro sizing). The right column weaves
+ * the client relationships as interlacing threads of light, with the REAL client logos
+ * seated at the knots — a single thread is fragile, woven together they hold. Theme-aware
+ * via scene + glass tokens.
  *
  * Motion contract (same as the other heroes): GSAP owns entrance + scroll on the OUTER
- * elements; idle loops are CSS on independent channels (box-shadow / stroke-dashoffset /
- * transform on the motes), never the transform channel GSAP drives. Cursor parallax moves
- * the whole star-field as one unit (via the CSS `translate` property) so the lines stay
- * anchored to their stars. CSS defaults are the shown state → reduced motion is legible.
+ * elements; idle loops are CSS on independent channels (stroke-dashoffset on the threads /
+ * box-shadow on the knots / transform on the motes), never the transform channel GSAP
+ * drives. Cursor parallax moves the whole fabric as one unit (via the CSS `translate`
+ * property) so the knots stay anchored to their threads. CSS defaults are the shown state
+ * → reduced motion is legible.
  */
 
 .scene {
   --nav-offset: 7rem;
+  --thread-blend: screen; /* woven light glows on the dark ground */
 
   position: relative;
   min-block-size: 90vh;
@@ -24,6 +26,11 @@
   align-items: center;
   background: var(--scene-surface);
   color: var(--scene-ink);
+}
+
+/* Light theme: warm light can't glow on ivory, so the weave tints via multiply. */
+:global(html[data-theme='light']) .scene {
+  --thread-blend: multiply;
 }
 
 .scene::before {
@@ -186,7 +193,9 @@
   transition: translate 0.6s var(--ease-out-soft);
 }
 
-.links {
+/* The woven threads — interlacing light. GSAP fades the whole fabric in; CSS travels
+   light along each thread. Per-thread stroke / width / opacity / delay are inline. */
+.threads {
   position: absolute;
   inset: 0;
   inline-size: 100%;
@@ -195,81 +204,23 @@
   z-index: 1;
 }
 
-.lineBase {
+.thread {
   fill: none;
-  stroke: color-mix(in srgb, var(--scene-ink) 9%, transparent);
-  stroke-width: 1;
-}
-
-.linePulse {
-  fill: none;
-  stroke: url('#ch-linegrad');
-  stroke-width: 1.5;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--color-soft-orange) 60%, transparent));
-  stroke-dasharray: 4 92;
-  animation: ch-travel 3.6s linear infinite;
+  filter: blur(2.5px);
+  /* Warm light GLOWS on the dark ground (screen); on ivory it tints instead (multiply),
+     so the weave reads on both themes. */
+  mix-blend-mode: var(--thread-blend);
+  stroke-dasharray: 30 34;
+  animation: ch-flow 5s linear infinite;
   animation-delay: var(--delay, 0s);
+  will-change: stroke-dashoffset;
 }
 
-@keyframes ch-travel {
+@keyframes ch-flow {
   to {
-    stroke-dashoffset: -96;
+    stroke-dashoffset: -64;
   }
-}
-
-/* Central Buyue mark. GSAP scales/fades it in; CSS pulses its glow (box-shadow). */
-.core {
-  position: absolute;
-  inset-block-start: 48%;
-  inset-inline-start: 50%;
-  translate: -50% -50%;
-  inline-size: 5.4rem;
-  block-size: 5.4rem;
-  border-radius: 50%;
-  z-index: 4;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  background: radial-gradient(
-    circle at 36% 30%,
-    rgba(255, 255, 255, 0.28),
-    var(--glass-fill-strong) 40%,
-    rgba(255, 255, 255, 0.05)
-  );
-  border: 1px solid var(--glass-border);
-  box-shadow:
-    0 0 34px color-mix(in srgb, var(--color-soft-orange) 50%, transparent),
-    inset 0 1px 0 var(--glass-sheen);
-  backdrop-filter: blur(8px);
-  animation: ch-core 5s ease-in-out infinite;
-  will-change: transform, opacity;
-}
-
-@keyframes ch-core {
-  0%,
-  100% {
-    box-shadow:
-      0 0 30px color-mix(in srgb, var(--color-soft-orange) 42%, transparent),
-      inset 0 1px 0 var(--glass-sheen);
-  }
-
-  50% {
-    box-shadow:
-      0 0 50px color-mix(in srgb, var(--color-soft-orange) 72%, transparent),
-      inset 0 1px 0 var(--glass-sheen);
-  }
-}
-
-/* The mark sits well inside the round medallion — capped to its own aspect within a
-   2.6rem box (of the 5.4rem circle), so its edges never touch or cross the circle. */
-.coreImg {
-  inline-size: auto;
-  block-size: auto;
-  max-inline-size: 2.6rem;
-  max-block-size: 2.6rem;
-  object-fit: contain;
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-bonfire-flame) 40%, transparent));
 }
 
 /* Client-logo "stars" — a light tile so every mark reads on the dark scene. The tile
@@ -369,8 +320,7 @@
    Parallax needs no reset: --mx/--my default to 0, so .bloom stays centred and .field
    stays put; only the CSS idle loops are disabled. ══════════ */
 @media (prefers-reduced-motion: reduce) {
-  .linePulse,
-  .core,
+  .thread,
   .star,
   .mote {
     animation: none;
