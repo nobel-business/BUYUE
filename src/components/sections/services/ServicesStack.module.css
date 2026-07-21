@@ -322,6 +322,12 @@
 }
 
 /* Default (mobile / no-JS / reduced motion): calm vertical stack. */
+/* Wrapper around the whole scene. Plain (relative) on mobile / reduced motion so the
+   cards stack; becomes the pinned, centred sticky stage on desktop (below). */
+.sticky {
+  position: relative;
+}
+
 .stage {
   position: relative;
   z-index: 1;
@@ -483,9 +489,17 @@
    where the JS takeover actually runs — on a touch device (iPad landscape is >861px)
    these styles alone would leave services 02–10 permanently invisible. */
 @media (min-width: 861px) and (hover: hover) and (pointer: fine) {
-  /* Exactly one viewport — the wheel (not scroll distance) drives the steps, so
-     there is no tall track and no blank scroll. */
+  /* Tall scroll track — its height is the scroll distance the scrubbed progression
+     runs over (~60vh per service). The sticky scene below pins within it. */
   .section {
+    min-block-size: calc(var(--count, 10) * 60vh);
+  }
+
+  /* The scene pins to the top of the viewport and stays centred while the track
+     scrolls past — clips the 3D depth so cards never spill outside it. */
+  .sticky {
+    position: sticky;
+    inset-block-start: 0;
     block-size: 100vh;
     overflow: hidden;
   }
@@ -594,7 +608,16 @@
 
 /* ── Reduced motion: never capture / never 3D — calm static stack ─────────────── */
 @media (prefers-reduced-motion: reduce) {
+  /* Neutralise the desktop track + sticky (they'd otherwise leave a reduced-motion
+     desktop reader with several screens of a single card). */
   .section {
+    block-size: auto;
+    min-block-size: 0;
+    overflow: visible;
+  }
+
+  .sticky {
+    position: static;
     block-size: auto;
     overflow: visible;
   }
