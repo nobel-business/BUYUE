@@ -4,9 +4,7 @@ import { useRef, type CSSProperties } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger } from '@/lib/motion/gsap';
-import { Link } from '@/i18n/navigation';
 import { Heading, Text, Eyebrow } from '@/components/ui/Typography';
-import { buttonClasses } from '@/components/ui/Button';
 import styles from './ServicesStack.module.css';
 
 /**
@@ -47,8 +45,6 @@ type ServicesStackProps = {
   cards: ServiceCard[];
   offerLabel: string;
   valueLabel: string;
-  ctaLabel: string;
-  ctaHref: string;
   exitUpLabel: string;
   exitDownLabel: string;
 };
@@ -72,8 +68,6 @@ export function ServicesStack({
   cards,
   offerLabel,
   valueLabel,
-  ctaLabel,
-  ctaHref,
   exitUpLabel,
   exitDownLabel,
 }: ServicesStackProps) {
@@ -134,11 +128,15 @@ export function ServicesStack({
             scrub: 0.6,
             invalidateOnRefresh: true,
             ...(N > 1 && {
+              // Snap to the nearest service on scroll-end. `directional` biases the
+              // snap toward the way you're scrolling, so a forward flick advances to
+              // the next service instead of settling back on the current one.
               snap: {
                 snapTo: 1 / (N - 1),
-                duration: { min: 0.2, max: 0.5 },
-                ease: 'power2.inOut',
-                delay: 0.04,
+                directional: true,
+                duration: { min: 0.15, max: 0.4 },
+                ease: 'power1.inOut',
+                delay: 0.05,
               },
             }),
           },
@@ -259,12 +257,6 @@ export function ServicesStack({
                 <div className={styles.valueRow}>
                   <Eyebrow>{valueLabel}</Eyebrow>
                   <Text className={styles.value}>{card.value}</Text>
-                </div>
-
-                <div className={styles.ctaRow}>
-                  <Link href={ctaHref} className={buttonClasses('on-dark-primary', 'md')}>
-                    {ctaLabel}
-                  </Link>
                 </div>
               </div>
             </article>
