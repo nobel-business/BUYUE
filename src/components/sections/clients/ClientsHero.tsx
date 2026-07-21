@@ -71,28 +71,32 @@ function mountNetwork(
   const ctx = canvas.getContext('2d');
   if (!ctx) return () => {};
 
-  // ── Seeded layout (deterministic → identical every load; no hydration concern
-  //    since the canvas is client-only). Nodes sit in POLAR coordinates around the
-  //    hub (angle + radius fraction), so the constellation scales uniformly with the
-  //    panel — no horizontal stretch — and reads as an organic ring of relationships.
+  // ── Seeded layout (deterministic → identical every load; client-only canvas, no
+  //    hydration concern). Nodes are scattered around the hub across a WIDE panel box
+  //    (as in the approved design), so the constellation reads airy and expansive,
+  //    not a tight cluster. Node/line/glow sizes are scaled up at draw time (`k`) so
+  //    the whole thing stays large and clear on big screens.
   let seed = 1337;
   const rnd = () => {
     seed = (seed * 16807) % 2147483647;
     return (seed - 1) / 2147483646;
   };
-  const core = { x: 0.6, y: 0.5 }; // hub centre, as a fraction of the canvas
+  const core = { x: 0.6, y: 0.46 }; // hub position within the panel box
   const N = 16;
-  const nodes = Array.from({ length: N }, (_, i) => ({
-    ang: rnd() * Math.PI * 2,
-    rad: 0.24 + rnd() * 0.72, // fraction of the radius budget (0.24 → 0.96)
-    r: 5 + rnd() * 6, // base node radius, scaled by `k` at draw time
-    ph: rnd() * Math.PI * 2,
-    sp: 0.3 + rnd() * 0.5,
-    amp: 0.01 + rnd() * 0.02, // radial drift amplitude (fraction)
-    aph: rnd() * 0.4, // angular drift amplitude (radians)
-    col: i % 3 === 0 ? GOLD : i % 3 === 1 ? SOFT : FLAME,
-    depth: 0.5 + rnd() * 0.5,
-  }));
+  const nodes = Array.from({ length: N }, (_, i) => {
+    const ang = rnd() * Math.PI * 2;
+    const rad = 0.16 + rnd() * 0.42; // spread fraction of the box (wide, airy)
+    return {
+      bx: core.x + Math.cos(ang) * rad * 0.9,
+      by: core.y + Math.sin(ang) * rad * 1.05,
+      r: 5 + rnd() * 6, // base node radius, scaled by `k` at draw time
+      ph: rnd() * Math.PI * 2,
+      sp: 0.3 + rnd() * 0.5,
+      amp: 0.006 + rnd() * 0.012,
+      col: i % 3 === 0 ? GOLD : i % 3 === 1 ? SOFT : FLAME,
+      depth: 0.5 + rnd() * 0.5,
+    };
+  });
   type Link = { a: number; b: number; pulse: number };
   const links: Link[] = nodes.map((_, i) => ({ a: -1, b: i, pulse: rnd() })); // a = -1 → hub
   for (let k = 0; k < 7; k++) {
@@ -134,36 +138,37 @@ function mountNetwork(
 
     ctx.clearRect(0, 0, W, H);
 
-    // Uniform scale: the radius budget and every drawn dimension key off the SHORTER
-    // side, so the constellation grows large and clear with the panel and never
-    // stretches thin on a wide screen. `k` scales node/line/glow sizes together.
-    const unit = Math.min(W, H);
-    const Rmax = unit * 0.46;
-    const k = Math.max(0.85, Math.min(2.4, unit / 620));
-    const cx = W * core.x + mx * 26;
-    const cy = H * core.y + my * 18;
+    // Wide panel box (as in the design) → an airy, expansive spread. `k` scales every
+    // drawn dimension (nodes, hub, links, glows, pulses) with the panel so the graph
+    // stays large and clear on big screens instead of shrinking to specks.
+    const k = Math.max(0.9, Math.min(2.6, Math.min(W, H) / 560));
+    const bx = W * 0.3;
+    const by = H * 0.1;
+    const bw = W * 0.66;
+    const bh = H * 0.8;
+    const P = (nx: number, ny: number, depth = 1) => ({
+      x: bx + nx * bw + mx * 24 * depth,
+      y: by + ny * bh + my * 18 * depth,
+    });
+    const hub = P(core.x, core.y);
 
     // Hub bloom.
-    const bloomR = Rmax * 0.85;
-    const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, bloomR);
+    const bloomR = Math.max(180, bw * 0.34);
+    const bloom = ctx.createRadialGradient(hub.x, hub.y, 0, hub.x, hub.y, bloomR);
     bloom.addColorStop(0, rgba(SOFT, (light ? 0.16 : 0.24) * ee));
     bloom.addColorStop(0.4, rgba(FLAME, (light ? 0.08 : 0.11) * ee));
     bloom.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = bloom;
     ctx.beginPath();
-    ctx.arc(cx, cy, bloomR, 0, 7);
+    ctx.arc(hub.x, hub.y, bloomR, 0, 7);
     ctx.fill();
 
-    // Live node positions (gentle polar idle drift + per-node parallax depth).
+    // Live node positions (gentle idle drift + per-node parallax depth).
     const pos = nodes.map((n) => {
-      const rr = (n.rad + Math.cos(t * n.sp + n.ph) * n.amp) * Rmax;
-      const aa = n.ang + Math.sin(t * n.sp * 0.9 + n.ph) * n.aph;
-      return {
-        x: cx + Math.cos(aa) * rr + mx * 22 * n.depth,
-        y: cy + Math.sin(aa) * rr + my * 16 * n.depth,
-      };
+      const dx = Math.cos(t * n.sp + n.ph) * n.amp;
+      const dy = Math.sin(t * n.sp * 1.1 + n.ph) * n.amp;
+      return P(n.bx + dx, n.by + dy, n.depth);
     });
-    const hub = { x: cx, y: cy };
 
     // Links — draw outward on entrance (staggered), then a light pulse travels.
     for (let i = 0; i < links.length; i++) {
