@@ -1,0 +1,670 @@
+/* ServicesHero — "Digital to Real".
+ *
+ * A full-first-screen hero (mirrors AboutCinematicIntro sizing). The right column tells
+ * the Services story straight from the copy: a phone (first digital appearance on social
+ * media) emits content that flows along a light path and assembles into a lit exhibition
+ * stand (a real-world presence). Theme-aware via scene + glass tokens.
+ *
+ * Motion contract (same as the other heroes): GSAP owns entrance + scroll on the OUTER
+ * elements; every idle loop is a CSS animation on a NESTED element (or on an independent
+ * property — opacity/box-shadow/stroke — never the transform channel GSAP drives). Cursor
+ * parallax uses the CSS `translate` property, independent of `transform`. CSS defaults are
+ * the *shown* state, so reduced-motion (GSAP bails, loops off) yields a still, legible scene.
+ */
+
+.scene {
+  --nav-offset: 7rem;
+
+  position: relative;
+  min-block-size: 90vh;
+  margin-block-start: calc(-1 * var(--nav-offset));
+  padding-block: calc(var(--nav-offset) + 2rem) clamp(2.5rem, 4vh, 4rem);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: var(--scene-surface);
+  color: var(--scene-ink);
+}
+
+/* Static warm ambience + focus vignette behind everything. */
+.scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 90% at 80% 26%,
+      color-mix(in srgb, var(--color-bonfire-flame) 15%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      90% 80% at 10% 92%,
+      color-mix(in srgb, var(--scene-glow-warm) 12%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(130% 120% at 50% 40%, transparent 52%, var(--scene-vignette) 100%);
+}
+
+/* 22vh fade that melts the hero into the section below (no seam on load). */
+.scene::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 22vh;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--surface-page));
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+/* ══════════ Left column ══════════ */
+.content {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--scene-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.railLine {
+  position: relative;
+  inline-size: 1px;
+  flex: 1;
+  min-block-size: 8rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--scene-ink) 14%, transparent);
+}
+
+.railFill {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: 22%;
+  background: linear-gradient(var(--color-bonfire-flame), var(--color-quilt-gold));
+}
+
+.railDot {
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background: var(--color-quilt-gold);
+  box-shadow: 0 0 10px var(--color-quilt-gold);
+  animation: sh-dot 3.2s ease-in-out infinite;
+}
+
+@keyframes sh-dot {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+.copy {
+  max-inline-size: 33rem;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-display);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-weight: var(--font-weight-bold);
+  text-wrap: balance;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.accent {
+  background: linear-gradient(
+    100deg,
+    var(--color-bonfire-flame) 8%,
+    var(--color-soft-orange) 48%,
+    var(--color-quilt-gold)
+  );
+  background-clip: text;
+  color: transparent;
+}
+
+.divider {
+  inline-size: 3.5rem;
+  block-size: 2px;
+  margin: 1.6rem 0;
+  background: linear-gradient(to right, var(--color-bonfire-flame), transparent);
+  will-change: transform;
+}
+
+:global(html[dir='rtl']) .divider {
+  background: linear-gradient(to left, var(--color-bonfire-flame), transparent);
+}
+
+.lead {
+  margin: 0 0 1.1rem;
+  max-inline-size: 40ch;
+  font-size: var(--font-size-body-l);
+  line-height: 1.6;
+  color: var(--scene-ink);
+}
+
+.sub {
+  margin: 0 0 2.2rem;
+  max-inline-size: 42ch;
+  font-size: var(--font-size-body);
+  line-height: 1.65;
+  color: var(--scene-ink-soft);
+}
+
+.cta {
+  will-change: transform, opacity;
+}
+
+/* ══════════ Right column — Digital to Real ══════════ */
+.visual {
+  position: relative;
+  block-size: min(80vh, 46rem);
+}
+
+/* Anchor glows — GSAP fades them in; static thereafter. */
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(45px);
+  pointer-events: none;
+}
+
+.glowA {
+  inline-size: 20rem;
+  block-size: 20rem;
+  inset-block-start: -3rem;
+  inset-inline-start: -3rem;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-soft-orange) 22%, transparent),
+    transparent 66%
+  );
+  translate: calc(var(--mx, 0) * -6px) calc(var(--my, 0) * -4px);
+}
+
+.glowB {
+  inline-size: 24rem;
+  block-size: 24rem;
+  inset-block-end: -4rem;
+  inset-inline-end: -3rem;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-bonfire-flame) 24%, transparent),
+    transparent 66%
+  );
+  translate: calc(var(--mx, 0) * 6px) calc(var(--my, 0) * 4px);
+}
+
+/* Connecting light path (digital content in transit). GSAP fades in; CSS flows the dash. */
+.path {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  z-index: 2;
+}
+
+.pathTrack {
+  fill: none;
+  stroke: color-mix(in srgb, var(--scene-ink) 8%, transparent);
+  stroke-width: 2;
+}
+
+.pathFlow {
+  fill: none;
+  stroke: url('#sh-pathgrad');
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-soft-orange) 70%, transparent));
+  stroke-dasharray: 14 210;
+  animation: sh-flow 3.4s linear infinite;
+}
+
+@keyframes sh-flow {
+  to {
+    stroke-dashoffset: -224;
+  }
+}
+
+/* Content chips riding the path — GSAP fades/scales them in; CSS bobs them (transform). */
+.chip {
+  position: absolute;
+  inline-size: 2.4rem;
+  block-size: 2.4rem;
+  border-radius: 0.7rem;
+  background: var(--glass-fill-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 var(--glass-sheen);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  z-index: 3;
+  animation: sh-bob 6s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform, opacity;
+}
+
+/* Icon scales WITH the chip (percentage, centred) so it never distorts, whatever
+   the chip size. */
+.chip svg {
+  inline-size: 52%;
+  block-size: 52%;
+}
+
+@keyframes sh-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+/* ── The phone (digital origin) ── */
+.phone {
+  position: absolute;
+  inset-block-start: 4%;
+  inset-inline-start: 4%;
+  inline-size: 8.5rem;
+  block-size: 17.4rem;
+  z-index: 4;
+  translate: calc(var(--mx, 0) * 16px) calc(var(--my, 0) * 12px);
+  will-change: transform, opacity;
+}
+
+/* Static 3D tilt on a nested element, so GSAP's entrance transform on .phone is free. */
+.phoneStage {
+  position: absolute;
+  inset: 0;
+  transform: perspective(900px) rotateY(-17deg) rotateX(6deg);
+}
+
+.phoneBody {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.6rem;
+  background: linear-gradient(150deg, var(--glass-sheen), var(--glass-fill));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 26px 60px rgba(0, 0, 0, 0.55),
+    0 0 40px color-mix(in srgb, var(--color-soft-orange) 18%, transparent),
+    inset 0 1px 0 var(--glass-sheen);
+  backdrop-filter: blur(8px);
+}
+
+.screen {
+  position: absolute;
+  inset: 0.5rem;
+  border-radius: 1.15rem;
+  background: linear-gradient(170deg, #17110f, #0b0908);
+  overflow: hidden;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sAvatar {
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-bonfire-flame), var(--color-quilt-gold));
+}
+
+.sLines {
+  flex: 1;
+  display: grid;
+  gap: 3px;
+}
+
+.sLines i {
+  block-size: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.sLines i:last-child {
+  inline-size: 60%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sMedia {
+  flex: 1;
+  border-radius: 0.6rem;
+  background:
+    radial-gradient(
+      circle at 60% 40%,
+      color-mix(in srgb, var(--color-soft-orange) 35%, transparent),
+      color-mix(in srgb, var(--color-bonfire-flame) 15%, transparent)
+    ),
+    #1a120e;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.sMedia::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.14) 50%,
+    transparent 60%
+  );
+  animation: sh-shine 4s ease-in-out infinite;
+}
+
+@keyframes sh-shine {
+  0%,
+  100% {
+    transform: translateX(-60%);
+  }
+
+  50% {
+    transform: translateX(60%);
+  }
+}
+
+.sPlay {
+  inline-size: 1.8rem;
+  block-size: 1.8rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: grid;
+  place-items: center;
+  z-index: 1;
+}
+
+.sPlay::before {
+  content: '';
+  inline-size: 0;
+  block-size: 0;
+  border-block: 0.35rem solid transparent;
+  border-inline-start: 0.55rem solid #17110f;
+  margin-inline-start: 0.15rem;
+}
+
+.sActions {
+  display: flex;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.sActions svg {
+  inline-size: 0.95rem;
+  block-size: 0.95rem;
+}
+
+.sActions .heart {
+  color: var(--color-bonfire-flame);
+}
+
+/* ── The exhibition stand (real-world presence) ── */
+.stand {
+  position: absolute;
+  inset-block-end: 3%;
+  inset-inline-end: 3%;
+  inline-size: 20rem;
+  block-size: 20rem;
+  z-index: 3;
+  translate: calc(var(--mx, 0) * -8px) calc(var(--my, 0) * -6px);
+}
+
+.floor {
+  position: absolute;
+  inset-block-end: 1.5rem;
+  inset-inline: 2rem;
+  block-size: 4rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--color-soft-orange) 35%, transparent),
+    transparent 70%
+  );
+  filter: blur(10px);
+  will-change: opacity;
+}
+
+.wall {
+  position: absolute;
+  inset-block-start: 3.2rem;
+  inset-inline: 2.5rem 1rem;
+  block-size: 13rem;
+  border-radius: 0.8rem 0.8rem 0.4rem 0.4rem;
+  background: linear-gradient(160deg, var(--glass-fill-strong), var(--glass-fill));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-sheen),
+    0 20px 50px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+/* The real Buyue mark (public/brand) — a clear logo, contained so it never distorts. */
+.wallLogo {
+  position: absolute;
+  inset-block-start: 46%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -50%);
+  inline-size: 48%;
+  block-size: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--color-bonfire-flame) 45%, transparent));
+}
+
+.side {
+  position: absolute;
+  inset-block-start: 3.5rem;
+  inset-inline-start: 1.4rem;
+  inline-size: 1.3rem;
+  block-size: 12.6rem;
+  border-radius: 0.4rem;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.5), var(--glass-fill));
+  border: 1px solid color-mix(in srgb, var(--scene-ink) 8%, transparent);
+  transform: perspective(700px) rotateY(38deg);
+  transform-origin: right center;
+}
+
+/* Illuminated fascia sign — GSAP scales/fades it in; CSS pulses its box-shadow. */
+.sign {
+  position: absolute;
+  inset-block-start: 1rem;
+  inset-inline: 2rem 0.5rem;
+  block-size: 2.6rem;
+  border-radius: 0.6rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-bonfire-flame),
+    var(--color-soft-orange) 60%,
+    var(--color-quilt-gold)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 0 34px color-mix(in srgb, var(--color-soft-orange) 60%, transparent),
+    0 8px 22px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  animation: sh-sign 4s ease-in-out infinite;
+  transform-origin: center bottom;
+  will-change: transform, opacity;
+}
+
+@keyframes sh-sign {
+  0%,
+  100% {
+    box-shadow:
+      0 0 30px color-mix(in srgb, var(--color-soft-orange) 50%, transparent),
+      0 8px 22px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+
+  50% {
+    box-shadow:
+      0 0 48px color-mix(in srgb, var(--color-soft-orange) 85%, transparent),
+      0 8px 22px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+}
+
+.counter {
+  position: absolute;
+  inset-block-end: 2.6rem;
+  inset-inline-start: 2rem;
+  inline-size: 5rem;
+  block-size: 3.2rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(160deg, var(--glass-fill-strong), var(--glass-fill));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 var(--glass-sheen);
+  backdrop-filter: blur(6px);
+  will-change: transform, opacity;
+}
+
+.counter::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  inline-size: 1.6rem;
+  block-size: 1.6rem;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--color-bonfire-flame), var(--color-quilt-gold));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-soft-orange) 50%, transparent);
+}
+
+/* Drifting particles — GSAP fades in; CSS drifts (transform). */
+.mote {
+  position: absolute;
+  inline-size: 3px;
+  block-size: 3px;
+  border-radius: 50%;
+  background: var(--scene-particle);
+  animation: sh-drift 12s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform, opacity;
+}
+
+@keyframes sh-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-6px, -12px);
+  }
+}
+
+/* ══════════ Responsive — mobile stacks, no full-height (as the About hero does) ══ */
+@media (max-width: 899px) {
+  .scene {
+    display: block;
+    min-block-size: auto;
+    margin-block-start: 0;
+    padding-block: calc(var(--nav-offset) + 1.5rem) 3rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .rail {
+    display: none;
+  }
+
+  .visual {
+    block-size: 24rem;
+    order: 2;
+  }
+
+  .phone,
+  .stand,
+  .glowA,
+  .glowB {
+    translate: none;
+  }
+}
+
+/* ══════════ Reduced motion — still, legible scene (GSAP also bails in the TSX) ══ */
+@media (prefers-reduced-motion: reduce) {
+  .phone,
+  .stand,
+  .glowA,
+  .glowB {
+    translate: none;
+  }
+
+  .pathFlow,
+  .chip,
+  .sMedia::after,
+  .sign,
+  .mote,
+  .railDot {
+    animation: none;
+  }
+}
