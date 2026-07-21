@@ -1,25 +1,22 @@
-/* ServicesHero — "The Refractor".
+/* ServicesHero — "Digital to Real".
  *
- * A full-first-screen hero (mirrors AboutCinematicIntro sizing) whose right column
- * is a cinematic light metaphor: one beam enters a glass crystal and refracts into a
- * warm brand spectrum — "one idea, refracted into a full spectrum of creative
- * services". Theme-aware via scene tokens; the refraction blend flips screen→multiply
- * so the warm light reads on both the dark and the ivory ground.
+ * A full-first-screen hero (mirrors AboutCinematicIntro sizing). The right column tells
+ * the Services story straight from the copy: a phone (first digital appearance on social
+ * media) emits content that flows along a light path and assembles into a lit exhibition
+ * stand (a real-world presence). Theme-aware via scene + glass tokens.
  *
- * Motion contract (same as the other heroes): GSAP owns entrance + scroll on the
- * OUTER elements; every idle loop is a CSS animation on a NESTED element, so the two
- * never share a transform channel. Cursor parallax uses the CSS `translate` property
- * (independent of `transform`) driven by --mx/--my. CSS defaults are the *shown*
- * state, so reduced-motion (GSAP bails, loops disabled) yields a still, legible scene.
+ * Motion contract (same as the other heroes): GSAP owns entrance + scroll on the OUTER
+ * elements; every idle loop is a CSS animation on a NESTED element (or on an independent
+ * property — opacity/box-shadow/stroke — never the transform channel GSAP drives). Cursor
+ * parallax uses the CSS `translate` property, independent of `transform`. CSS defaults are
+ * the *shown* state, so reduced-motion (GSAP bails, loops off) yields a still, legible scene.
  */
 
 .scene {
   --nav-offset: 7rem;
-  --refract-blend: screen; /* warm light GLOWS on the dark ground */
 
   position: relative;
   min-block-size: 90vh;
-  /* Pull up behind the sticky nav so the whole first screen is one scene. */
   margin-block-start: calc(-1 * var(--nav-offset));
   padding-block: calc(var(--nav-offset) + 2rem) clamp(2.5rem, 4vh, 4rem);
   overflow: hidden;
@@ -27,12 +24,6 @@
   align-items: center;
   background: var(--scene-surface);
   color: var(--scene-ink);
-}
-
-/* Light theme: warm light can't glow on ivory, so refraction tints via multiply and
-   the ambient glows soften. Geometry and timeline are identical. */
-:global(html[data-theme='light']) .scene {
-  --refract-blend: multiply;
 }
 
 /* Static warm ambience + focus vignette behind everything. */
@@ -45,12 +36,12 @@
   background:
     radial-gradient(
       120% 90% at 80% 26%,
-      color-mix(in srgb, var(--color-bonfire-flame) 16%, transparent),
+      color-mix(in srgb, var(--color-bonfire-flame) 15%, transparent),
       transparent 55%
     ),
     radial-gradient(
       90% 80% at 10% 92%,
-      color-mix(in srgb, var(--scene-glow-warm) 14%, transparent),
+      color-mix(in srgb, var(--scene-glow-warm) 12%, transparent),
       transparent 60%
     ),
     radial-gradient(130% 120% at 50% 40%, transparent 52%, var(--scene-vignette) 100%);
@@ -75,9 +66,9 @@
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
   align-items: center;
-  gap: clamp(1.5rem, 4vw, 4rem);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
 }
 
 /* ══════════ Left column ══════════ */
@@ -87,7 +78,6 @@
   column-gap: clamp(1rem, 2vw, 1.75rem);
 }
 
-/* Reading-progress rail (01 → 10), the same structural device as the About hero. */
 .rail {
   display: flex;
   flex-direction: column;
@@ -141,7 +131,7 @@
 }
 
 .copy {
-  max-inline-size: 34rem;
+  max-inline-size: 33rem;
 }
 
 .title {
@@ -158,7 +148,6 @@
   will-change: transform, opacity;
 }
 
-/* Accent gradient on the key word — matches the About hero's titleAccent. */
 .accent {
   background: linear-gradient(
     100deg,
@@ -202,261 +191,432 @@
   will-change: transform, opacity;
 }
 
-/* ══════════ Right column — The Refractor ══════════ */
+/* ══════════ Right column — Digital to Real ══════════ */
 .visual {
   position: relative;
-  block-size: min(78vh, 44rem);
-  /* cursor parallax (independent of transform) */
-  translate: calc(var(--mx, 0) * 10px) calc(var(--my, 0) * 8px);
-  transition: translate 0.6s var(--ease-out-soft);
+  block-size: min(80vh, 46rem);
 }
 
-.stage {
+/* Anchor glows — GSAP fades them in; static thereafter. */
+.glow {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  perspective: 1400px;
-}
-
-/* Mirror the light metaphor in RTL so the beam enters from the reading-start side. */
-:global(html[dir='rtl']) .stage {
-  transform: scaleX(-1);
-}
-
-/* Warm bloom behind the crystal. GSAP owns entrance; the nested core does the pulse. */
-.bloom {
-  position: absolute;
-  inline-size: 60%;
-  aspect-ratio: 1;
-  translate: calc(var(--mx, 0) * -6px) calc(var(--my, 0) * -5px);
-}
-
-.bloomCore {
-  position: absolute;
-  inset: 0;
   border-radius: 50%;
+  filter: blur(45px);
+  pointer-events: none;
+}
+
+.glowA {
+  inline-size: 20rem;
+  block-size: 20rem;
+  inset-block-start: -3rem;
+  inset-inline-start: -3rem;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--color-soft-orange) 34%, transparent),
-    color-mix(in srgb, var(--color-bonfire-flame) 14%, transparent) 45%,
-    transparent 68%
+    color-mix(in srgb, var(--color-soft-orange) 22%, transparent),
+    transparent 66%
   );
-  filter: blur(30px);
-  animation: sh-bloom 9s ease-in-out infinite;
+  translate: calc(var(--mx, 0) * -6px) calc(var(--my, 0) * -4px);
 }
 
-@keyframes sh-bloom {
+.glowB {
+  inline-size: 24rem;
+  block-size: 24rem;
+  inset-block-end: -4rem;
+  inset-inline-end: -3rem;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-bonfire-flame) 24%, transparent),
+    transparent 66%
+  );
+  translate: calc(var(--mx, 0) * 6px) calc(var(--my, 0) * 4px);
+}
+
+/* Connecting light path (digital content in transit). GSAP fades in; CSS flows the dash. */
+.path {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  z-index: 2;
+}
+
+.pathTrack {
+  fill: none;
+  stroke: color-mix(in srgb, var(--scene-ink) 8%, transparent);
+  stroke-width: 2;
+}
+
+.pathFlow {
+  fill: none;
+  stroke: url('#sh-pathgrad');
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-soft-orange) 70%, transparent));
+  stroke-dasharray: 14 210;
+  animation: sh-flow 3.4s linear infinite;
+}
+
+@keyframes sh-flow {
+  to {
+    stroke-dashoffset: -224;
+  }
+}
+
+/* Content chips riding the path — GSAP fades/scales them in; CSS bobs them (transform). */
+.chip {
+  position: absolute;
+  inline-size: 2.4rem;
+  block-size: 2.4rem;
+  border-radius: 0.7rem;
+  background: var(--glass-fill-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 var(--glass-sheen);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  z-index: 3;
+  animation: sh-bob 6s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform, opacity;
+}
+
+.chip svg {
+  inline-size: 1.2rem;
+  block-size: 1.2rem;
+}
+
+@keyframes sh-bob {
   0%,
   100% {
-    transform: scale(1);
-    opacity: 0.85;
+    transform: translateY(0);
   }
 
   50% {
-    transform: scale(1.12);
-    opacity: 1;
+    transform: translateY(-7px);
   }
 }
 
-/* Refracted spectrum — a warm fan leaving the crystal. Each .band holds its fixed fan
-   angle; the inner <i> is GSAP-revealed (scaleX) and CSS-shimmered (opacity only). */
-.spectrum {
+/* ── The phone (digital origin) ── */
+.phone {
   position: absolute;
-  inset: 0;
-  translate: calc(var(--mx, 0) * 14px) calc(var(--my, 0) * 10px);
+  inset-block-start: 4%;
+  inset-inline-start: 4%;
+  inline-size: 8.5rem;
+  block-size: 17.4rem;
+  z-index: 4;
+  translate: calc(var(--mx, 0) * 16px) calc(var(--my, 0) * 12px);
+  will-change: transform, opacity;
 }
 
-.band {
+/* Static 3D tilt on a nested element, so GSAP's entrance transform on .phone is free. */
+.phoneStage {
+  position: absolute;
+  inset: 0;
+  transform: perspective(900px) rotateY(-17deg) rotateX(6deg);
+}
+
+.phoneBody {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.6rem;
+  background: linear-gradient(150deg, var(--glass-sheen), var(--glass-fill));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 26px 60px rgba(0, 0, 0, 0.55),
+    0 0 40px color-mix(in srgb, var(--color-soft-orange) 18%, transparent),
+    inset 0 1px 0 var(--glass-sheen);
+  backdrop-filter: blur(8px);
+}
+
+.screen {
+  position: absolute;
+  inset: 0.5rem;
+  border-radius: 1.15rem;
+  background: linear-gradient(170deg, #17110f, #0b0908);
+  overflow: hidden;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sAvatar {
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-bonfire-flame), var(--color-quilt-gold));
+}
+
+.sLines {
+  flex: 1;
+  display: grid;
+  gap: 3px;
+}
+
+.sLines i {
+  block-size: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.sLines i:last-child {
+  inline-size: 60%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sMedia {
+  flex: 1;
+  border-radius: 0.6rem;
+  background:
+    radial-gradient(
+      circle at 60% 40%,
+      color-mix(in srgb, var(--color-soft-orange) 35%, transparent),
+      color-mix(in srgb, var(--color-bonfire-flame) 15%, transparent)
+    ),
+    #1a120e;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.sMedia::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.14) 50%,
+    transparent 60%
+  );
+  animation: sh-shine 4s ease-in-out infinite;
+}
+
+@keyframes sh-shine {
+  0%,
+  100% {
+    transform: translateX(-60%);
+  }
+
+  50% {
+    transform: translateX(60%);
+  }
+}
+
+.sPlay {
+  inline-size: 1.8rem;
+  block-size: 1.8rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: grid;
+  place-items: center;
+  z-index: 1;
+}
+
+.sPlay::before {
+  content: '';
+  inline-size: 0;
+  block-size: 0;
+  border-block: 0.35rem solid transparent;
+  border-inline-start: 0.55rem solid #17110f;
+  margin-inline-start: 0.15rem;
+}
+
+.sActions {
+  display: flex;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.sActions svg {
+  inline-size: 0.95rem;
+  block-size: 0.95rem;
+}
+
+.sActions .heart {
+  color: var(--color-bonfire-flame);
+}
+
+/* ── The exhibition stand (real-world presence) ── */
+.stand {
+  position: absolute;
+  inset-block-end: 3%;
+  inset-inline-end: 3%;
+  inline-size: 20rem;
+  block-size: 20rem;
+  z-index: 3;
+  translate: calc(var(--mx, 0) * -8px) calc(var(--my, 0) * -6px);
+}
+
+.floor {
+  position: absolute;
+  inset-block-end: 1.5rem;
+  inset-inline: 2rem;
+  block-size: 4rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--color-soft-orange) 35%, transparent),
+    transparent 70%
+  );
+  filter: blur(10px);
+  will-change: opacity;
+}
+
+.wall {
+  position: absolute;
+  inset-block-start: 3.2rem;
+  inset-inline: 2.5rem 1rem;
+  block-size: 13rem;
+  border-radius: 0.8rem 0.8rem 0.4rem 0.4rem;
+  background: linear-gradient(160deg, var(--glass-fill-strong), var(--glass-fill));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-sheen),
+    0 20px 50px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.wallMark {
   position: absolute;
   inset-block-start: 50%;
   inset-inline-start: 50%;
-  inline-size: 58%;
-  block-size: 12px;
-  transform-origin: left center;
-  transform: rotate(var(--r));
+  transform: translate(-50%, -50%);
+  inline-size: 4.5rem;
+  block-size: 4.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, var(--color-bonfire-flame), var(--color-quilt-gold));
+  box-shadow: 0 0 24px color-mix(in srgb, var(--color-soft-orange) 40%, transparent);
 }
 
-.band i {
-  display: block;
-  block-size: 100%;
-  border-radius: 999px;
-  filter: blur(7px);
-  mix-blend-mode: var(--refract-blend);
-  opacity: var(--o);
-  background: linear-gradient(to right, var(--c), transparent 82%);
-  transform-origin: left center;
+.side {
+  position: absolute;
+  inset-block-start: 3.5rem;
+  inset-inline-start: 1.4rem;
+  inline-size: 1.3rem;
+  block-size: 12.6rem;
+  border-radius: 0.4rem;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.5), var(--glass-fill));
+  border: 1px solid color-mix(in srgb, var(--scene-ink) 8%, transparent);
+  transform: perspective(700px) rotateY(38deg);
+  transform-origin: right center;
+}
+
+/* Illuminated fascia sign — GSAP scales/fades it in; CSS pulses its box-shadow. */
+.sign {
+  position: absolute;
+  inset-block-start: 1rem;
+  inset-inline: 2rem 0.5rem;
+  block-size: 2.6rem;
+  border-radius: 0.6rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-bonfire-flame),
+    var(--color-soft-orange) 60%,
+    var(--color-quilt-gold)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 0 34px color-mix(in srgb, var(--color-soft-orange) 60%, transparent),
+    0 8px 22px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  animation: sh-sign 4s ease-in-out infinite;
+  transform-origin: center bottom;
   will-change: transform, opacity;
-  animation: sh-shimmer 7s ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
 }
 
-@keyframes sh-shimmer {
+@keyframes sh-sign {
   0%,
   100% {
-    opacity: var(--o);
+    box-shadow:
+      0 0 30px color-mix(in srgb, var(--color-soft-orange) 50%, transparent),
+      0 8px 22px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
   }
 
   50% {
-    opacity: calc(var(--o) + 0.16);
+    box-shadow:
+      0 0 48px color-mix(in srgb, var(--color-soft-orange) 85%, transparent),
+      0 8px 22px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
   }
 }
 
-/* Incoming beam. */
-.beam {
+.signDot {
+  inline-size: 0.95rem;
+  block-size: 0.95rem;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 0 10px #fff;
+}
+
+.counter {
   position: absolute;
-  inset-block-start: 22%;
-  inset-inline-start: -6%;
-  inline-size: 62%;
-  block-size: 3px;
-  transform-origin: right center;
-  transform: rotate(28deg);
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(255, 244, 224, 0.15) 20%,
-    rgba(255, 250, 240, 0.9)
-  );
-  filter: blur(1.5px);
-  mix-blend-mode: var(--refract-blend);
+  inset-block-end: 2.6rem;
+  inset-inline-start: 2rem;
+  inline-size: 5rem;
+  block-size: 3.2rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(160deg, var(--glass-fill-strong), var(--glass-fill));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 var(--glass-sheen);
+  backdrop-filter: blur(6px);
   will-change: transform, opacity;
 }
 
-.beam::before {
+.counter::before {
   content: '';
   position: absolute;
-  inset-inline-start: -4px;
-  inset-block-start: 50%;
-  inline-size: 26px;
-  block-size: 26px;
-  transform: translateY(-50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 250, 240, 0.9), transparent 70%);
-  filter: blur(3px);
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  inline-size: 1.6rem;
+  block-size: 1.6rem;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--color-bonfire-flame), var(--color-quilt-gold));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-soft-orange) 50%, transparent);
 }
 
-/* Glass crystal. GSAP owns entrance (scale/blur/opacity) + parallax; the nested
-   .crystalSpin does the idle tilt on a separate transform channel. */
-.crystal {
-  position: relative;
-  inline-size: 8.5rem;
-  block-size: 13rem;
-  z-index: 3;
-  translate: calc(var(--mx, 0) * 18px) calc(var(--my, 0) * 14px);
+/* Drifting particles — GSAP fades in; CSS drifts (transform). */
+.mote {
+  position: absolute;
+  inline-size: 3px;
+  block-size: 3px;
+  border-radius: 50%;
+  background: var(--scene-particle);
+  animation: sh-drift 12s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
   will-change: transform, opacity;
 }
 
-.crystalSpin {
-  position: absolute;
-  inset: 0;
-  animation: sh-tilt 15s ease-in-out infinite;
-}
-
-@keyframes sh-tilt {
-  0%,
-  100% {
-    transform: rotate(-3deg) translateY(0);
-  }
-
-  50% {
-    transform: rotate(4deg) translateY(-10px);
-  }
-}
-
-.clip {
-  position: absolute;
-  inset: 0;
-  clip-path: polygon(50% 0, 90% 26%, 82% 100%, 18% 100%, 10% 26%);
-}
-
-/* Glowing warm edge behind the glass. */
-.edge {
-  inset: -2px;
-  background: linear-gradient(
-    150deg,
-    rgba(255, 244, 224, 0.9),
-    var(--color-soft-orange) 45%,
-    var(--color-bonfire-flame)
-  );
-  filter: blur(9px);
-  opacity: 0.75;
-}
-
-/* Glass body — uses the theme-aware glass tokens. */
-.glass {
-  background:
-    linear-gradient(
-      118deg,
-      var(--glass-sheen) 0%,
-      color-mix(in srgb, var(--glass-sheen) 40%, transparent) 30%,
-      transparent 46%
-    ),
-    linear-gradient(
-      300deg,
-      color-mix(in srgb, var(--color-soft-orange) 28%, transparent),
-      transparent 55%
-    ),
-    var(--glass-fill-strong);
-  backdrop-filter: blur(4px);
-  box-shadow: inset 0 0 40px var(--glass-sheen);
-}
-
-/* Interior facet lines. */
-.facet {
-  background:
-    linear-gradient(
-      to right,
-      transparent calc(50% - 0.5px),
-      var(--glass-border-strong) 50%,
-      transparent calc(50% + 0.5px)
-    ),
-    linear-gradient(155deg, transparent 24%, var(--glass-border-strong) 25%, transparent 26%),
-    linear-gradient(205deg, transparent 24%, rgba(255, 244, 224, 0.16) 25%, transparent 26%);
-}
-
-/* Bright specular where the beam strikes — its own element, opacity loop only. */
-.spark {
-  position: absolute;
-  inset-block-start: 8%;
-  inset-inline-start: 20%;
-  inline-size: 30px;
-  block-size: 30px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), transparent 70%);
-  filter: blur(2px);
-  animation: sh-spark 5s ease-in-out infinite;
-}
-
-@keyframes sh-spark {
-  0%,
-  100% {
-    opacity: 0.7;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-/* Drifting light motes. GSAP sets opacity (entrance); CSS drifts transform. */
-.mote {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--scene-particle);
-  opacity: 0.5;
-  filter: blur(0.5px);
-  animation: sh-float 12s ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
-}
-
-@keyframes sh-float {
+@keyframes sh-drift {
   0%,
   100% {
     transform: translate(0, 0);
   }
 
   50% {
-    transform: translate(-8px, -14px);
+    transform: translate(-6px, -12px);
   }
 }
 
@@ -483,25 +643,31 @@
   }
 
   .visual {
-    block-size: 22rem;
+    block-size: 24rem;
     order: 2;
+  }
+
+  .phone,
+  .stand,
+  .glowA,
+  .glowB {
     translate: none;
   }
 }
 
 /* ══════════ Reduced motion — still, legible scene (GSAP also bails in the TSX) ══ */
 @media (prefers-reduced-motion: reduce) {
-  .visual,
-  .bloom,
-  .spectrum,
-  .crystal {
+  .phone,
+  .stand,
+  .glowA,
+  .glowB {
     translate: none;
   }
 
-  .bloomCore,
-  .band i,
-  .crystalSpin,
-  .spark,
+  .pathFlow,
+  .chip,
+  .sMedia::after,
+  .sign,
   .mote,
   .railDot {
     animation: none;

@@ -19,29 +19,53 @@ type ServicesHeroProps = {
   ctaHref: string;
 };
 
-/** Refracted spectrum bands — fixed fan angles + brand warm colours, dense → sparse. */
-const BANDS: { r: string; c: string; o: number; delay: string }[] = [
-  { r: '6deg', c: 'var(--color-bonfire-flame)', o: 0.72, delay: '0s' },
-  { r: '13deg', c: 'var(--color-soft-orange)', o: 0.7, delay: '-1.1s' },
-  { r: '20deg', c: '#ffb066', o: 0.66, delay: '-2.3s' },
-  { r: '28deg', c: 'var(--color-quilt-gold)', o: 0.6, delay: '-3.4s' },
-  { r: '36deg', c: '#d8d19a', o: 0.5, delay: '-4.6s' },
-  { r: '44deg', c: 'var(--color-lime-taffy)', o: 0.4, delay: '-5.5s' },
+/** Curve the content path travels along (SVG viewBox 0 0 500 560, stretched to the box). */
+const PATH_D = 'M120 250 C 210 340, 220 300, 300 380 S 360 430, 350 440';
+
+/** Content chips riding the path — position (% of the visual), tint, drift phase. */
+const CHIPS: { top: string; left: string; color: string; delay: string; icon: ReactNode }[] = [
+  {
+    top: '40%',
+    left: '30%',
+    color: 'var(--color-quilt-gold)',
+    delay: '-1s',
+    icon: <path d="M8 5v14l11-7z" fill="currentColor" />,
+  },
+  {
+    top: '52%',
+    left: '43%',
+    color: 'var(--color-soft-orange)',
+    delay: '-3s',
+    icon: (
+      <path d="M12 21s-7-4.5-9.5-9C1 9 2.5 5.5 6 5.5c2 0 3.2 1.2 4 2.4.8-1.2 2-2.4 4-2.4 3.5 0 5 3.5 3.5 6.5C19 16.5 12 21 12 21z" />
+    ),
+  },
+  {
+    top: '60%',
+    left: '20%',
+    color: 'var(--color-lime-taffy)',
+    delay: '-4.5s',
+    icon: (
+      <>
+        <circle cx="11" cy="11" r="7" />
+        <path d="M21 21l-4-4" />
+      </>
+    ),
+  },
 ];
 
-/** Hand-placed light motes (deterministic — server and client render identically). */
-const MOTES: { top: string; left: string; size: number; delay: string }[] = [
-  { top: '40%', left: '58%', size: 4, delay: '0s' },
-  { top: '62%', left: '70%', size: 3, delay: '-3s' },
-  { top: '30%', left: '46%', size: 2, delay: '-6s' },
-  { top: '72%', left: '54%', size: 3, delay: '-8s' },
-  { top: '50%', left: '78%', size: 2, delay: '-2s' },
+/** Hand-placed motes (deterministic — server and client render identically). */
+const MOTES: { top: string; left: string; delay: string }[] = [
+  { top: '24%', left: '62%', delay: '0s' },
+  { top: '68%', left: '50%', delay: '-4s' },
+  { top: '14%', left: '40%', delay: '-7s' },
+  { top: '82%', left: '74%', delay: '-2s' },
 ];
 
 /**
- * Render the heading as word spans (whitespace-only split → Arabic/RTL safe). The last
- * word carries the accent gradient, matching the About hero's title treatment. Rendered
- * in the JSX itself so React owns the DOM and GSAP animates the words with no mutation.
+ * Render the heading as word spans (whitespace-only split → Arabic/RTL safe); the last
+ * word carries the accent gradient. Rendered in the JSX so React owns the DOM and GSAP
+ * animates the words with no mutation.
  */
 function renderHeadingWords(heading: string): ReactNode[] {
   const tokens = heading.split(/(\s+)/).filter((t) => t.length > 0);
@@ -65,13 +89,14 @@ function renderHeadingWords(heading: string): ReactNode[] {
 }
 
 /**
- * Services page hero — "The Refractor" (Doc 09 Page 3 intro; content verbatim).
+ * Services page hero — "Digital to Real" (Doc 09 Page 3 intro; content verbatim).
  *
- * Full-first-screen scene sized like AboutCinematicIntro; the right column is a glass
- * crystal refracting one beam into a warm brand spectrum — the visual metaphor for
- * integrated, creative services. Motion follows the shared hero contract: GSAP entrance
- * gated on the preloader hand-off, cursor parallax, a scrubbed scroll exit; idle loops
- * are CSS on nested elements. Reduced motion → still, legible scene.
+ * Full-first-screen scene sized like AboutCinematicIntro. The right column stages the
+ * Services story from the copy: a phone (first digital appearance on social media) emits
+ * content that streams along a light path and assembles into a lit exhibition stand (a
+ * real-world presence). Motion follows the shared hero contract — preloader-gated
+ * entrance, cursor parallax, a scrubbed scroll exit; idle loops are CSS on nested /
+ * independent channels. Reduced motion → still, legible scene.
  */
 export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: ServicesHeroProps) {
   const root = useRef<HTMLElement>(null);
@@ -90,10 +115,12 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
       const rail = q('[data-rail]');
       const content = q('[data-content]');
       const visual = q('[data-visual]');
-      const bloom = q('[data-bloom]');
-      const crystal = q('[data-crystal]');
-      const beam = q('[data-beam]');
-      const bandInners = q('[data-band] > i');
+      const glows = q('[data-glow]');
+      const phone = q('[data-phone]');
+      const path = q('[data-path]');
+      const chips = q('[data-chip]');
+      const standParts = q('[data-standpart]');
+      const sign = q('[data-sign]');
       const motes = q('[data-mote]');
 
       // ── Cursor parallax (fine pointers) — layers shift via the CSS `translate` prop.
@@ -114,32 +141,33 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
       const fine = window.matchMedia('(pointer: fine)').matches;
       if (fine) el.addEventListener('pointermove', onMove);
 
-      // ── Hidden entrance states (CSS defaults are the SHOWN state, so reduced motion
+      // ── Hidden entrance states (CSS defaults are the SHOWN state, so reduced-motion
       //    and no-JS both render everything visible).
       gsap.set(words, { autoAlpha: 0, yPercent: 60, filter: 'blur(8px)' });
       gsap.set(divider, { scaleX: 0, transformOrigin: 'left center' });
       gsap.set(paras, { autoAlpha: 0, y: 20 });
       gsap.set(cta, { autoAlpha: 0, y: 20 });
       gsap.set(rail, { autoAlpha: 0 });
-      gsap.set(bloom, { autoAlpha: 0, scale: 0.7 });
-      gsap.set(crystal, { autoAlpha: 0, scale: 0.82, filter: 'blur(10px)' });
-      gsap.set(beam, { autoAlpha: 0, scaleX: 0, transformOrigin: 'right center' });
-      gsap.set(bandInners, { scaleX: 0 });
+      gsap.set(glows, { autoAlpha: 0 });
+      gsap.set(phone, { autoAlpha: 0, scale: 0.9, y: 12 });
+      gsap.set(path, { autoAlpha: 0 });
+      gsap.set(chips, { autoAlpha: 0 });
+      gsap.set(standParts, { autoAlpha: 0, y: 26 });
+      gsap.set(sign, { autoAlpha: 0, scaleY: 0.4, transformOrigin: 'center bottom' });
       gsap.set(motes, { autoAlpha: 0 });
 
-      // ── Entrance (paused; plays on the preloader hand-off, like About/Home).
+      // ── Entrance (paused; plays on the preloader hand-off). The story: the phone
+      //    lights up → content streams down the path → the stand builds and its sign
+      //    ignites; the text sets over it.
       const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
-      // Visual arrives first: bloom + crystal, then the beam strikes and refracts.
-      tl.to(bloom, { autoAlpha: 1, scale: 1, duration: 1.2, ease: 'expo.out' }, 0)
-        .to(
-          crystal,
-          { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 1.1, ease: 'expo.out' },
-          0.15,
-        )
-        .to(beam, { autoAlpha: 1, scaleX: 1, duration: 0.7 }, 0.5)
-        .to(bandInners, { scaleX: 1, duration: 0.9, stagger: 0.08, ease: 'expo.out' }, 0.6)
-        .to(motes, { autoAlpha: 1, duration: 0.8, stagger: 0.06 }, 0.95)
-        // Text sets over it: heading words, divider, paragraphs, CTA, rail.
+      tl.to(glows, { autoAlpha: 1, duration: 1, stagger: 0.1 }, 0)
+        .to(phone, { autoAlpha: 1, scale: 1, y: 0, duration: 1, ease: 'expo.out' }, 0.1)
+        .to(path, { autoAlpha: 1, duration: 0.6 }, 0.55)
+        .to(chips, { autoAlpha: 1, duration: 0.5, stagger: 0.14 }, 0.65)
+        .to(standParts, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'expo.out' }, 0.9)
+        .to(sign, { autoAlpha: 1, scaleY: 1, duration: 0.6, ease: 'back.out(1.6)' }, 1.25)
+        .to(motes, { autoAlpha: 1, duration: 0.8, stagger: 0.06 }, 1)
+        // Text sets over the scene.
         .to(
           words,
           {
@@ -151,11 +179,11 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
             ease: 'expo.out',
             onComplete: () => words.forEach((w) => (w.style.willChange = 'auto')),
           },
-          0.35,
+          0.4,
         )
-        .to(divider, { scaleX: 1, duration: 0.6 }, 0.7)
-        .to(paras, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.12 }, 0.75)
-        .to(cta, { autoAlpha: 1, y: 0, duration: 0.6 }, 1)
+        .to(divider, { scaleX: 1, duration: 0.6 }, 0.75)
+        .to(paras, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.12 }, 0.8)
+        .to(cta, { autoAlpha: 1, y: 0, duration: 0.6 }, 1.15)
         .to(rail, { autoAlpha: 1, duration: 0.6 }, 0.5);
 
       let played = false;
@@ -164,8 +192,6 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
         played = true;
         tl.play();
       };
-      // The split happens under the preloader cover, so the text swap is never seen; the
-      // safety timer guarantees the hero can never be left hidden if the signal is missed.
       const off = onPreloaderDone(play);
       const safety = window.setTimeout(play, 1400);
 
@@ -187,7 +213,6 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
         });
       });
 
-      // Reconcile with the page-transition wrapper once its blur/lift has settled.
       const refresh = window.setTimeout(() => ScrollTrigger.refresh(), 700);
 
       return () => {
@@ -236,58 +261,109 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
             </div>
           </div>
 
-          {/* Right — The Refractor */}
+          {/* Right — Digital to Real */}
           <div className={styles.visual} data-visual aria-hidden="true">
-            <div className={styles.stage}>
-              <div className={styles.bloom} data-bloom>
-                <span className={styles.bloomCore} />
-              </div>
+            <span className={`${styles.glow} ${styles.glowA}`} data-glow />
+            <span className={`${styles.glow} ${styles.glowB}`} data-glow />
 
-              <div className={styles.spectrum}>
-                {BANDS.map((band, index) => (
-                  <div
-                    key={index}
-                    data-band
-                    className={styles.band}
-                    style={{ '--r': band.r } as CSSProperties}
-                  >
-                    <i
-                      style={
-                        { '--c': band.c, '--o': band.o, '--delay': band.delay } as CSSProperties
-                      }
-                    />
+            {/* connecting light path */}
+            <svg className={styles.path} data-path viewBox="0 0 500 560" preserveAspectRatio="none">
+              <defs>
+                {/* Brand warm gradient — literal hex; CSS vars don't resolve in SVG
+                    stop-color attributes. Mirrors --color-soft-orange / -quilt-gold /
+                    -bonfire-flame. */}
+                <linearGradient id="sh-pathgrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#ff7a45" />
+                  <stop offset="0.5" stopColor="#eac46b" />
+                  <stop offset="1" stopColor="#cf5138" />
+                </linearGradient>
+              </defs>
+              <path className={styles.pathTrack} d={PATH_D} />
+              <path className={styles.pathFlow} d={PATH_D} />
+            </svg>
+
+            {/* content in transit */}
+            {CHIPS.map((chip, index) => (
+              <span
+                key={index}
+                data-chip
+                className={styles.chip}
+                style={
+                  {
+                    insetBlockStart: chip.top,
+                    insetInlineStart: chip.left,
+                    color: chip.color,
+                    '--delay': chip.delay,
+                  } as CSSProperties
+                }
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+                  {chip.icon}
+                </svg>
+              </span>
+            ))}
+
+            {/* digital origin — the phone */}
+            <div className={styles.phone} data-phone>
+              <div className={styles.phoneStage}>
+                <div className={styles.phoneBody} />
+                <div className={styles.screen}>
+                  <div className={styles.sRow}>
+                    <span className={styles.sAvatar} />
+                    <span className={styles.sLines}>
+                      <i />
+                      <i />
+                    </span>
                   </div>
-                ))}
-              </div>
-
-              <div className={styles.beam} data-beam />
-
-              <div className={styles.crystal} data-crystal>
-                <div className={styles.crystalSpin}>
-                  <span className={`${styles.clip} ${styles.edge}`} />
-                  <span className={`${styles.clip} ${styles.glass}`} />
-                  <span className={`${styles.clip} ${styles.facet}`} />
-                  <span className={styles.spark} />
+                  <div className={styles.sMedia}>
+                    <span className={styles.sPlay} />
+                  </div>
+                  <div className={styles.sActions}>
+                    <svg className={styles.heart} viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 21s-7-4.5-9.5-9C1 9 2.5 5.5 6 5.5c2 0 3.2 1.2 4 2.4.8-1.2 2-2.4 4-2.4 3.5 0 5 3.5 3.5 6.5C19 16.5 12 21 12 21z" />
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <path d="M21 12a8 8 0 01-11.5 7.2L4 20l1-4.5A8 8 0 1121 12z" />
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <circle cx="18" cy="5" r="2.5" />
+                      <circle cx="6" cy="12" r="2.5" />
+                      <circle cx="18" cy="19" r="2.5" />
+                      <path d="M8 11l8-4M8 13l8 4" />
+                    </svg>
+                  </div>
                 </div>
               </div>
-
-              {MOTES.map((mote, index) => (
-                <span
-                  key={index}
-                  data-mote
-                  className={styles.mote}
-                  style={
-                    {
-                      insetBlockStart: mote.top,
-                      insetInlineStart: mote.left,
-                      inlineSize: `${mote.size}px`,
-                      blockSize: `${mote.size}px`,
-                      '--delay': mote.delay,
-                    } as CSSProperties
-                  }
-                />
-              ))}
             </div>
+
+            {/* real-world presence — the exhibition stand */}
+            <div className={styles.stand} data-stand>
+              <span className={styles.floor} data-standpart />
+              <span className={styles.side} data-standpart />
+              <div className={styles.wall} data-standpart>
+                <span className={styles.wallMark} />
+              </div>
+              <div className={styles.sign} data-sign>
+                <span className={styles.signDot} />
+                Buyue
+              </div>
+              <div className={styles.counter} data-standpart />
+            </div>
+
+            {MOTES.map((mote, index) => (
+              <span
+                key={index}
+                data-mote
+                className={styles.mote}
+                style={
+                  {
+                    insetBlockStart: mote.top,
+                    insetInlineStart: mote.left,
+                    '--delay': mote.delay,
+                  } as CSSProperties
+                }
+              />
+            ))}
           </div>
         </div>
       </Container>
