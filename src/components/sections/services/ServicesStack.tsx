@@ -143,11 +143,16 @@ export function ServicesStack({
         });
         const st = tween.scrollTrigger!;
 
-        // Click a number → smooth-scroll to that service's position on the track.
+        // Click a number → jump straight to that service's position on the track.
+        // The jump is INSTANT on purpose: a smooth scroll would travel through the
+        // snap points between here and the target, and the snap would grab one of them
+        // mid-flight — landing on the wrong number, erratically. Jumping to the exact
+        // point avoids that, and the scrub still eases the cards across (smooth
+        // crossfade) over its catch-up time, so it doesn't feel abrupt.
         const scrollToIndex = (i: number) => {
           const clamped = Math.max(0, Math.min(N - 1, i));
           const p = N > 1 ? clamped / (N - 1) : 0;
-          window.scrollTo({ top: st.start + p * (st.end - st.start), behavior: 'smooth' });
+          window.scrollTo({ top: st.start + p * (st.end - st.start), behavior: 'instant' });
         };
         const dotHandlers = dots.map((dot, i) => {
           const h = () => scrollToIndex(i);
@@ -162,7 +167,9 @@ export function ServicesStack({
           const top = rect.top + window.scrollY;
           const bottom = rect.bottom + window.scrollY;
           const target = dir === 'down' ? bottom : Math.max(0, top - window.innerHeight);
-          window.scrollTo({ top: target, behavior: 'smooth' });
+          // Instant, for the same reason as the number jumps — a smooth scroll out of
+          // the section would pass through the remaining snap points and be hijacked.
+          window.scrollTo({ top: target, behavior: 'instant' });
         };
         const exitHandlers = exitBtns.map((btn) => {
           const h = onExit(btn.dataset.exit === 'up' ? 'up' : 'down');
