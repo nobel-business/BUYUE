@@ -222,14 +222,12 @@ export function AboutCinematicIntro({ heading, paragraphs }: AboutCinematicIntro
         <span className={styles.cursorGlow} aria-hidden="true" />
       </div>
 
-      {/* ── Left section rail (01 … 10) ───────────────────────────────────── */}
+      {/* ── Left section rail — a scroll-progress line + dot (no numbers) ─────── */}
       <div className={styles.rail} data-rail data-hero-fade aria-hidden="true">
-        <span className={styles.railNum}>01</span>
         <span className={styles.railLine}>
           <i className={styles.railFill} data-rail-fill />
           <i className={styles.railDot} />
         </span>
-        <span className={styles.railNum}>10</span>
       </div>
 
       <Container className={styles.container}>

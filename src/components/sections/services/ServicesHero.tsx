@@ -287,12 +287,10 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
           {/* Left — content */}
           <div className={styles.content} data-content>
             <div className={styles.rail} data-rail aria-hidden="true">
-              <span>01</span>
               <span className={styles.railLine}>
                 <span className={styles.railFill} />
               </span>
               <span className={styles.railDot} />
-              <span>10</span>
             </div>
 
             <div className={styles.copy}>
