@@ -312,12 +312,12 @@
 
 .ctaBtn {
   position: relative;
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  max-inline-size: min(100%, 34rem);
+  /* Inline flow (not a wrapping flex row) so the arrow trails the last word of the
+     label. The width budget is wide enough for the whole sentence PLUS the arrow to sit
+     on one line on desktop — the old 34rem was exactly the sentence width, which forced
+     the arrow onto a second line. Narrow screens still cap at 100% and wrap gracefully. */
+  display: inline-block;
+  max-inline-size: min(100%, 46rem);
   overflow: hidden;
   isolation: isolate;
   padding-block: 1rem;
@@ -392,6 +392,10 @@
 }
 
 .ctaArrow {
+  /* Sits inline right after the label text, vertically centred on it. */
+  display: inline-block;
+  vertical-align: -0.18em;
+  margin-inline-start: 0.5rem;
   transition: transform 200ms var(--ease-out-soft);
 }
 
