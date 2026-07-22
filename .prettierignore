@@ -15,3 +15,6 @@ docs
 
 # Lockfiles
 package-lock.json
+
+# Vendored WebGL hero from Claude Design — kept verbatim so it can be re-synced.
+src/components/sections/home/hero-scene/scene.js

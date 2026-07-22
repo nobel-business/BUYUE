@@ -25,7 +25,14 @@ const eslintConfig = [
     },
   },
   {
-    ignores: ['.next/**', 'node_modules/**', 'out/**', 'next-env.d.ts'],
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'out/**',
+      'next-env.d.ts',
+      // Vendored from Claude Design — kept close to source; has its own eslint-disable.
+      'src/components/sections/home/hero-scene/scene.js',
+    ],
   },
 ];
 
