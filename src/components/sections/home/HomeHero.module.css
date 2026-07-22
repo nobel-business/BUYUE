@@ -63,7 +63,13 @@
   font-size: clamp(48px, 8.2vw, 120px);
   line-height: 0.96;
   letter-spacing: -0.01em;
-  margin: 0 0 22px;
+  /* Cap the measure so the headline wraps to the design's two lines ("WE SELL RESULTS,
+     NOT" / "PROMISES.") and never stretches edge-to-edge on wide monitors. The design
+     relies on a narrower viewport to wrap; capping in em (scales with the clamped font)
+     forces the same two-line break at every width. Centred within .copy via margin auto.
+     Normal laptops already wrap on their own — this only reins in ultra-wide screens. */
+  max-inline-size: 15em;
+  margin: 0 auto 22px;
   text-transform: uppercase;
   color: var(--scene-ink);
 }
