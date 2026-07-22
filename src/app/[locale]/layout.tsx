@@ -86,7 +86,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         <NextIntlClientProvider locale={locale} messages={messages}>
           {/* Ambient decorative wash (behind everything) + intro cover. */}
           <AmbientBackground />
-          {/* Premium intro cover — plays once (first visit), reveals into the hero. */}
+          {/* Minimal intro cover — the mark on the page background, fades out once. */}
           <Preloader />
           {/* Skip-to-content link (Doc 07 §5, Doc 09 §26). */}
           <a className="skip-link" href="#main-content">
