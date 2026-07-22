@@ -13,10 +13,14 @@
  * mix-blend-mode effects. pointer-events:none so it never blocks scroll/clicks; the
  * scene reads window mousemove/scroll directly.
  */
+/* Two fixed layers share these base props. The 3D scene sits BEHIND the page (z-index
+   below) so the world scrolls up over it during the handoff; the HUD chrome sits ABOVE
+   the page (like the design) so the REC tag / corner brackets / scroll cue / reticle read
+   crisp and unclipped instead of dimmed behind the copy's legibility scrim. Every child
+   selector below stays scoped to `.layer`, so both layers pick them up unchanged. */
 .layer {
   position: fixed;
   inset: 0;
-  z-index: -1;
   isolation: isolate;
   pointer-events: none;
   visibility: hidden;
@@ -24,6 +28,15 @@
 
 .layer[data-active] {
   visibility: visible;
+}
+
+.sceneLayer {
+  z-index: -1;
+}
+
+/* Above the page content, below the sticky navbar (which stays clean + interactive). */
+.hudLayer {
+  z-index: calc(var(--z-sticky) - 1);
 }
 
 .layer :global(#scene) {

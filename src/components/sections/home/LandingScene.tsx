@@ -11,6 +11,7 @@ import {
   hasIntroPlayed,
 } from '@/lib/motion/landing-signal';
 import { onPreloaderDone } from '@/lib/motion/preloader-signal';
+import { cn } from '@/lib/utils/cn';
 import styles from './LandingScene.module.css';
 
 /**
@@ -181,45 +182,59 @@ export function LandingScene() {
 
   if (!isHome) return null;
 
+  const activeAttr = (active && !pastHero) || undefined;
+
   return (
-    <div
-      className={styles.layer}
-      data-active={(active && !pastHero) || undefined}
-      aria-hidden="true"
-    >
-      <div id="scene" ref={sceneRef} />
-      <div id="keylight" />
-      <canvas id="sparkles" />
-      <div id="vignette" />
+    <>
+      {/* BEHIND the page: the 3D world + its glows + capture flash scroll under the
+          content during the handoff (z-index:-1, matching the design's locked lens). */}
+      <div
+        className={cn(styles.layer, styles.sceneLayer)}
+        data-active={activeAttr}
+        aria-hidden="true"
+      >
+        <div id="scene" ref={sceneRef} />
+        <div id="keylight" />
+        <canvas id="sparkles" />
+        <div id="vignette" />
+        <div id="flash" />
+      </div>
 
-      <div id="hud">
-        <div className="vf" style={{ top: 28, left: 28, borderRight: 0, borderBottom: 0 }} />
-        <div className="vf" style={{ top: 28, right: 28, borderLeft: 0, borderBottom: 0 }} />
-        <div className="vf" style={{ bottom: 28, left: 28, borderRight: 0, borderTop: 0 }} />
-        <div className="vf" style={{ bottom: 28, right: 28, borderLeft: 0, borderTop: 0 }} />
-        <div className="rec">
-          <i />
-          REC · 24FPS · f/1.4 · BUYUE COMPANY
+      {/* ON TOP of the page: the readable HUD chrome — REC tag, viewfinder corners, scroll
+          cue, reticle, tooltip — crisp and unclipped, exactly like the design. */}
+      <div
+        className={cn(styles.layer, styles.hudLayer)}
+        data-active={activeAttr}
+        aria-hidden="true"
+      >
+        <div id="hud">
+          <div className="vf" style={{ top: 28, left: 28, borderRight: 0, borderBottom: 0 }} />
+          <div className="vf" style={{ top: 28, right: 28, borderLeft: 0, borderBottom: 0 }} />
+          <div className="vf" style={{ bottom: 28, left: 28, borderRight: 0, borderTop: 0 }} />
+          <div className="vf" style={{ bottom: 28, right: 28, borderLeft: 0, borderTop: 0 }} />
+          <div className="rec">
+            <i />
+            REC · 24FPS · f/1.4 · BUYUE COMPANY
+          </div>
         </div>
-      </div>
 
-      <div className="scrollcue" id="scrollcue">
-        <span>SCROLL TO CAPTURE</span>
-        <span className="chev">
-          <i />
-          <i />
-        </span>
-      </div>
+        <div className="scrollcue" id="scrollcue">
+          <span>SCROLL TO CAPTURE</span>
+          <span className="chev">
+            <i />
+            <i />
+          </span>
+        </div>
 
-      <div id="reticle">
-        <span className="tl" />
-        <span className="tr" />
-        <span className="bl" />
-        <span className="br" />
-        <span className="dot" />
+        <div id="reticle">
+          <span className="tl" />
+          <span className="tr" />
+          <span className="bl" />
+          <span className="br" />
+          <span className="dot" />
+        </div>
+        <div id="tip" />
       </div>
-      <div id="tip" />
-      <div id="flash" />
-    </div>
+    </>
   );
 }
