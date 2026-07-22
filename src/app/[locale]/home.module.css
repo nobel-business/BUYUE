@@ -1,3 +1,15 @@
+/* Handoff seam — occludes the fixed landing scene as the page content scrolls up.
+   Sits in normal flow after the 250vh hero stage; its warm gradient dissolves from
+   transparent (scene showing) to the page surface, so the sections arrive seamlessly
+   (design's #chapter top-fade). Pulled up so it overlaps the stage's tail. */
+.seam {
+  position: relative;
+  block-size: 40vh;
+  margin-block-start: -12vh;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--surface-page) 62%, var(--surface-page));
+}
+
 .serviceList {
   display: grid;
   grid-template-columns: 1fr;

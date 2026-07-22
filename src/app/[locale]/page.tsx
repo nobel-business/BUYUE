@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { Hero } from '@/components/sections/home/Hero';
+import { HomeHero } from '@/components/sections/home/HomeHero';
 import { WhyBuyue, type WhyItem } from '@/components/sections/home/WhyBuyue';
 import { Section } from '@/components/layout/Section';
 import { Container } from '@/components/layout/Container';
@@ -43,7 +43,22 @@ export default async function Home({ params }: PageParams) {
 
   return (
     <main id="main-content">
-      <Hero />
+      {/* Landing hero copy — server-rendered over the fixed WebGL scene (LandingScene,
+          in the layout). The 250vh stage gives the scene its capture-scroll; the scene
+          reveals this copy on scroll. No-WebGL / reduced motion → a static hero. */}
+      <HomeHero
+        heading={t('hero.heading')}
+        sub={t('hero.body')}
+        ctaPrimary={t('hero.ctaPrimary')}
+        ctaSecondary={t('hero.ctaSecondary')}
+        ctaPrimaryHref="/contact"
+        ctaSecondaryHref="/clients"
+        rtl={locale === 'ar'}
+      />
+
+      {/* Handoff — a warm gradient that occludes the fixed scene as the sections scroll
+          up (design's #chapter top-fade), so the landing dissolves into the page. */}
+      <div className={styles.seam} aria-hidden="true" />
 
       {/* Services teaser — identity: word-by-word heading reveal + clip-wipe list */}
       <Section tone="page">
