@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { markPreloaderDone } from '@/lib/motion/preloader-signal';
+import { onLandingSceneReady } from '@/lib/motion/landing-signal';
+import { isLandingSceneCapable } from '@/lib/motion/landing-capable';
+import { usePathname } from '@/i18n/navigation';
 import styles from './Preloader.module.css';
 
 /** Fade duration — must match the transition in Preloader.module.css. */
@@ -30,6 +33,11 @@ type Phase = 'holding' | 'fading' | 'gone';
  */
 export function Preloader() {
   const [phase, setPhase] = useState<Phase>('holding');
+  // The landing route is fixed for this one-time first-load cover — capture it once so
+  // the hold logic never re-runs on later client navigation. Capability is read inside
+  // the effect (client-only; touches window).
+  const pathname = usePathname();
+  const isHome = useRef(pathname === '/');
 
   useEffect(() => {
     let alive = true;
@@ -61,11 +69,24 @@ export function Preloader() {
     // Never let a font failure hold the page: fall through on rejection.
     const fonts = document.fonts ? document.fonts.ready.catch(() => undefined) : Promise.resolve();
 
-    void Promise.all([loaded, fonts]).then(lift);
+    // On the home route with a live WebGL scene, also wait for the studio's first
+    // painted frame, so the cover lifts straight onto the intro instead of flashing the
+    // page behind the not-yet-mounted scene. MAX_HOLD_MS still caps it, so a slow or
+    // failed scene can never strand the cover.
+    let offSceneReady = () => {};
+    const scene =
+      isHome.current && isLandingSceneCapable()
+        ? new Promise<void>((resolve) => {
+            offSceneReady = onLandingSceneReady(() => resolve());
+          })
+        : Promise.resolve();
+
+    void Promise.all([loaded, fonts, scene]).then(lift);
     capTimer = window.setTimeout(lift, MAX_HOLD_MS);
 
     return () => {
       alive = false;
+      offSceneReady();
       window.clearTimeout(fadeTimer);
       window.clearTimeout(capTimer);
     };

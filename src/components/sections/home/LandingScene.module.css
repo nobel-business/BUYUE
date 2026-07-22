@@ -1,0 +1,317 @@
+/* LandingScene — the Claude Design hero's fixed layer, hosted in the LAYOUT so it is
+ * truly viewport-fixed (outside the page-transition transform), exactly like the
+ * design's `#scene{position:fixed;inset:0}`. Values are ported verbatim from
+ * "Buyue Hero.html"; only the theme hooks change (design `body.light` →
+ * production `html[data-theme='light']`). The design header/nav/theme/lang controls
+ * are NOT here — the production Navbar/ThemeToggle own those. The copy lives in the
+ * home page (SSR); this layer holds the 3D canvas, effects and HUD.
+ *
+ * z-index −1 (same proven pattern as AmbientBackground; rendered right after it, so it
+ * paints above the ambient wash but BELOW the page content, which scrolls up over it
+ * during the handoff — the transparent hero-stage above lets the scene show through).
+ * `isolation` contains the design's internal z-scale (scene 1 … flash 9) and its
+ * mix-blend-mode effects. pointer-events:none so it never blocks scroll/clicks; the
+ * scene reads window mousemove/scroll directly.
+ */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  isolation: isolate;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.layer[data-active] {
+  visibility: visible;
+}
+
+.layer :global(#scene) {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.layer :global(#keylight) {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    42% 44% at 50% 43%,
+    rgba(255, 206, 150, 0.3),
+    rgba(255, 178, 118, 0.12) 44%,
+    transparent 72%
+  );
+  animation: ls-keypulse 7s ease-in-out infinite;
+}
+
+@keyframes ls-keypulse {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.layer :global(#sparkles) {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.layer :global(#vignette) {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: radial-gradient(130% 120% at 50% 45%, transparent 52%, rgba(2, 1, 0, 0.55) 100%);
+}
+
+/* ── HUD (viewfinder + REC) ── */
+.layer :global(#hud) {
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+
+.layer :global(#hud.in) {
+  opacity: 1;
+}
+
+.layer :global(.vf) {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgba(245, 247, 249, 0.2);
+}
+
+.layer :global(.rec) {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: rgba(245, 247, 249, 0.5);
+}
+
+.layer :global(.rec i) {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cf5138;
+  box-shadow: 0 0 8px #cf5138;
+  animation: ls-blink 1.6s steps(1) infinite;
+}
+
+@keyframes ls-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+/* ── Scroll cue ── */
+.layer :global(.scrollcue) {
+  position: absolute;
+  bottom: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: rgba(245, 247, 249, 0.55);
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.layer :global(.scrollcue.in) {
+  opacity: 1;
+}
+
+.layer :global(.scrollcue .chev) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 22px;
+}
+
+.layer :global(.scrollcue .chev i) {
+  width: 13px;
+  height: 13px;
+  border-right: 2px solid currentcolor;
+  border-bottom: 2px solid currentcolor;
+  transform: rotate(45deg);
+  margin-top: -6px;
+  animation: ls-chevpulse 1.6s ease-in-out infinite;
+}
+
+.layer :global(.scrollcue .chev i:nth-child(2)) {
+  animation-delay: 0.2s;
+  opacity: 0.6;
+}
+
+@keyframes ls-chevpulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+
+  50% {
+    opacity: 1;
+    transform: rotate(45deg) translate(1px, 1px);
+  }
+}
+
+/* ── Reticle (follows cursor; the scene writes its transform) ── */
+.layer :global(#reticle) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  mix-blend-mode: screen;
+}
+
+.layer :global(#reticle span) {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid rgba(234, 196, 107, 0.85);
+}
+
+.layer :global(#reticle .tl) {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.layer :global(#reticle .tr) {
+  top: 0;
+  right: 0;
+  border-left: 0;
+  border-bottom: 0;
+}
+
+.layer :global(#reticle .bl) {
+  bottom: 0;
+  left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+
+.layer :global(#reticle .br) {
+  bottom: 0;
+  right: 0;
+  border-left: 0;
+  border-top: 0;
+}
+
+.layer :global(#reticle .dot) {
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border: 0;
+  border-radius: 50%;
+  background: #eac46b;
+  box-shadow: 0 0 8px #eac46b;
+}
+
+/* ── Tooltip for hovered artifact ── */
+.layer :global(#tip) {
+  position: absolute;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -140%);
+  transition: opacity 0.3s ease;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 7px 13px;
+  border-radius: 9px;
+  background: rgba(14, 11, 9, 0.86);
+  border: 1px solid rgba(234, 196, 107, 0.4);
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.layer :global(#tip b) {
+  color: #eac46b;
+}
+
+/* ── Capture flash ── */
+.layer :global(#flash) {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 50% 42%,
+    rgba(255, 224, 190, 0.98),
+    rgba(255, 150, 90, 0.6) 40%,
+    transparent 74%
+  );
+  mix-blend-mode: screen;
+}
+
+/* ══════════ Light theme (production data-theme) ══════════ */
+:global(html[data-theme='light']) .layer :global(#vignette) {
+  background: radial-gradient(130% 120% at 50% 45%, transparent 55%, rgba(150, 120, 80, 0.28) 100%);
+}
+
+:global(html[data-theme='light']) .layer :global(#keylight) {
+  mix-blend-mode: multiply;
+  background: radial-gradient(
+    48% 50% at 50% 43%,
+    rgba(255, 250, 240, 0.5),
+    rgba(240, 225, 200, 0.16) 44%,
+    transparent 70%
+  );
+}
+
+:global(html[data-theme='light']) .layer :global(.rec),
+:global(html[data-theme='light']) .layer :global(.scrollcue) {
+  color: rgba(26, 22, 19, 0.5);
+}
+
+:global(html[data-theme='light']) .layer :global(.vf) {
+  border-color: rgba(26, 22, 19, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer :global(#keylight),
+  .layer :global(.rec i),
+  .layer :global(.scrollcue .chev i) {
+    animation: none;
+  }
+}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { MotionConfig } from 'motion/react';
 import { useTranslations } from 'next-intl';
+import { onLandingNavState, type LandingNavState } from '@/lib/motion/landing-signal';
 import { cn } from '@/lib/utils/cn';
 import { Logo } from './Logo';
 import { NavLinks } from './NavLinks';
@@ -27,7 +28,12 @@ import styles from './Header.module.css';
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
+  // Landing override: the WebGL hero drives the navbar over its intro/capture (design's
+  // header-on-scroll). null everywhere else → the Header runs its own scroll behaviour.
+  const [navOverride, setNavOverride] = useState<LandingNavState>(null);
   const tUi = useTranslations('ui');
+
+  useEffect(() => onLandingNavState(setNavOverride), []);
 
   useEffect(() => {
     let last = window.scrollY;
@@ -74,9 +80,12 @@ export function Header() {
     };
   }, []);
 
+  // 'hide'/'show' from the landing win over the Header's own scroll state; null yields.
+  const effectiveHidden = navOverride === 'hide' ? true : navOverride === 'show' ? false : hidden;
+
   return (
     <MotionConfig reducedMotion="user">
-      <header className={cn(styles.header, hidden && styles.hidden)}>
+      <header className={cn(styles.header, effectiveHidden && styles.hidden)}>
         <div className={cn(styles.pill, scrolled && styles.scrolled)}>
           <Logo label={tUi('brandName')} className={styles.logo} />
 

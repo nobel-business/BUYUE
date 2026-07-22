@@ -1,48 +1,63 @@
-/**
- * FONT LOADING ARCHITECTURE
- *
- * STATUS (audit C-11): The licensed webfont files for the brand typefaces are
- * NOT yet in the repository:
- *   - Arabic:  29LT Zarid (Light / Regular / Medium / Bold)  — Doc 03 §4.1
- *   - Latin:   Articulat V3 (Articulat CF)                    — Doc 03 §4.2
- *
- * Until the licensing is confirmed and the files are provided, the site renders
- * with the Doc 03 §4.3 FALLBACK STACKS (defined in src/styles/globals.css).
- * This keeps the build green and the layout metrics stable.
- *
- * ── WHEN THE LICENSED FILES ARRIVE ──────────────────────────────────────────
- * 1. Drop the .woff2 files into `public/fonts/` (see public/fonts/README.md).
- * 2. Uncomment and complete the `next/font/local` definitions below.
- * 3. Apply the exported CSS variables on <body> in the root layout, and prepend
- *    the real families to --font-arabic / --font-latin in globals.css.
- * `display: 'swap'` + matched fallback metrics prevent FOUC/CLS (Doc 05 §3, Doc 07 §6).
- */
-
-// import localFont from 'next/font/local';
-//
-// export const zarid = localFont({
-//   variable: '--font-arabic-loaded',
-//   display: 'swap',
-//   src: [
-//     { path: '../../public/fonts/zarid-light.woff2', weight: '300', style: 'normal' },
-//     { path: '../../public/fonts/zarid-regular.woff2', weight: '400', style: 'normal' },
-//     { path: '../../public/fonts/zarid-medium.woff2', weight: '500', style: 'normal' },
-//     { path: '../../public/fonts/zarid-bold.woff2', weight: '700', style: 'normal' },
-//   ],
-// });
-//
-// export const articulat = localFont({
-//   variable: '--font-latin-loaded',
-//   display: 'swap',
-//   src: [
-//     { path: '../../public/fonts/articulat-regular.woff2', weight: '400', style: 'normal' },
-//     { path: '../../public/fonts/articulat-medium.woff2', weight: '500', style: 'normal' },
-//     { path: '../../public/fonts/articulat-bold.woff2', weight: '700', style: 'normal' },
-//   ],
-// });
+import {
+  Instrument_Serif,
+  Instrument_Sans,
+  JetBrains_Mono,
+  Noto_Naskh_Arabic,
+} from 'next/font/google';
 
 /**
- * Placeholder export so consumers can import a stable symbol now and switch to
- * the real font variables later without changing call sites.
+ * TYPOGRAPHY SYSTEM — the Claude Design landing system, applied site-wide.
+ *
+ * The four fonts of the design (Buyue Hero.html <head>), self-hosted at build by
+ * `next/font/google` (no runtime request to Google; matched-metric fallbacks prevent
+ * FOUC/CLS — Doc 05 §3, Doc 07 §6). The design's exact axes are requested:
+ *   - Display / Serif (headings):  Instrument Serif  ital@0;1  (WEIGHT 400 ONLY)
+ *   - Sans (body / UI):            Instrument Sans   wght@400;500;600;700
+ *   - Mono (labels / HUD):         JetBrains Mono    wght@400;500;600
+ *   - Arabic (display + body):     Noto Naskh Arabic wght@400;500;600;700
+ *
+ * The CSS variables are consumed by the role tokens in src/styles/tokens.css
+ * (--font-display / --font-body / --font-mono / --font-arabic). Latin faces carry no
+ * Arabic glyphs, so the display/body/mono tokens append the loaded Noto Naskh — mixed
+ * script renders per-glyph. `fontVariables` is applied on <html> in the root layout.
+ *
+ * IMPORTANT (design fidelity): Instrument Serif ships weight 400 only. Headings must
+ * NEVER be faux-bolded — globals.css sets `font-synthesis: none` on h1–h6 so a 700
+ * declaration renders clean 400 glyphs (the previous migration's #1 defect was faux-
+ * bold serif). The design does not use Manrope (a stray authoring reference); the
+ * display font is Instrument Serif for both the intro and the settled hero.
  */
-export const fontVariables = '' as const;
+export const instrumentSerif = Instrument_Serif({
+  variable: '--font-instrument-serif',
+  weight: '400',
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  display: 'swap',
+});
+
+export const instrumentSans = Instrument_Sans({
+  variable: '--font-instrument-sans',
+  subsets: ['latin'],
+  display: 'swap',
+});
+
+export const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains-mono',
+  subsets: ['latin'],
+  display: 'swap',
+});
+
+export const notoNaskhArabic = Noto_Naskh_Arabic({
+  variable: '--font-noto-naskh',
+  weight: ['400', '500', '600', '700'],
+  subsets: ['arabic'],
+  display: 'swap',
+});
+
+/** Combined variable class list — apply on <html> so the CSS vars resolve site-wide. */
+export const fontVariables = [
+  instrumentSerif.variable,
+  instrumentSans.variable,
+  jetbrainsMono.variable,
+  notoNaskhArabic.variable,
+].join(' ');

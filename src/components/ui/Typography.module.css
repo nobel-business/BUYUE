@@ -71,6 +71,7 @@
 /* ── Eyebrow ──────────────────────────────────────────────────────────────── */
 .eyebrow {
   display: inline-block;
+  font-family: var(--font-mono);
   font-size: var(--font-size-overline);
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;

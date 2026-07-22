@@ -241,6 +241,13 @@
   z-index: 2;
 }
 
+/* RTL (Arabic): every other visual element mirrors via logical inset-inline-*, but the
+   SVG path is drawn in viewBox coordinates (dir-agnostic). Reflect it so the journey
+   tracks the mirrored phone → chips → stand instead of pointing the LTR way. */
+:global(html[dir='rtl']) .path {
+  transform: scaleX(-1);
+}
+
 .pathTrack {
   fill: none;
   stroke: color-mix(in srgb, var(--scene-ink) 8%, transparent);
@@ -318,6 +325,12 @@
   position: absolute;
   inset: 0;
   transform: perspective(900px) rotateY(-17deg) rotateX(6deg);
+}
+
+/* RTL: the phone mirrors to the other side, so flip its 3D tilt to keep it opening
+   INWARD toward the light path (not toward the outer margin). */
+:global(html[dir='rtl']) .phoneStage {
+  transform: perspective(900px) rotateY(17deg) rotateX(6deg);
 }
 
 .phoneBody {
@@ -491,11 +504,15 @@
   will-change: transform, opacity;
 }
 
-/* The real Buyue mark (public/brand) — a clear logo, contained so it never distorts. */
+/* The real Buyue mark (public/brand) — a clear logo, contained so it never distorts.
+   Centre it PHYSICALLY (left + translate), not with inset-inline-start: in RTL that
+   resolves to `right: 50%` while the physical `translateX(-50%)` still shifts left, so
+   the mark was pushed off the wall's left edge and clipped. `left` centres it
+   identically in both directions (LTR unchanged), so Arabic matches English. */
 .wallLogo {
   position: absolute;
   inset-block-start: 46%;
-  inset-inline-start: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   inline-size: 48%;
   block-size: auto;
@@ -514,6 +531,15 @@
   border: 1px solid color-mix(in srgb, var(--scene-ink) 8%, transparent);
   transform: perspective(700px) rotateY(38deg);
   transform-origin: right center;
+}
+
+/* RTL: the stand mirrors to the other side, so flip its angled side panel's 3D
+   perspective + shading so the stand's volume reads correctly (GSAP animates y on
+   this element but reads/preserves the rotateY set here at init). */
+:global(html[dir='rtl']) .side {
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.5), var(--glass-fill));
+  transform: perspective(700px) rotateY(-38deg);
+  transform-origin: left center;
 }
 
 /* Illuminated fascia sign — GSAP scales/fades it in; CSS pulses its box-shadow. */

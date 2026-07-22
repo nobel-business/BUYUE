@@ -32,18 +32,37 @@ html.scroll-locked {
   touch-action: none;
 }
 
-/* Language-aware font family + leading (Doc 03 §4.3–4.4). */
+/* Language-aware leading (Doc 03 §4.4). The family is the role font (--font-body,
+   set on <body> below); Arabic falls through to Noto Naskh via the token fallback,
+   so only the line-height differs per language now. */
 html:lang(ar) body {
-  font-family: var(--font-arabic);
   line-height: var(--line-height-body-ar);
 }
 
 html:lang(en) body {
-  font-family: var(--font-latin);
   line-height: var(--line-height-body);
 }
 
+/* Display serif for ALL headings (Instrument Serif for Latin; Arabic falls through to
+   Noto Naskh via the token). One rule covers every heading — the Typography <Heading>
+   and every raw h1–h6 — so no component overrides the family.
+   font-synthesis: none is critical: Instrument Serif ships weight 400 ONLY, so a
+   heading declaring 700 must render clean 400 glyphs, NOT a smeared faux-bold (the
+   previous migration's #1 defect). Arabic (Noto Naskh has real weights) is unaffected.
+   The -0.01em tracking matches the design's serif display treatment. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-synthesis: none;
+  letter-spacing: -0.01em;
+}
+
 body {
+  font-family: var(--font-body);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
   /* `clip` (not `hidden`) guards horizontal scroll WITHOUT making <body> a
