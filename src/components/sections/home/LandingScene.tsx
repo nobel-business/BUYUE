@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from '@/i18n/navigation';
 import { isLandingSceneCapable } from '@/lib/motion/landing-capable';
-import { setLandingSceneRunning } from '@/lib/motion/landing-signal';
+import { setLandingSceneRunning, setLandingNavState } from '@/lib/motion/landing-signal';
 import { onPreloaderDone } from '@/lib/motion/preloader-signal';
 import styles from './LandingScene.module.css';
 
@@ -54,6 +54,31 @@ export function LandingScene() {
     const el = sceneRef.current;
     if (!el) return;
 
+    // Drive the navbar exactly like the design's header: kept OFF the studio for the
+    // intro, slid in as the capture scroll begins (the point the hero copy reveals),
+    // held there through the capture (overriding the Header's hide-on-scroll-down), then
+    // released to normal behaviour once past the scene. Two one-way latches so scrolling
+    // back up never re-hides it. Only while the scene is actually present — the no-WebGL
+    // static hero keeps the navbar visible throughout (signal left at null).
+    let revealed = false; // scrollP > 0.14 — copy + header reveal
+    let entered = false; // past the capture region, into the content
+    const REVEAL_AT = () => window.innerHeight * 0.336; // 0.14 × 2.4vh capture length
+    const ENTER_AT = () => window.innerHeight * 2.0; // matches pastHero / scene hide
+    setLandingNavState('hide');
+    let navRaf = 0;
+    const onNavScroll = () => {
+      if (navRaf) return;
+      navRaf = requestAnimationFrame(() => {
+        navRaf = 0;
+        const y = window.scrollY;
+        if (!revealed && y > REVEAL_AT()) revealed = true;
+        if (!entered && y > ENTER_AT()) entered = true;
+        setLandingNavState(!revealed ? 'hide' : !entered ? 'show' : null);
+      });
+    };
+    window.addEventListener('scroll', onNavScroll, { passive: true });
+    onNavScroll();
+
     // The scene's own intro timeline is gated on this flag (it stays on the first
     // frame until set), so the FULL landing cinematic plays from the start once the
     // preloader lifts — instead of running unseen behind the cover. Textures still
@@ -78,6 +103,9 @@ export function LandingScene() {
 
     return () => {
       cancelled = true;
+      window.removeEventListener('scroll', onNavScroll);
+      if (navRaf) cancelAnimationFrame(navRaf);
+      setLandingNavState(null);
       offPreloader();
       setActive(false);
       setLandingSceneRunning(false);

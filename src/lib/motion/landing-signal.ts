@@ -28,3 +28,32 @@ export function onLandingSceneRunning(cb: (v: boolean) => void): () => void {
 export function isLandingSceneRunning(): boolean {
   return running;
 }
+
+/**
+ * Cross-tree signal: how the navbar should behave over the landing.
+ *
+ * The design keeps its header OFF the studio during the intro and slides it in on the
+ * capture scroll (`header.classList.add('in')` at scrollP > 0.14). Our production Header
+ * lives in the layout and is always present, so LandingScene drives it through this
+ * signal instead: `'hide'` for the intro, `'show'` through the capture (overriding the
+ * Header's own hide-on-scroll-down so it stays put like the design's does), and `null`
+ * once past the scene / on every non-landing surface, where the Header runs its normal
+ * scroll behaviour. Latched one-way so scrolling back to the top never re-hides it.
+ */
+export type LandingNavState = 'hide' | 'show' | null;
+let navState: LandingNavState = null;
+const navListeners = new Set<(v: LandingNavState) => void>();
+
+export function setLandingNavState(value: LandingNavState): void {
+  if (navState === value) return;
+  navState = value;
+  for (const cb of navListeners) cb(value);
+}
+
+export function onLandingNavState(cb: (v: LandingNavState) => void): () => void {
+  navListeners.add(cb);
+  cb(navState);
+  return () => {
+    navListeners.delete(cb);
+  };
+}
