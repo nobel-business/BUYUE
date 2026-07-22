@@ -1442,7 +1442,7 @@ function stepFrame() {
     logoGlow.material.opacity = cp*0.55;
     logoGrp.lookAt(view.position); logoGrp.rotation.z = Math.sin(t*0.3)*0.05;
     stars.material.opacity = 0; embers2.material.opacity = 0;
-    document.getElementById('copy').style.opacity = String(1 - smoothstep(cp));
+    const cp0 = document.getElementById('copy'); if (cp0) cp0.style.opacity = String(1 - smoothstep(cp));
   }
 
   // ── re-sequenced reveal: nothing but the camera until you scroll ──

@@ -97,7 +97,9 @@
   font-family: var(--font-body);
   font-size: clamp(15px, 1.5vw, 19px);
   line-height: 1.65;
-  color: var(--scene-ink-soft);
+  /* Design's exact dark sub colour (Buyue Hero.html) — a literal, not --scene-ink-soft
+     (0.72), which reads too bright here; the light value is overridden below. */
+  color: rgba(245, 247, 249, 0.62);
   max-inline-size: 78ch;
   margin: 0 auto 30px;
   transition: opacity 1s ease;

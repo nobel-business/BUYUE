@@ -24,6 +24,29 @@ export function LandingScene() {
   const isHome = pathname === '/';
   const sceneRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
+
+  // Hide the fixed layer once scrolled past the hero-capture region (~2.4 viewport
+  // heights = the scene's own capture length), so its opaque canvas + HUD/effects don't
+  // show behind the transparent lower sections; restore it on scrolling back up. The
+  // handoff seam masks the moment it hides.
+  useEffect(() => {
+    if (!isHome) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        setPastHero(window.scrollY > window.innerHeight * 2.4);
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [isHome]);
 
   useEffect(() => {
     if (!isHome || !isLandingSceneCapable()) return;
@@ -54,7 +77,11 @@ export function LandingScene() {
   if (!isHome) return null;
 
   return (
-    <div className={styles.layer} data-active={active || undefined} aria-hidden="true">
+    <div
+      className={styles.layer}
+      data-active={(active && !pastHero) || undefined}
+      aria-hidden="true"
+    >
       <div id="scene" ref={sceneRef} />
       <div id="keylight" />
       <canvas id="sparkles" />
