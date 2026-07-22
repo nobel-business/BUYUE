@@ -1604,6 +1604,16 @@ function stepFrame() {
 }
 function tick(){ if(!__running) return; try{ stepFrame(); }catch(e){ if(!window.__err) window.__err=(e&&e.message)||String(e); } __raf1 = requestAnimationFrame(tick); }
 window.__seekRender = (tt, n) => { T = tt; for(let i=0;i<(n||1);i++){ try{ stepFrame(); }catch(e){ window.__err=(e&&e.message)||String(e); } } };
+// Return visit (window.__heroSkipIntro, set by LandingScene when the intro already played
+// this session): open directly on the finished hero — timeline settled, cards gone, camera
+// behind the headline, warm rays lit — instead of replaying the cinematic. Seeding these to
+// their settled values makes the very FIRST painted frame the end state; T then ticks on
+// from here for ambient life. revealT is set 3s in the past so the reveal flourish reads as
+// fully settled (settle=1) on frame one.
+if (!reduce && window.__heroSkipIntro) {
+  T = 12; revealT = 9; window.__revealed = true; window.__hudOn = true;
+  const _hud = document.getElementById('hud'); if (_hud) _hud.classList.add('in');
+}
 tick();
 
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); view.aspect = innerWidth/innerHeight; view.updateProjectionMatrix(); }, { signal: __sig });

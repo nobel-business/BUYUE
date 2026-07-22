@@ -57,3 +57,51 @@ export function onLandingNavState(cb: (v: LandingNavState) => void): () => void 
     navListeners.delete(cb);
   };
 }
+
+/**
+ * Cross-tree signal: the landing scene has painted its first frame.
+ *
+ * The scene's WebGL chunk loads and mounts asynchronously, independent of the intro
+ * cover's `window.load` + fonts timing. Without coordination the cover can lift onto the
+ * bare page behind the not-yet-active scene layer — a flash of the homepage before the
+ * intro. The Preloader waits on this (on the home route, when the scene is expected) so
+ * it lifts straight onto the studio; LandingScene fires it once the first frame is up.
+ * Fires immediately for a late subscriber, and the cover's own MAX_HOLD caps the wait.
+ */
+let sceneReady = false;
+const readyWaiters = new Set<() => void>();
+
+export function markLandingSceneReady(): void {
+  if (sceneReady) return;
+  sceneReady = true;
+  readyWaiters.forEach((cb) => cb());
+  readyWaiters.clear();
+}
+
+export function onLandingSceneReady(cb: () => void): () => void {
+  if (sceneReady) {
+    cb();
+    return () => {};
+  }
+  readyWaiters.add(cb);
+  return () => readyWaiters.delete(cb);
+}
+
+/**
+ * Session flag: has the landing intro already played this page-load?
+ *
+ * The scene is route-keyed, so leaving home and coming back re-mounts it. The intro must
+ * play ONCE — on the first full site load — not on every client-side return. This module
+ * singleton is true for the rest of the session once the intro starts and resets only on
+ * a real page reload (the module re-evaluates), which is exactly "the entire site loads
+ * for the first time". A return visit reads this and opens on the settled hero instead.
+ */
+let introPlayed = false;
+
+export function markIntroPlayed(): void {
+  introPlayed = true;
+}
+
+export function hasIntroPlayed(): boolean {
+  return introPlayed;
+}
