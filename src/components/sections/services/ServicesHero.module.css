@@ -504,11 +504,15 @@
   will-change: transform, opacity;
 }
 
-/* The real Buyue mark (public/brand) — a clear logo, contained so it never distorts. */
+/* The real Buyue mark (public/brand) — a clear logo, contained so it never distorts.
+   Centre it PHYSICALLY (left + translate), not with inset-inline-start: in RTL that
+   resolves to `right: 50%` while the physical `translateX(-50%)` still shifts left, so
+   the mark was pushed off the wall's left edge and clipped. `left` centres it
+   identically in both directions (LTR unchanged), so Arabic matches English. */
 .wallLogo {
   position: absolute;
   inset-block-start: 46%;
-  inset-inline-start: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   inline-size: 48%;
   block-size: auto;
