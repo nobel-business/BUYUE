@@ -1,0 +1,286 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Ember motifs for the "Why choose Buyue?" cards.
+
+   One shared material: every stroke inherits `--ember` / `--ember-hot` from the
+   card, so the four motifs read as one family. Each motif is painted twice — a
+   blurred bloom pass under a crisp pass — which is what gives the glow depth
+   without any raster assets.
+
+   Motion is CSS-only (no GSAP, no client component). Every loop is slow, seamless
+   and free-running: nothing announces itself, the cards just never sit still.
+   Per-element `--d` delays are NEGATIVE, so each loop starts already in progress
+   and the group never visibly begins in unison on first paint.
+
+   `--o` carries each element's resting opacity; keyframes modulate it with calc()
+   rather than setting flat values, so depth is preserved through the animation.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.motif {
+  --ember: var(--color-bonfire-flame);
+  --ember-hot: #ff9a6a;
+
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  color: var(--ember);
+}
+
+/* The bloom pass. `filter` on the group blurs the geometry, not the whole card,
+   so the glass edges stay sharp. */
+.bloom {
+  filter: blur(9px);
+  opacity: 0.85;
+}
+
+.crisp {
+  filter: none;
+}
+
+/* ── 01 wave ──────────────────────────────────────────────────────────────────
+   The tube drifts and breathes; a highlight travels along its length. */
+.ribbon,
+.ribbonUnder,
+.ribbonCore {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ribbon {
+  stroke: var(--ember);
+  stroke-width: 15;
+  opacity: 0.85;
+  animation: ribbon-drift 11s ease-in-out infinite;
+}
+
+/* The far half of the fold — dimmer, so the ribbon reads as passing behind.
+   Counter-drifts, which makes the crossing read as real depth. */
+.ribbonUnder {
+  stroke: var(--ember);
+  stroke-width: 11;
+  opacity: 0.4;
+  animation: ribbon-drift-under 11s ease-in-out infinite;
+}
+
+/* Hot inner line: a short dash chasing the full length of the tube, so the
+   motif reads as energy flowing through it. pathLength=100 normalises the loop. */
+.ribbonCore {
+  stroke: var(--ember-hot);
+  stroke-width: 4;
+  opacity: 0.75;
+  stroke-dasharray: 16 84;
+  animation: core-flow 5.5s linear infinite;
+}
+
+@keyframes ribbon-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scaleY(1);
+  }
+
+  50% {
+    transform: translate3d(-6px, 3px, 0) scaleY(1.05);
+  }
+}
+
+@keyframes ribbon-drift-under {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(7px, -4px, 0);
+  }
+}
+
+@keyframes core-flow {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ── 02 mesh ──────────────────────────────────────────────────────────────────
+   Each rib shimmers around its own resting opacity, delayed by depth, so a swell
+   travels across the sheet. The group drifts sideways underneath it. */
+.meshG {
+  animation: mesh-drift 17s ease-in-out infinite;
+}
+
+.meshLine {
+  fill: none;
+  stroke: var(--ember);
+  stroke-width: 0.9;
+  vector-effect: non-scaling-stroke;
+  opacity: var(--o, 0.4);
+  animation: mesh-swell 4.5s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes mesh-drift {
+  0%,
+  100% {
+    transform: translate3d(-5px, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(5px, -3px, 0);
+  }
+}
+
+@keyframes mesh-swell {
+  0%,
+  100% {
+    opacity: calc(var(--o) * 0.5);
+    transform: translate3d(0, 2px, 0);
+  }
+
+  50% {
+    opacity: var(--o);
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+/* ── 03 rings ─────────────────────────────────────────────────────────────────
+   Shells breathe outward from the core, inner first. They scale about their own
+   centre — `transform-box: fill-box` is what makes `center` mean the circle
+   rather than the SVG's origin. */
+.ring {
+  fill: none;
+  stroke: var(--ember);
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: var(--o, 0.4);
+  animation: ring-breathe 4.4s ease-out infinite;
+  animation-delay: var(--d, 0s);
+}
+
+.ringHalo {
+  fill: var(--ember);
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.16;
+  animation: halo-pulse 4.4s ease-in-out infinite;
+}
+
+.ringCore {
+  fill: var(--ember-hot);
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.95;
+  animation: core-pulse 4.4s ease-in-out infinite;
+}
+
+@keyframes ring-breathe {
+  0% {
+    opacity: calc(var(--o) * 0.35);
+    transform: scale(0.92);
+  }
+
+  45% {
+    opacity: var(--o);
+    transform: scale(1.06);
+  }
+
+  100% {
+    opacity: calc(var(--o) * 0.35);
+    transform: scale(0.92);
+  }
+}
+
+@keyframes halo-pulse {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(0.9);
+  }
+
+  45% {
+    opacity: 0.22;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes core-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(0.88);
+  }
+
+  45% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* ── 04 nodes ─────────────────────────────────────────────────────────────────
+   Links pass signal; nodes twinkle out of phase with each other. */
+.link {
+  stroke: var(--ember);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+  opacity: var(--o, 0.3);
+  animation: link-signal 5s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+
+.node {
+  fill: var(--ember-hot);
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: var(--o, 0.9);
+  animation: node-twinkle 4.2s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes link-signal {
+  0%,
+  100% {
+    opacity: calc(var(--o) * 0.4);
+  }
+
+  50% {
+    opacity: var(--o);
+  }
+}
+
+@keyframes node-twinkle {
+  0%,
+  100% {
+    opacity: calc(var(--o) * 0.45);
+    transform: scale(0.75);
+  }
+
+  50% {
+    opacity: var(--o);
+    transform: scale(1.25);
+  }
+}
+
+/* Motion is decorative here, so it goes away entirely when the reader has asked
+   for less — the motifs stay, fully rendered, just still. */
+@media (prefers-reduced-motion: reduce) {
+  .ribbon,
+  .ribbonUnder,
+  .ribbonCore,
+  .meshG,
+  .meshLine,
+  .ring,
+  .ringHalo,
+  .ringCore,
+  .link,
+  .node {
+    animation: none;
+  }
+
+  .bloom {
+    filter: blur(6px);
+    opacity: 0.6;
+  }
+}

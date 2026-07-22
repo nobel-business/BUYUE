@@ -1,0 +1,175 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Why choose Buyue? — four smoked-glass cards in a row over a warm bloom.
+
+   The band is transparent: it inherits the global canvas (near-black in dark,
+   ivory in light) and dresses its ink from the --scene-* role tokens, exactly as
+   the Clients band does. Nothing here hard-codes black, so the light theme is
+   not stranded with a dark slab mid-page.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--scene-ink);
+
+  /* Heading/body inherit these, so they read as scene ink on either canvas. */
+  --text-primary: var(--scene-ink);
+  --text-secondary: var(--scene-ink-soft);
+}
+
+/* Soft red-orange light bloom, offset up-and-right like the reference. Sits
+   behind the cards (z-index) and never intercepts pointer events. */
+.bloom {
+  position: absolute;
+  inset-block-start: -30%;
+  inset-inline-end: -10%;
+  z-index: -1;
+  inline-size: min(90rem, 120%);
+  block-size: 120%;
+  pointer-events: none;
+  background: radial-gradient(
+    50% 50% at 62% 34%,
+    color-mix(in srgb, var(--color-bonfire-flame) 26%, transparent) 0%,
+    color-mix(in srgb, var(--color-bonfire-flame) 9%, transparent) 38%,
+    transparent 70%
+  );
+  filter: blur(28px);
+}
+
+/* Light theme: the same bloom at full strength would muddy the ivory canvas. */
+:global(html[data-theme='light']) .bloom {
+  opacity: 0.45;
+}
+
+.heading {
+  margin-block-end: var(--space-6);
+}
+
+/* The row. Four equal tracks at desktop → two → one, so a card never squeezes
+   below a readable measure. */
+.row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(var(--space-3), 1.4vw, var(--space-4));
+  align-items: stretch;
+}
+
+@media (width <= 68rem) {
+  .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 40rem) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The stagger item is the grid cell — it must stretch so sibling cards match
+   height regardless of copy length. */
+.cell {
+  display: flex;
+  block-size: 100%;
+}
+
+/* ── The card ────────────────────────────────────────────────────────────────
+   Smoked glass: a neutral specular build (no gold tint — the warmth in this
+   section comes from the motifs and the bloom, not the panel). */
+.card {
+  --card-spec: 255 255 255; /* specular highlight rgb */
+
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--glass-fill);
+  box-shadow:
+    0 18px 50px rgb(0 0 0 / 28%),
+    inset 0 1px 0 rgb(var(--card-spec) / 16%),
+    inset 0 0 40px rgb(var(--card-spec) / 4%);
+  backdrop-filter: blur(28px) saturate(1.15);
+}
+
+/* Edge reflection + internal light — what separates glass from a flat panel. */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(to left top, rgb(var(--card-spec) / 10%) 0%, rgb(var(--card-spec) / 0%) 52%),
+    radial-gradient(130% 90% at 50% -10%, rgb(var(--card-spec) / 9%), transparent 62%);
+}
+
+:global(html[data-theme='light']) .card {
+  border-color: var(--glass-border-strong);
+  background-color: var(--glass-fill);
+  box-shadow:
+    0 14px 40px rgb(60 40 20 / 10%),
+    inset 0 1px 0 rgb(255 255 255 / 60%);
+}
+
+/* ── Motif ───────────────────────────────────────────────────────────────────
+   Bleeds to the card's top edge (clipped by the card's overflow) and fades out
+   into the panel, so there is no seam between art and glass. */
+.art {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 1;
+  display: block;
+  block-size: 9.5rem;
+  pointer-events: none;
+
+  /* Fade the art out toward the copy — the headline always sits on clean glass. */
+  mask-image: linear-gradient(to bottom, #000 0%, #000 52%, transparent 96%);
+}
+
+/* ── Copy ────────────────────────────────────────────────────────────────────
+   Pushed below the art by its top padding rather than by a spacer element, so
+   the art can bleed underneath without affecting flow.
+
+   The card's height is content-driven: the row stretches every card to match the
+   tallest one, and nothing forces it taller than that. (An earlier fixed
+   min-height left a dead band under the shorter cards.)
+
+   The extra length comes from internal rhythm — a wider gap and a deeper base —
+   rather than a min-height, because padding scales with the content it wraps and
+   so can never open a void under the shortest card. */
+.body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 8.5rem var(--space-5) var(--space-6);
+}
+
+.title {
+  text-wrap: balance;
+}
+
+.copy {
+  font-size: var(--font-size-small);
+}
+
+/* Single column: one card per row means each is stretched by nothing but its own
+   copy, so the art zone is the only fixed cost — trim it to keep the card compact. */
+@media (width <= 40rem) {
+  .art {
+    block-size: 8rem;
+  }
+
+  .body {
+    padding-block-start: 7rem;
+  }
+}
