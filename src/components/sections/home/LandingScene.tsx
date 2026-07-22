@@ -33,17 +33,17 @@ export function LandingScene() {
   const [active, setActive] = useState(false);
   const [pastHero, setPastHero] = useState(false);
 
-  // Is this home visit a client-side RETURN (the intro already played this session)?
-  // Captured once per mount (lazy init) so it can't flip mid-visit — markIntroPlayed runs
-  // later, in the effect. A real page reload re-evaluates the module → a fresh first visit.
-  const [returning] = useState(() => hasIntroPlayed());
+  // NOTE: LandingScene lives in the (persistent) layout — it renders null off-home but
+  // NEVER unmounts on client navigation, so "is this a return visit?" must be read fresh
+  // each time isHome flips to true (inside the effects, via hasIntroPlayed()), NOT captured
+  // once at mount. Capturing it once left every return in "intro" mode → the replay bug.
 
   // Hide the fixed layer once scrolled past the hero, so its opaque canvas + HUD/effects
   // don't show behind the transparent lower sections; restore on scrolling back up. First
   // visit: past the ~200vh capture. Return visit: past a normal ~100vh settled hero.
   useEffect(() => {
     if (!isHome) return;
-    const threshold = returning ? 1.0 : 2.0;
+    const threshold = hasIntroPlayed() ? 1.0 : 2.0;
     let raf = 0;
     const onScroll = () => {
       if (raf) return;
@@ -58,13 +58,16 @@ export function LandingScene() {
       window.removeEventListener('scroll', onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [isHome, returning]);
+  }, [isHome]);
 
   useEffect(() => {
     if (!isHome || !isLandingSceneCapable()) return;
     const el = sceneRef.current;
     if (!el) return;
 
+    // Read fresh on every home entry (see NOTE above): true = the intro already played
+    // this session → open on the settled hero; false = first visit → play the intro.
+    const returning = hasIntroPlayed();
     const win = window as Window & { __heroStarted?: boolean; __heroSkipIntro?: boolean };
     // Return visit → the scene opens directly on its settled end-state (studio + rays,
     // camera behind the headline) instead of replaying the cinematic. First visit → intro.
@@ -174,7 +177,7 @@ export function LandingScene() {
       setLandingSceneRunning(false);
       destroy?.();
     };
-  }, [isHome, returning]);
+  }, [isHome]);
 
   if (!isHome) return null;
 
