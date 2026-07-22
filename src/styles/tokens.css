@@ -100,9 +100,22 @@
   --z-modal: 1100;
   --z-toast: 1200;
 
-  /* ── 4e. Typography (Doc 03 §4.4) ───────────────────────────────────────── */
-  --font-arabic: 'Noto Naskh Arabic', 'Segoe UI', Tahoma, sans-serif;
-  --font-latin: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  /* ── 4e. Typography — the Claude Design system (loaded via next/font, see
+     src/lib/utils/fonts.ts). Role fonts are Latin-first with the LOADED Noto Naskh
+     Arabic appended, so mixed script renders per glyph: Latin uses the role face;
+     Arabic (no glyphs in the Latin faces) falls through to Noto Naskh Arabic.
+     Instrument Serif is WEIGHT 400 ONLY — headings must not be faux-bolded
+     (globals.css sets font-synthesis: none on h1–h6). ─────────────────────────── */
+  --font-arabic: var(--font-noto-naskh), 'Noto Naskh Arabic', 'Segoe UI', Tahoma, sans-serif;
+  --font-display:
+    var(--font-instrument-serif), var(--font-noto-naskh), 'Noto Naskh Arabic', Georgia,
+    'Times New Roman', serif;
+  --font-body:
+    var(--font-instrument-sans), var(--font-noto-naskh), 'Noto Naskh Arabic', 'Segoe UI', system-ui,
+    sans-serif;
+  --font-mono:
+    var(--font-jetbrains-mono), ui-monospace, sfmono-regular, var(--font-noto-naskh),
+    'Noto Naskh Arabic', monospace;
 
   --font-weight-light: 300;
   --font-weight-regular: 400;

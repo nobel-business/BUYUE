@@ -10,6 +10,7 @@ import { Preloader } from '@/components/motion/Preloader';
 import { AmbientBackground } from '@/components/motion/AmbientBackground';
 import { THEME_INIT_SCRIPT } from '@/lib/config/theme';
 import { siteUrl } from '@/lib/config/seo';
+import { fontVariables } from '@/lib/utils/fonts';
 // Global styles, imported in cascade order (reset → tokens → globals).
 import '@/styles/reset.css';
 import '@/styles/tokens.css';
@@ -72,7 +73,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const t = await getTranslations('ui');
 
   return (
-    <html lang={locale} dir={dir}>
+    <html lang={locale} dir={dir} className={fontVariables}>
       <body>
         {/* Theme, applied before first paint. Runs synchronously as the parser
             reaches it — ahead of any painted content — so a returning light-mode
