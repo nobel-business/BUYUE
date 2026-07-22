@@ -12,10 +12,13 @@
   min-block-size: 100vh;
 }
 
-/* Armed: give the fixed scene its 250vh capture-scroll (design #spacer). */
+/* Armed: the capture-scroll stage. With a 100vh sticky pin, a 300vh stage keeps the
+   copy pinned for ~200vh — through the whole capture/settle — instead of releasing at
+   ~150vh; the scene deactivates at the same ~200vh (LandingScene) and the last ~100vh
+   is the handoff into the sections. */
 .stage.armed {
   min-block-size: 0;
-  block-size: 250vh;
+  block-size: 300vh;
 }
 
 /* Pins the copy over the fixed scene for the stage's scroll (design's fixed #copy). */

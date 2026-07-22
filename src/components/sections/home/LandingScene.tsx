@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from '@/i18n/navigation';
 import { isLandingSceneCapable } from '@/lib/motion/landing-capable';
 import { setLandingSceneRunning } from '@/lib/motion/landing-signal';
+import { onPreloaderDone } from '@/lib/motion/preloader-signal';
 import styles from './LandingScene.module.css';
 
 /**
@@ -37,7 +38,7 @@ export function LandingScene() {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        setPastHero(window.scrollY > window.innerHeight * 2.4);
+        setPastHero(window.scrollY > window.innerHeight * 2.0);
       });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -52,6 +53,15 @@ export function LandingScene() {
     if (!isHome || !isLandingSceneCapable()) return;
     const el = sceneRef.current;
     if (!el) return;
+
+    // The scene's own intro timeline is gated on this flag (it stays on the first
+    // frame until set), so the FULL landing cinematic plays from the start once the
+    // preloader lifts — instead of running unseen behind the cover. Textures still
+    // preload under the cover because the scene is built on mount.
+    const win = window as Window & { __heroStarted?: boolean };
+    const offPreloader = onPreloaderDone(() => {
+      win.__heroStarted = true;
+    });
 
     let destroy: (() => void) | undefined;
     let cancelled = false;
@@ -68,6 +78,7 @@ export function LandingScene() {
 
     return () => {
       cancelled = true;
+      offPreloader();
       setActive(false);
       setLandingSceneRunning(false);
       destroy?.();

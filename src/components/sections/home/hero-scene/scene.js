@@ -1294,7 +1294,7 @@ const _eA = new THREE.Euler(), _q1 = new THREE.Quaternion(), _q2 = new THREE.Qua
 
 function stepFrame() {
   window.__frame = (window.__frame||0) + 1;
-  const dt = Math.min(clock.getDelta(), 0.05); T += reduce ? 0 : dt;
+  const dt = Math.min(clock.getDelta(), 0.05); if (!reduce && window.__heroStarted) T += dt;
   const t = reduce ? 12 : T;
   scrollP += (scrollTarget - scrollP) * 0.09;
 
@@ -1743,10 +1743,10 @@ window.__setTheme = (light) => {
       if (p.icon){ p.age++; const navLimit = innerHeight*0.22; if(p.age>p.dur || p.y < navLimit){ ps.splice(i,1); continue; }
         // fade out completely whenever the icon sits over the headline / sub / CTA rects
         let textFade = 1;
-        if (!window.__textRects || (window.__frame|0)%30===0) { window.__textRects = ['head','sub','ctas'].map(id=>{ const el=document.getElementById(id); if(!el) return null; const r=el.getBoundingClientRect(); return r.width?{l:r.left-24,r:r.right+24,t:r.top-20,b:r.bottom+20}:null; }).filter(Boolean); }
+        if (!window.__textRects || (window.__frame|0)%30===0) { window.__textRects = ['head','sub','ctas'].map(id=>{ const el=document.getElementById(id); if(!el) return null; const r=el.getBoundingClientRect(); return r.width?{l:r.left-48,r:r.right+48,t:r.top-40,b:r.bottom+40}:null; }).filter(Boolean); }
         for (const r of (window.__textRects||[])) if (p.x>r.l && p.x<r.r && p.y>r.t && p.y<r.b) { textFade = 0; break; }
         const nearNav = clamp01((p.y - navLimit) / (innerHeight*0.08)); const a = (p.age<p.fin ? p.age/p.fin : (p.age>p.dur-p.fout ? (p.dur-p.age)/p.fout : 1)) * nearNav;
-        p.tf = p.tf==null ? textFade : p.tf + (textFade - p.tf)*0.12;
+        p.tf = textFade===0 ? 0 : (p.tf==null ? textFade : p.tf + (textFade - p.tf)*0.12);
         x.globalAlpha=Math.max(0,a*p.tf)*0.95; x.shadowBlur=3; x.shadowColor='rgba(80,60,40,0.22)'; const S=(p.r+2)*2.0; if(x.globalAlpha>0.02)(ICONDRAW[p.shape]||comment)(p.x,p.y,S*0.7); continue; }
       if (p.amb){ if(p.y<-20)p.y=innerHeight+20; if(p.x<-20)p.x=innerWidth+20; if(p.x>innerWidth+20)p.x=-20; }
       p.life-=p.amb?0.0035:0.016;
