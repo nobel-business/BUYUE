@@ -30,10 +30,15 @@
   isolation: isolate;
   /* Base under the media so a still-loading video/image never flashes transparent. */
   background-color: var(--scene-surface-deep);
+  /* Enlarge grows from the tile's own centre; the ease makes it swell + settle. */
+  transform-origin: center;
+  transition:
+    transform 440ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 440ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 440ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Real project media fills the tile; the label sits on top of it. The slow
-   cinematic ease makes the hover push-in feel like a camera move, not a snap. */
+/* Real project media fills the tile; the label sits on top of it. */
 .media {
   position: absolute;
   inset: 0;
@@ -41,9 +46,6 @@
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
-  transition:
-    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 620ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Warm-dark legibility scrim so the label reads over any frame, brightest at the
@@ -72,38 +74,29 @@
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
 }
 
-/* Hover push-in — only where a real pointer exists, so a tap never leaves a
-   touch tile stuck zoomed. The frame scales up inside the clipped tile and
-   brightens a touch so it reads clearer, while the tile lifts with a warm ember
-   edge + glow that echoes the hero's firelight. */
+/* Hover enlarge — the tile swells above its neighbours and lifts on a warm ember
+   glow, then settles back when the pointer leaves. Pointer-only, so a tap never
+   leaves a touch tile stuck enlarged. `z-index` lifts the growing card over its
+   siblings; the transform doesn't reflow the grid, so nothing else shifts. */
 @media (hover: hover) {
-  .tile {
-    transition:
-      border-color 620ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 620ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
   .tile:hover {
-    border-color: color-mix(in srgb, var(--color-bonfire-flame) 42%, var(--border-default));
-    box-shadow: 0 22px 50px -30px color-mix(in srgb, var(--color-bonfire-flame) 60%, transparent);
-  }
-
-  .tile:hover .media {
-    transform: scale(1.07);
-    filter: brightness(1.06) saturate(1.05);
+    z-index: 5;
+    transform: scale(1.28);
+    border-color: color-mix(in srgb, var(--color-bonfire-flame) 45%, var(--border-default));
+    box-shadow:
+      0 30px 70px -28px rgba(0, 0, 0, 0.72),
+      0 0 44px -18px color-mix(in srgb, var(--color-bonfire-flame) 55%, transparent);
   }
 }
 
-/* Reduced motion: keep the warm edge cue, drop every animation and the zoom. */
+/* Reduced motion: keep the warm edge cue on hover, drop the growth + its animation. */
 @media (prefers-reduced-motion: reduce) {
-  .media,
   .tile {
     transition: none;
   }
 
-  .tile:hover .media {
+  .tile:hover {
     transform: none;
-    filter: none;
   }
 }
 

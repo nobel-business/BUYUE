@@ -12,8 +12,11 @@ import styles from './ProjectGallery.module.css';
  * and reduced-motion visitors get the poster frame, never motion. A tile with no media
  * falls back to the premium tinted placeholder.
  *
- * Media order matches `clients.gallery.categories` (not translatable). Assets live in
- * /public/projects: images are WebP; videos are silent, faststart MP4 with a poster frame.
+ * On hover the tile enlarges in place — scaling up above its neighbours and settling back
+ * when the pointer leaves — a purely visual, pointer-only flourish (touch never triggers it,
+ * reduced motion keeps only the warm edge). Media order matches `clients.gallery.categories`
+ * (not translatable). Assets live in /public/projects: images are WebP; videos are silent,
+ * faststart MP4 with a poster frame.
  */
 type Media = { type: 'image'; src: string } | { type: 'video'; src: string; poster: string };
 
