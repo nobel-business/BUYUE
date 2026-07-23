@@ -1633,6 +1633,13 @@ if (!reduce && window.__heroSkipIntro) {
   T = 12; revealT = 9; window.__revealed = true; window.__hudOn = true;
   const _hud = document.getElementById('hud'); if (_hud) _hud.classList.add('in');
 }
+// PRE-WARM the GPU before the first visible frame. The camera parts are glossy
+// MeshPhysicalMaterials (clearcoat + env-map + normal maps) whose shaders otherwise compile
+// LAZILY the moment each part first appears — mid-assembly — stalling frames and making the
+// timeline jump (choppy formation). renderer.compile() compiles every material + uploads its
+// textures now, synchronously, while the preloader cover is still up (initHeroScene blocks
+// here, so the cover simply holds a few ms longer). The assembly then plays on a warm GPU.
+try { if (renderer.compile) renderer.compile(scene, view); } catch (_e) {}
 tick();
 
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); view.aspect = innerWidth/innerHeight; view.updateProjectionMatrix(); }, { signal: __sig });
