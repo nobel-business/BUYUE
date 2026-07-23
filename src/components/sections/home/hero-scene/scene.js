@@ -1649,6 +1649,17 @@ addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); vi
 
 window.__seek = (v) => { T = v; };
 window.__scroll = (v) => { scrollTarget = v; scrollP = v; };
+// Skip button (LandingScene): settle the intro to its finished state at RUNTIME — the
+// same end-state the __heroSkipIntro seed sets at init, but reachable mid-cinematic.
+// Camera assembled (T), reveal + capture latched, headline + HUD shown; T ticks on for
+// ambient life. LandingScene also un-arms the hero + resets scroll so the visitor lands
+// exactly where a returning visitor would.
+window.__skipIntro = () => {
+  T = 12; revealT = 9; captured = true; scrollTarget = 1; scrollP = 1;
+  window.__heroStarted = true; window.__revealed = true; window.__textShown = true; window.__hudOn = true;
+  ['head','sub','ctas'].forEach((id) => { const el = document.getElementById(id); if (el) el.classList.add('in'); });
+  const _hud = document.getElementById('hud'); if (_hud) _hud.classList.add('in');
+};
 
 // ══ LIGHT / DARK theme toggle ══
 // warm studio background texture for light mode (mesh-gradient blobs + dot grid)
@@ -1831,7 +1842,7 @@ window.__setTheme = (light) => {
     } catch (_e) {}
     // Drop scene-owned globals that pin the graph — the function refs close over the whole
     // closure (renderer/scene), so they must go too or nothing above can be GC'd.
-    ['__revealed','__textShown','__hudOn','__light','__mEnergy','__frame','__textRects','__T','__err','__pmx','__pmy','__camAimX','__camAimY','__iris','__halo','__brandMeshes','__brandLights','__brandFx','__seek','__scroll','__seekRender','__setTheme'].forEach((k) => { try { delete window[k]; } catch (_e) {} });
+    ['__revealed','__textShown','__hudOn','__light','__mEnergy','__frame','__textRects','__T','__err','__pmx','__pmy','__camAimX','__camAimY','__iris','__halo','__brandMeshes','__brandLights','__brandFx','__seek','__scroll','__seekRender','__setTheme','__skipIntro'].forEach((k) => { try { delete window[k]; } catch (_e) {} });
   }
   return __destroy;
 }
