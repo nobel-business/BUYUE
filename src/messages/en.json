@@ -16,27 +16,27 @@
     "switchLanguage": "Switch to {lang}",
     "primaryNav": "Primary navigation",
     "backToTop": "Back to top",
-    "parentCompany": "Buyue is a full-service marketing and advertising agency and one of the operating brands of Noble Business Group, serving brands across Saudi Arabia and Egypt.",
+    "parentCompany": "Buyue is a specialist operating brand in marketing and brand building, part of Noble Business Group, serving brands across Saudi Arabia and Egypt.",
     "themeToLight": "Switch to light mode",
     "themeToDark": "Switch to dark mode"
   },
   "home": {
     "_note": "PROVISIONAL English — Doc 08 non-binding samples pending client translation approval (audit C-10). Not final.",
     "meta": {
-      "title": "Buyue | Marketing & Brand-Building Agency in Saudi Arabia & Egypt",
-      "description": "Buyue is a full-service marketing and advertising agency, part of Noble Business Group, offering brand building, digital marketing, advertising campaigns, photography, web design, exhibition stands, and motion graphics.",
+      "title": "Buyue | A Specialist Operating Brand in Marketing & Brand Building",
+      "description": "Buyue is one of the operating brands of Noble Business Group, offering brand building, digital marketing, advertising campaigns, photography, web design, exhibition stands, and media production.",
       "keywords": "marketing agency Saudi Arabia, marketing agency Al-Khobar, Buyue, marketing and advertising agency, brand building, integrated marketing services, marketing agency Egypt"
     },
     "hero": {
       "heading": "We Sell [[Results,]] Not Promises.",
-      "body": "Buyue is a full-service marketing and advertising agency, and one of the operating brands of Noble Business Group. We help brands build a powerful market presence through clear strategy, content that resonates, smart campaigns, and creative execution that connects the idea to the result.",
+      "body": "Buyue is a specialist operating brand in marketing, promotion, and advertising. We help brands build a powerful market presence through clear strategy, content that resonates, smart campaigns, and creative execution that connects the idea to the result.",
       "ctaPrimary": "Start Your Brand Journey",
       "ctaSecondary": "Explore Our Work"
     },
     "servicesTeaser": {
       "heading": "Our Services",
       "subheading": "Your brand's journey... from idea to market",
-      "body": "Buyue's services cover the full range of a brand's needs — from building a digital presence, through advertising campaigns and photography, to a real-world presence at exhibitions and events.",
+      "body": "Buyue's services cover the full range of brand needs — from building a digital presence, through advertising campaigns and photography, to a real-world presence at exhibitions and events.",
       "features": [
         "Visual & promotional identity",
         "Social media management",
@@ -73,22 +73,22 @@
     },
     "clientsTeaser": {
       "heading": "Our Clients",
-      "subheading": "Brands and entities across different sectors have trusted us",
-      "body": "Buyue has worked with brands and entities across many sectors — including telecom, technology, industry, government bodies, food & beverage, and exhibitions. The company profile features clients such as Jazeera Paints, MAKKA, NAPCO, Isuzu, SNB, ASUS, Zain, and stc, along with government and cultural bodies.",
+      "subheading": "Many brands and government entities across different sectors have trusted us",
+      "body": "Buyue has worked with a range of brands and government entities across many sectors — including telecom, technology, industry, government bodies, food & beverage, and exhibitions.",
       "cta": "See our clients"
     }
   },
   "about": {
     "_note": "PROVISIONAL English — translated per Doc 08 method, pending client approval (audit C-10). Not final.",
     "meta": {
-      "title": "About Us | Buyue – Marketing & Brand-Building Agency in Saudi Arabia & Egypt",
-      "description": "Buyue is a Saudi-Egyptian marketing agency, part of Noble Business Group. We turn ideas into tangible results through integrated marketing strategies and strong brand building.",
+      "title": "About Us | Buyue | A Specialist Operating Brand in Marketing & Brand Building",
+      "description": "Buyue is one of the operating brands of Noble Business Group. We turn ideas into tangible results through integrated marketing strategies and strong brand building.",
       "keywords": "Noble Business Group, marketing agency Saudi Arabia, Buyue, about Buyue, marketing and brand building agency"
     },
     "intro": {
       "heading": "About Us",
       "paragraphs": [
-        "Buyue is a full-service marketing and advertising agency and one of the operating brands of Noble Business Group, serving brands across Saudi Arabia and Egypt.",
+        "Buyue is one of the operating brands of Noble Business Group, offering brand building, digital marketing, advertising campaigns, photography, web design, exhibition stands, and media production.",
         "We begin every project by understanding the market and the audience, then build the strategy, identity, and creative execution on that foundation — creating a brand presence that doesn't just compete, but commands the market.",
         "Not every brand is built to last, and only a few are designed to make a real difference. At Buyue, we believe a brand's strength lies not in merely being seen, but in how its audience understands it, engages with it, chooses it, and remembers it.",
         "That is why we treat every brand as a long-term strategic asset — never a passing campaign."
@@ -96,7 +96,7 @@
     },
     "vision": {
       "heading": "Our Vision",
-      "body": "To become the leading strategic partner for brands in the region, through innovative, measurable marketing solutions capable of building a genuine and sustainable presence."
+      "body": "To become the leading strategic partner for brands across the Gulf and North Africa, through innovative, measurable marketing solutions capable of building a genuine and sustainable presence."
     },
     "mission": {
       "heading": "Our Mission",
@@ -128,15 +128,15 @@
       "items": [
         {
           "q": "Tell me about Buyue?",
-          "a": "Buyue is a Saudi-Egyptian marketing and advertising agency, one of the operating brands of Noble Business Group, specialized in brand building and integrated marketing solutions."
+          "a": "Buyue is one of the operating brands of Noble Business Group. We turn ideas into tangible results through integrated marketing strategies and strong brand building."
         },
         {
           "q": "Which countries does Buyue operate in?",
-          "a": "Buyue works primarily across Saudi Arabia and Egypt, serving local, regional, and global brands."
+          "a": "Buyue works primarily across the Gulf, North Africa, and Egypt, serving local, regional, and global brands."
         },
         {
           "q": "Is Buyue specialized in a single service or integrated services?",
-          "a": "Buyue offers integrated services covering the entire brand journey — from social media management and advertising campaigns to photography, web design, exhibition stands, motion graphics, and printed materials."
+          "a": "Buyue offers integrated services covering the entire brand journey — from social media management and advertising campaigns to photography, web design, exhibition stands, media production, and printed materials."
         }
       ],
       "cta": "Want to know our team better? Get in touch"
@@ -164,8 +164,8 @@
     "_note": "PROVISIONAL English — translated per Doc 08 method, pending client approval (audit C-10). Not final.",
     "meta": {
       "title": "Our Services | Buyue – From Social Media to Exhibition Stand Design",
-      "description": "Discover Buyue's integrated marketing services: social media management, advertising campaigns, SEO, web design, photography and video, exhibition stands, motion graphics, and printed materials.",
-      "keywords": "integrated marketing services, social media management, advertising campaigns, exhibition stand design, product photography, motion graphics, SEO, web design"
+      "description": "Discover Buyue's integrated marketing services: social media management, advertising campaigns, SEO, web design, photography and video, exhibition stands, media production, and printed materials.",
+      "keywords": "integrated marketing services, social media management, advertising campaigns, exhibition stand design, photography, web design, SEO, media production"
     },
     "intro": {
       "heading": "Our Services",
@@ -184,7 +184,7 @@
         "intro": "An identity is not just a logo — it is how your audience recognizes and remembers your brand. We help you build a clear, cohesive identity, ready to use across every channel.",
         "hasOffer": true,
         "features": [
-          "Visual identity development",
+          "Visual identity creation & development",
           "Promotional material design",
           "Crafting the brand's core messaging",
           "A consistent visual style for digital and print"
@@ -209,10 +209,10 @@
         "hasOffer": true,
         "features": [
           "Developing advertising campaign ideas",
-          "Writing scripts and the creative concept",
+          "Content writing and creative ideation",
           "Shooting ads and marketing videos",
           "Producing content tailored for social media and digital platforms",
-          "Directing, editing, and visual post-production",
+          "Shooting, directing, editing, and visual post-production",
           "Preparing multiple versions to fit different platforms"
         ],
         "value": "We turn the campaign idea into impactful, ready-to-publish visual content that builds awareness and drives engagement with your brand."
@@ -375,8 +375,8 @@
   "contact": {
     "_note": "PROVISIONAL English — translated per Doc 08 method, pending client approval (audit C-10). Not final.",
     "meta": {
-      "title": "Contact Us | Buyue – Marketing Agency in Al-Khobar, Saudi Arabia",
-      "description": "Get in touch with Buyue to discuss your next marketing project. Our offices are in Al-Khobar, Saudi Arabia, and we serve clients across Saudi Arabia and Egypt.",
+      "title": "Contact Us | Buyue | A Specialist Operating Brand in Marketing & Brand Building",
+      "description": "Get in touch with Buyue to discuss your next marketing project. Our head office is in Al-Khobar, Eastern Province, and we serve clients across the Gulf, the Middle East, and North Africa.",
       "keywords": "contact marketing agency, marketing agency Al-Khobar, marketing quote, Buyue Saudi Arabia, marketing agency Saudi Arabia"
     },
     "intro": {
@@ -387,11 +387,11 @@
     "details": {
       "heading": "Contact Details",
       "addressLabel": "Address",
-      "address": "3347 Dhahran Road, Al-Thuqbah, Al-Khobar, Saudi Arabia",
+      "address": "3347 Dhahran Road, Al-Khobar, Saudi Arabia",
       "phoneLabel": "Phone",
       "phones": ["+966 561 141 947", "+966 541 25 27 73"],
       "emailLabel": "Email",
-      "email": "info@beuyue.com"
+      "email": "info@buyue.agency"
     },
     "why": {
       "heading": "Why contact Buyue?",
