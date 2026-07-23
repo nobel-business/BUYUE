@@ -1187,12 +1187,15 @@ function drawMood(ctx, w, h, t) {
 }
 const cardImgs = {};
 function loadCardImg(key, src){ const im = new Image(); im.crossOrigin = 'anonymous'; im.src = src; cardImgs[key] = im; }
-loadCardImg('card1', '/assets/card-1.png');
-loadCardImg('card2', '/assets/card-2.png');
-loadCardImg('card3', '/assets/card-3.png');
-loadCardImg('card4', '/assets/card-4.png');
-loadCardImg('card5', '/assets/card-5.png');
-loadCardImg('card6', '/assets/card-6.png');
+// WebP q82 at source resolution (10.4MB PNG -> 0.89MB, 91% smaller). The cards are only
+// ever drawn through a contrast/saturate/brightness canvas filter (drawImageCover), so the
+// re-encode is perceptually indistinguishable; PNG sources kept in-repo for re-export.
+loadCardImg('card1', '/assets/card-1.webp');
+loadCardImg('card2', '/assets/card-2.webp');
+loadCardImg('card3', '/assets/card-3.webp');
+loadCardImg('card4', '/assets/card-4.webp');
+loadCardImg('card5', '/assets/card-5.webp');
+loadCardImg('card6', '/assets/card-6.webp');
 function drawImageCover(ctx, w, h, im){
   ctx.fillStyle = '#080a0e'; ctx.fillRect(0,0,w,h);
   if (!im || !im.complete || !im.naturalWidth) return;
