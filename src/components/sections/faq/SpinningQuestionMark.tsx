@@ -2,7 +2,7 @@ import styles from './SpinningQuestionMark.module.css';
 
 /**
  * Decorative "?" that revolves around its own vertical axis — a quiet bridge in
- * the empty band between the final CTA and the FAQ. Serif glyph (--font-display)
+ * the empty band between the final CTA and the FAQ. Display glyph (--font-display)
  * over a soft bonfire glow, spun with a CSS 3D rotateY so it turns endlessly on
  * itself. Purely ornamental: aria-hidden, no interaction, and the spin stops
  * under prefers-reduced-motion (see the module CSS).

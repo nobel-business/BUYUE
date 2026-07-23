@@ -12,6 +12,7 @@ import { LandingScene } from '@/components/sections/home/LandingScene';
 import { THEME_INIT_SCRIPT } from '@/lib/config/theme';
 import { siteUrl } from '@/lib/config/seo';
 import { fontVariables } from '@/lib/utils/fonts';
+import { brandFontFaceCss } from '@/lib/utils/brand-fonts';
 // Global styles, imported in cascade order (reset → tokens → globals).
 import '@/styles/reset.css';
 import '@/styles/tokens.css';
@@ -75,6 +76,13 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <html lang={locale} dir={dir} className={fontVariables}>
+      <head>
+        {/* Licensed brand webfaces (Articulat V3 / 29LT Zarid — Doc 03 §4),
+            self-hosted from public/fonts. The rules are generated at BUILD time
+            for whichever licensed files are present, so nothing is emitted (and
+            nothing 404s) until they are added. See public/fonts/README.md. */}
+        {brandFontFaceCss ? <style dangerouslySetInnerHTML={{ __html: brandFontFaceCss }} /> : null}
+      </head>
       <body>
         {/* Theme, applied before first paint. Runs synchronously as the parser
             reaches it — ahead of any painted content — so a returning light-mode

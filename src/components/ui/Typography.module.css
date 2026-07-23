@@ -72,6 +72,7 @@
 .eyebrow {
   display: inline-block;
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: var(--font-size-overline);
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;

@@ -1,52 +1,39 @@
-import {
-  Instrument_Serif,
-  Instrument_Sans,
-  JetBrains_Mono,
-  Noto_Naskh_Arabic,
-} from 'next/font/google';
+import { Inter, Noto_Naskh_Arabic } from 'next/font/google';
 
 /**
- * TYPOGRAPHY SYSTEM — the Claude Design landing system, applied site-wide.
+ * TYPOGRAPHY SYSTEM — the Buyue brand typefaces (Doc 03 §4).
  *
- * The four fonts of the design (Buyue Hero.html <head>), self-hosted at build by
- * `next/font/google` (no runtime request to Google; matched-metric fallbacks prevent
- * FOUC/CLS — Doc 05 §3, Doc 07 §6). The design's exact axes are requested:
- *   - Display / Serif (headings):  Instrument Serif  ital@0;1  (WEIGHT 400 ONLY)
- *   - Sans (body / UI):            Instrument Sans   wght@400;500;600;700
- *   - Mono (labels / HUD):         JetBrains Mono    wght@400;500;600
- *   - Arabic (display + body):     Noto Naskh Arabic wght@400;500;600;700
+ * The brand specifies exactly TWO families and forbids a third (Doc 07 §184):
+ *   - Latin / English → `Articulat V3` (aka Articulat CF)   — Doc 03 §4.2
+ *   - Arabic          → `29LT Zarid` (display) + `29LT Zarid Text` (body) — Doc 03 §4.1
  *
- * The CSS variables are consumed by the role tokens in src/styles/tokens.css
- * (--font-display / --font-body / --font-mono / --font-arabic). Latin faces carry no
- * Arabic glyphs, so the display/body/mono tokens append the loaded Noto Naskh — mixed
- * script renders per-glyph. `fontVariables` is applied on <html> in the root layout.
+ * Both are COMMERCIAL and are not committed to this repo. They are self-hosted
+ * from `public/fonts/` and wired up by `src/lib/utils/brand-fonts.ts`, which
+ * emits `@font-face` rules at build time for whichever licensed files are
+ * present. Nothing else needs changing when the files land — the role tokens in
+ * `src/styles/tokens.css` already name the brand families first.
  *
- * IMPORTANT (design fidelity): Instrument Serif ships weight 400 only. Headings must
- * NEVER be faux-bolded — globals.css sets `font-synthesis: none` on h1–h6 so a 700
- * declaration renders clean 400 glyphs (the previous migration's #1 defect was faux-
- * bold serif). The design does not use Manrope (a stray authoring reference); the
- * display font is Instrument Serif for both the intro and the settled hero.
+ * The two faces loaded here are the DOCUMENTED FALLBACKS from Doc 03 §4.3, not
+ * design choices:
+ *   Arabic: `29LT Zarid, "Noto Naskh Arabic", "Segoe UI", Tahoma, sans-serif`
+ *   Latin:  `Articulat V3, "Inter", "Helvetica Neue", Arial, sans-serif`
+ * They are self-hosted at build by `next/font/google` (no runtime request to
+ * Google; matched-metric fallbacks prevent FOUC/CLS — Doc 05 §3, Doc 07 §6) so
+ * the fallback rung is reliable rather than dependent on what the OS happens to
+ * ship. Once the licensed files are in `public/fonts/`, the brand faces win and
+ * these are never painted.
+ *
+ * TODO(C-11): confirm web-embedding licences for Articulat V3 and 29LT Zarid.
  */
-export const instrumentSerif = Instrument_Serif({
-  variable: '--font-instrument-serif',
-  weight: '400',
-  style: ['normal', 'italic'],
+
+/** Latin fallback — the "Inter" rung of the Doc 03 §4.3 Latin stack. */
+export const interFallback = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
   display: 'swap',
 });
 
-export const instrumentSans = Instrument_Sans({
-  variable: '--font-instrument-sans',
-  subsets: ['latin'],
-  display: 'swap',
-});
-
-export const jetbrainsMono = JetBrains_Mono({
-  variable: '--font-jetbrains-mono',
-  subsets: ['latin'],
-  display: 'swap',
-});
-
+/** Arabic fallback — the "Noto Naskh Arabic" rung of the Doc 03 §4.3 Arabic stack. */
 export const notoNaskhArabic = Noto_Naskh_Arabic({
   variable: '--font-noto-naskh',
   weight: ['400', '500', '600', '700'],
@@ -55,9 +42,4 @@ export const notoNaskhArabic = Noto_Naskh_Arabic({
 });
 
 /** Combined variable class list — apply on <html> so the CSS vars resolve site-wide. */
-export const fontVariables = [
-  instrumentSerif.variable,
-  instrumentSans.variable,
-  jetbrainsMono.variable,
-  notoNaskhArabic.variable,
-].join(' ');
+export const fontVariables = [interFallback.variable, notoNaskhArabic.variable].join(' ');

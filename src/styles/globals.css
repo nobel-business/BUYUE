@@ -33,8 +33,9 @@ html.scroll-locked {
 }
 
 /* Language-aware leading (Doc 03 §4.4). The family is the role font (--font-body,
-   set on <body> below); Arabic falls through to Noto Naskh via the token fallback,
-   so only the line-height differs per language now. */
+   set on <body> below); Arabic falls through to 29LT Zarid Text via the token, so
+   only the line-height differs per language now. Arabic needs ≥1.7 to clear
+   diacritics and stroke height. */
 html:lang(ar) body {
   line-height: var(--line-height-body-ar);
 }
@@ -43,13 +44,12 @@ html:lang(en) body {
   line-height: var(--line-height-body);
 }
 
-/* Display serif for ALL headings (Instrument Serif for Latin; Arabic falls through to
-   Noto Naskh via the token). One rule covers every heading — the Typography <Heading>
-   and every raw h1–h6 — so no component overrides the family.
-   font-synthesis: none is critical: Instrument Serif ships weight 400 ONLY, so a
-   heading declaring 700 must render clean 400 glyphs, NOT a smeared faux-bold (the
-   previous migration's #1 defect). Arabic (Noto Naskh has real weights) is unaffected.
-   The -0.01em tracking matches the design's serif display treatment. */
+/* Brand display face for ALL headings (Articulat V3 for Latin; Arabic falls through
+   to 29LT Zarid via the token — Doc 03 §4.1–4.2). One rule covers every heading —
+   the Typography <Heading> and every raw h1–h6 — so no component overrides the family.
+   font-synthesis: none — a licence may ship only part of the weight set (Doc 03 §4.2
+   asks for Light/Regular/Medium/DemiBold/Bold); a missing weight must render the
+   nearest REAL cut, never a smeared faux-bold. */
 h1,
 h2,
 h3,
@@ -58,6 +58,11 @@ h5,
 h6 {
   font-family: var(--font-display);
   font-synthesis: none;
+}
+
+/* Tracking is LATIN-ONLY. Doc 03 §4.4: never apply letter-spacing to Arabic — it
+   breaks letter joining. Arabic display tracking stays normal. */
+html:lang(en) :is(h1, h2, h3, h4, h5, h6) {
   letter-spacing: -0.01em;
 }
 

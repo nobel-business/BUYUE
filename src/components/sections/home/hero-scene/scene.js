@@ -161,7 +161,7 @@ function lathe(profile, mat, seg = 100) {
 }
 function engBand(texts, r, w, z, group, colHex) {
   const c = document.createElement('canvas'); c.width = 1024; c.height = 56; const x = c.getContext('2d');
-  x.fillStyle = '#0b0b0b'; x.fillRect(0,0,1024,56); x.fillStyle = colHex||'#e8c884'; x.font='700 26px Instrument Sans, sans-serif'; x.textBaseline='middle';
+  x.fillStyle = '#0b0b0b'; x.fillRect(0,0,1024,56); x.fillStyle = colHex||'#e8c884'; x.font='700 26px "Articulat V3", Inter, sans-serif'; x.textBaseline='middle';
   const step = 1024/texts.length; texts.forEach((t,i)=>x.fillText(t, i*step+14, 30));
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
   const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, w, 100, 1, true), new THREE.MeshStandardMaterial({ map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.3, roughness: 0.35, metalness: 0.6, color: 0x141414 }));
@@ -200,7 +200,7 @@ cam.add(reg(dial(BX+0.34, -0.24), 1.5));
 cam.add(reg(dial(BX-0.16, -0.3), 1.5));
 // OLED strip (recessed)
 const oc = document.createElement('canvas'); oc.width=240; oc.height=90; const ox=oc.getContext('2d');
-ox.fillStyle='#070a0c'; ox.fillRect(0,0,240,90); ox.fillStyle='#ff8a45'; ox.font='800 42px Instrument Sans, sans-serif'; ox.fillText('8K',14,46); ox.fillStyle='#e8c884'; ox.font='600 20px Instrument Sans, sans-serif'; ox.fillText('60p',96,42); ox.fillStyle='#8a8f95'; ox.font='600 16px Instrument Sans, sans-serif'; ox.fillText('T2.0 · ISO 800',14,74); ox.fillStyle='#ff7a45'; ox.fillRect(176,54,52,20); ox.fillStyle='#070a0c'; ox.fillRect(179,57,38,14);
+ox.fillStyle='#070a0c'; ox.fillRect(0,0,240,90); ox.fillStyle='#ff8a45'; ox.font='800 42px "Articulat V3", Inter, sans-serif'; ox.fillText('8K',14,46); ox.fillStyle='#e8c884'; ox.font='600 20px "Articulat V3", Inter, sans-serif'; ox.fillText('60p',96,42); ox.fillStyle='#8a8f95'; ox.font='600 16px "Articulat V3", Inter, sans-serif'; ox.fillText('T2.0 · ISO 800',14,74); ox.fillStyle='#ff7a45'; ox.fillRect(176,54,52,20); ox.fillStyle='#070a0c'; ox.fillRect(179,57,38,14);
 const otex=new THREE.CanvasTexture(oc); otex.colorSpace=THREE.SRGBColorSpace;
 const oled=new THREE.Mesh(new THREE.PlaneGeometry(0.34,0.13), new THREE.MeshStandardMaterial({map:otex,emissive:0xffffff,emissiveMap:otex,emissiveIntensity:0.85,roughness:0.2})); oled.position.set(BX+0.06,0.638,0.02); oled.rotation.x=-Math.PI/2; cam.add(reg(oled,1.4));
 // record dot + hot-shoe inlay with gold pins + mic seam
@@ -308,14 +308,14 @@ const eyecup = lathe([[0,0],[0.14,0],[0.16,0.04],[0.13,0.14],[0.09,0.16]], gripR
 const scc = document.createElement('canvas'); scc.width = 384; scc.height = 240; const sxx = scc.getContext('2d');
 sxx.fillStyle='#06080a'; sxx.fillRect(0,0,384,240); sxx.fillStyle='#0d1116'; sxx.fillRect(0,0,384,30);
 sxx.fillStyle='#ff5a3a'; sxx.beginPath(); sxx.arc(18,15,6,0,7); sxx.fill();
-sxx.fillStyle='#eef1f4'; sxx.font='700 14px Instrument Sans, sans-serif'; sxx.fillText('REC 8K',30,20);
-sxx.fillStyle='#8fa0ad'; sxx.font='600 12px Instrument Sans, sans-serif'; sxx.fillText('T2.0  1/50  ISO800',170,20);
+sxx.fillStyle='#eef1f4'; sxx.font='700 14px "Articulat V3", Inter, sans-serif'; sxx.fillText('REC 8K',30,20);
+sxx.fillStyle='#8fa0ad'; sxx.font='600 12px "Articulat V3", Inter, sans-serif'; sxx.fillText('T2.0  1/50  ISO800',170,20);
 const gg=sxx.createLinearGradient(0,40,0,190); gg.addColorStop(0,'#2a3a55'); gg.addColorStop(0.6,'#b5844f'); gg.addColorStop(1,'#3a2818'); sxx.fillStyle=gg; sxx.fillRect(20,40,344,150);
 sxx.fillStyle='#3a2416'; sxx.beginPath(); sxx.moveTo(20,190); sxx.quadraticCurveTo(150,120,364,170); sxx.lineTo(364,190); sxx.fill();
 sxx.strokeStyle='#e8c884'; sxx.lineWidth=2; sxx.strokeRect(150,95,84,60);
 sxx.fillStyle='#0d1116'; sxx.fillRect(0,200,384,40);
 sxx.fillStyle='#ff8a45'; for(let i=0;i<44;i++){ const hh=Math.abs(Math.sin(i*0.4)*Math.cos(i*0.13))*24+2; sxx.fillRect(8+i*8,236-hh,5,hh); }
-sxx.fillStyle='#eef1f4'; sxx.font='600 12px Instrument Sans, sans-serif'; sxx.fillText('00:12:47:03',12,218);
+sxx.fillStyle='#eef1f4'; sxx.font='600 12px "Articulat V3", Inter, sans-serif'; sxx.fillText('00:12:47:03',12,218);
 const scrTex=new THREE.CanvasTexture(scc); scrTex.colorSpace=THREE.SRGBColorSpace;
 const scrFrame = rbox(1.0,0.72,0.05,0.05, M.shellDark, [BX+0.02,0.08,-0.6]); cam.add(reg(scrFrame,1.6));
 const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.9,0.6), new THREE.MeshStandardMaterial({ map:scrTex, emissive:0xffffff, emissiveMap:scrTex, emissiveIntensity:0.75, roughness:0.18, metalness:0.1 })); scr.position.set(BX+0.02,0.08,-0.626); scr.rotation.y=Math.PI; cam.add(scr);
@@ -327,7 +327,7 @@ for(let i=0;i<3;i++){ const led=sph(0.012, amberMat, [BX+0.3,0.48,-0.48+i*0.06])
 const plate = lathe([[0,-0.5],[0.17,-0.5],[0.19,-0.46],[0.17,-0.44],[0,-0.44]], M.chrome, 24); plate.position.set(BX,0,-0.12); cam.add(reg(plate,1.5));
 for (const sp of [[BX-0.42,0.4,0.28],[BX-0.42,-0.26,0.28],[BX+0.34,0.4,0.28],[BX+0.34,-0.26,0.28]]) { const sc=cyl(0.02,0.02,0.03,M.chrome,sp,6,[Math.PI/2,0,0]); cam.add(reg(sc,1.4)); }
 // micro serial label
-const slc=document.createElement('canvas'); slc.width=256; slc.height=40; const slx=slc.getContext('2d'); slx.fillStyle='#0b0b0b'; slx.fillRect(0,0,256,40); slx.fillStyle='#8a7a5a'; slx.font='600 20px Manrope'; slx.fillText('BUYUE  BX-001  ·  8K',10,26);
+const slc=document.createElement('canvas'); slc.width=256; slc.height=40; const slx=slc.getContext('2d'); slx.fillStyle='#0b0b0b'; slx.fillRect(0,0,256,40); slx.fillStyle='#8a7a5a'; slx.font='600 20px "Articulat V3", Inter, sans-serif'; slx.fillText('BUYUE  BX-001  ·  8K',10,26);
 const sltex=new THREE.CanvasTexture(slc); sltex.colorSpace=THREE.SRGBColorSpace;
 const serial=new THREE.Mesh(new THREE.PlaneGeometry(0.28,0.044), new THREE.MeshStandardMaterial({map:sltex,roughness:0.6,metalness:0.4,emissive:0x1a140a,emissiveMap:sltex,emissiveIntensity:0.3})); serial.position.set(BX+0.1,-0.44,0.27); cam.add(reg(serial,1.3));
 
@@ -529,7 +529,7 @@ podium.add(scyl(1.02,1.02,0.1,M.bronze,[0,0.05,0]));
 const ledRing = new THREE.Mesh(new THREE.TorusGeometry(0.98,0.022,10,64), ledMat); ledRing.rotation.x = Math.PI/2; ledRing.position.y = 1.86; podium.add(ledRing);
 // plaque
 const plaqueCv = document.createElement('canvas'); plaqueCv.width=512; plaqueCv.height=256;
-{ const px=plaqueCv.getContext('2d'); px.fillStyle='#141210'; px.fillRect(0,0,512,256); px.strokeStyle='#bc9656'; px.lineWidth=6; px.strokeRect(14,14,484,228); px.fillStyle='#e8c884'; px.font='700 52px Instrument Sans, sans-serif'; px.textAlign='center'; px.fillText('BUYUE COMPANY',256,118); px.fillStyle='#a89272'; px.font='500 30px Instrument Sans, sans-serif'; px.fillText('VISUAL STORYTELLING',256,178); }
+{ const px=plaqueCv.getContext('2d'); px.fillStyle='#141210'; px.fillRect(0,0,512,256); px.strokeStyle='#bc9656'; px.lineWidth=6; px.strokeRect(14,14,484,228); px.fillStyle='#e8c884'; px.font='700 52px "Articulat V3", Inter, sans-serif'; px.textAlign='center'; px.fillText('BUYUE COMPANY',256,118); px.fillStyle='#a89272'; px.font='500 30px "Articulat V3", Inter, sans-serif'; px.fillText('VISUAL STORYTELLING',256,178); }
 const plaqueTex = new THREE.CanvasTexture(plaqueCv);
 const plaqueMat = new THREE.MeshBasicMaterial({ map: plaqueTex, transparent: true, opacity: 0 }); plaqueMat.userData.noFade = 1;
 const plaque = new THREE.Mesh(new THREE.PlaneGeometry(0.85,0.42), plaqueMat); plaque.position.set(0,1.35,1.04); plaque.rotation.x=-0.05; podium.add(plaque);
@@ -561,9 +561,9 @@ floorSpot.position.set(-9.4,-2.0,-1.6); floorSpot.rotation.y=0.5; studio.add(flo
 // (wall LED strips omitted — they read as stray lines at this view angle)
 // background title (fade + lift only)
 function textPlane(txt, sub, w, h, fs, fs2){ const c=document.createElement('canvas'); c.width=1024; c.height=512; const px=c.getContext('2d');
-  px.fillStyle='#1b1916'; px.font='400 '+Math.round(fs*1.15)+'px Instrument Serif, serif'; px.textAlign='center'; px.fillText(txt,512,230);
+  px.fillStyle='#1b1916'; px.font='400 '+Math.round(fs*1.15)+'px "Articulat V3", Inter, sans-serif'; px.textAlign='center'; px.fillText(txt,512,230);
   px.strokeStyle='#bc9656'; px.lineWidth=5; px.beginPath(); px.moveTo(340,290); px.lineTo(684,290); px.stroke();
-  if(sub){ px.fillStyle='#6b5d49'; px.font='600 '+fs2+'px Instrument Sans, sans-serif'; px.letterSpacing='14px'; px.fillText(sub,512,370); }
+  if(sub){ px.fillStyle='#6b5d49'; px.font='600 '+fs2+'px "Articulat V3", Inter, sans-serif'; px.letterSpacing='14px'; px.fillText(sub,512,370); }
   const tex=new THREE.CanvasTexture(c); const m=new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0 }); m.userData.noFade=1;
   return new THREE.Mesh(new THREE.PlaneGeometry(w,h), m); }
 const bgTitle = textPlane('BUYUE COMPANY','BRANDING · CONTENT · DESIGN', 4.4, 2.2, 96, 40);
@@ -835,13 +835,13 @@ function artboard(wpx, hpx, ww, hh, pos, ry, draw){
 }
 function rr(x, a, b, w, h, r){ x.beginPath(); x.moveTo(a+r,b); x.arcTo(a+w,b,a+w,b+h,r); x.arcTo(a+w,b+h,a,b+h,r); x.arcTo(a,b+h,a,b,r); x.arcTo(a,b,a+w,b,r); x.fill(); }
 // A — COLOR SYSTEM (ivory board, accent swatches)
-artboard(360, 460, 1.5, 1.92, [-6.6, 3.0, -6.2], 0.42, (x,w,h)=>{ x.fillStyle='#f3ecdd'; x.fillRect(0,0,w,h); const cols=['#ff7a45','#e8c884','#3fb8a6','#8a6cff','#26242a']; cols.forEach((c,i)=>{ x.fillStyle=c; rr(x,40,50+i*74,w-80,58,10); }); x.fillStyle='#26242a'; x.font='700 26px Instrument Sans, sans-serif'; x.fillText('COLOR SYSTEM',40,h-40); });
+artboard(360, 460, 1.5, 1.92, [-6.6, 3.0, -6.2], 0.42, (x,w,h)=>{ x.fillStyle='#f3ecdd'; x.fillRect(0,0,w,h); const cols=['#ff7a45','#e8c884','#3fb8a6','#8a6cff','#26242a']; cols.forEach((c,i)=>{ x.fillStyle=c; rr(x,40,50+i*74,w-80,58,10); }); x.fillStyle='#26242a'; x.font='700 26px "Articulat V3", Inter, sans-serif'; x.fillText('COLOR SYSTEM',40,h-40); });
 // B — TYPE STUDY (graphite board, big letterform)
-artboard(360, 440, 1.5, 1.83, [6.3, 2.4, -6.8], -0.42, (x,w,h)=>{ x.fillStyle='#1b1a1e'; x.fillRect(0,0,w,h); x.fillStyle='#f3ecdd'; x.font='800 220px Instrument Sans, sans-serif'; x.fillText('Aa',44,230); x.fillStyle='#8a8f95'; x.font='600 22px Instrument Sans, sans-serif'; ['Manrope · Display','Regular / Medium / Bold','ABCDEFGHIJK','abcdefghijk 0123'].forEach((t,i)=>x.fillText(t,44,300+i*34)); x.fillStyle='#ff8a45'; x.font='700 24px Instrument Sans, sans-serif'; x.fillText('TYPOGRAPHY',44,h-32); });
+artboard(360, 440, 1.5, 1.83, [6.3, 2.4, -6.8], -0.42, (x,w,h)=>{ x.fillStyle='#1b1a1e'; x.fillRect(0,0,w,h); x.fillStyle='#f3ecdd'; x.font='800 220px "Articulat V3", Inter, sans-serif'; x.fillText('Aa',44,230); x.fillStyle='#8a8f95'; x.font='600 22px "Articulat V3", Inter, sans-serif'; ['Articulat · Display','Regular / Medium / Bold','ABCDEFGHIJK','abcdefghijk 0123'].forEach((t,i)=>x.fillText(t,44,300+i*34)); x.fillStyle='#ff8a45'; x.font='700 24px "Articulat V3", Inter, sans-serif'; x.fillText('TYPOGRAPHY',44,h-32); });
 // C — CAMPAIGN MOODBOARD (tonal grid + one accent)
-artboard(420, 420, 1.75, 1.75, [-5.0, 0.3, -7.6], 0.32, (x,w,h)=>{ x.fillStyle='#eae2d2'; x.fillRect(0,0,w,h); const g=[['#cfc6b4','#bcb3a0'],['#ff6f61','#a8a090'],['#9a9284','#d8cfbc']]; for(let r=0;r<3;r++)for(let c=0;c<2;c++){ x.fillStyle=g[r][c]; rr(x,30+c*196,30+r*118,176,100,10);} x.fillStyle='#26242a'; x.font='700 24px Instrument Sans, sans-serif'; x.fillText('CAMPAIGN CONCEPT',30,h-22); });
+artboard(420, 420, 1.75, 1.75, [-5.0, 0.3, -7.6], 0.32, (x,w,h)=>{ x.fillStyle='#eae2d2'; x.fillRect(0,0,w,h); const g=[['#cfc6b4','#bcb3a0'],['#ff6f61','#a8a090'],['#9a9284','#d8cfbc']]; for(let r=0;r<3;r++)for(let c=0;c<2;c++){ x.fillStyle=g[r][c]; rr(x,30+c*196,30+r*118,176,100,10);} x.fillStyle='#26242a'; x.font='700 24px "Articulat V3", Inter, sans-serif'; x.fillText('CAMPAIGN CONCEPT',30,h-22); });
 // D — STRATEGY / ANALYTICS (dark board, minimal chart)
-artboard(440, 380, 1.83, 1.58, [5.4, 0.0, -7.2], -0.36, (x,w,h)=>{ x.fillStyle='#141317'; x.fillRect(0,0,w,h); x.strokeStyle='#3a3740'; x.lineWidth=1; for(let i=1;i<4;i++){x.beginPath();x.moveTo(40,60+i*70);x.lineTo(w-40,60+i*70);x.stroke();} x.fillStyle='#4a86ff'; [90,150,120,200,170,240].forEach((v,i)=>rr(x,55+i*62,h-70-v,34,v,5)); x.strokeStyle='#3fb8a6'; x.lineWidth=3; x.beginPath(); [90,150,120,200,170,240].forEach((v,i)=>{const px=72+i*62,py=h-80-v; i?x.lineTo(px,py):x.moveTo(px,py);}); x.stroke(); x.fillStyle='#e6e2da'; x.font='700 22px Instrument Sans, sans-serif'; x.fillText('STRATEGY · ANALYTICS',40,44); });
+artboard(440, 380, 1.83, 1.58, [5.4, 0.0, -7.2], -0.36, (x,w,h)=>{ x.fillStyle='#141317'; x.fillRect(0,0,w,h); x.strokeStyle='#3a3740'; x.lineWidth=1; for(let i=1;i<4;i++){x.beginPath();x.moveTo(40,60+i*70);x.lineTo(w-40,60+i*70);x.stroke();} x.fillStyle='#4a86ff'; [90,150,120,200,170,240].forEach((v,i)=>rr(x,55+i*62,h-70-v,34,v,5)); x.strokeStyle='#3fb8a6'; x.lineWidth=3; x.beginPath(); [90,150,120,200,170,240].forEach((v,i)=>{const px=72+i*62,py=h-80-v; i?x.lineTo(px,py):x.moveTo(px,py);}); x.stroke(); x.fillStyle='#e6e2da'; x.font='700 22px "Articulat V3", Inter, sans-serif'; x.fillText('STRATEGY · ANALYTICS',40,44); });
 window.__ecoItems = ecoItems;
 
 // ══════════ CENTER BRANDING WALL — luxury showroom sign, aligned to the lens's screen axis ══════════
@@ -880,12 +880,12 @@ window.__brandFx = { crystal: brandCrystal, crystalEdge: brandCrystalEdge, tube:
     roundRect(70,60,2060,1380,120); x.fillStyle = bg; x.fill();
     // soft cream bloom behind the logo
     const gl = x.createRadialGradient(1100,360,30,1100,360,620); gl.addColorStop(0,'rgba(255,253,247,0.9)'); gl.addColorStop(1,'rgba(255,253,247,0)'); x.fillStyle = gl; roundRect(70,60,2060,1380,120); x.fill();
-    const title = 'BUYUE COMPANY'; x.font = '400 210px Instrument Serif, serif'; const ls = 6;
+    const title = 'BUYUE COMPANY'; x.font = '400 210px "Articulat V3", Inter, sans-serif'; const ls = 6;
     let tw = 0; x.textAlign='left'; for (const ch of title) tw += x.measureText(ch).width + ls; tw -= ls; let cx = 1100 - tw/2;
     for (const ch of title){ x.lineWidth = 9; x.strokeStyle = 'rgba(255,252,244,0.85)'; x.strokeText(ch, cx, 720); x.fillStyle = '#171009'; x.fillText(ch, cx, 720); x.lineWidth = 2; x.strokeStyle = 'rgba(0,0,0,0.4)'; x.strokeText(ch, cx, 720); cx += x.measureText(ch).width + ls; }
     x.textAlign = 'center';
-    x.fillStyle = '#2f2820'; x.font = '600 62px JetBrains Mono, monospace'; x.fillText('B R A N D I N G   ·   C O N T E N T   ·   D E S I G N', 1100, 1000);
-    x.fillStyle = '#443a30'; x.font = '600 60px Instrument Sans, sans-serif'; x.fillText('W E   T U R N   I D E A S   I N T O   E X P E R I E N C E S', 1100, 1200);
+    x.fillStyle = '#2f2820'; x.font = '600 62px "Articulat V3", Inter, sans-serif'; x.fillText('B R A N D I N G   ·   C O N T E N T   ·   D E S I G N', 1100, 1000);
+    x.fillStyle = '#443a30'; x.font = '600 60px "Articulat V3", Inter, sans-serif'; x.fillText('W E   T U R N   I D E A S   I N T O   E X P E R I E N C E S', 1100, 1200);
     const dg = x.createLinearGradient(880, 0, 1320, 0); dg.addColorStop(0, 'rgba(226,74,51,0)'); dg.addColorStop(0.5, 'rgba(226,74,51,1)'); dg.addColorStop(1, 'rgba(226,74,51,0)'); x.fillStyle = dg; x.fillRect(880, 862, 440, 6);
   }
   drawText();
@@ -1077,7 +1077,7 @@ function panelMesh(cw, ch, drawFn, name, hero) {
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h*0.98), mat); mesh.position.z = 0.005; grp.add(mesh);
   // header title bar (baked)
   const hc = document.createElement('canvas'); hc.width = 680; hc.height = 88; const hx = hc.getContext('2d'); hx.scale(2,2);
-  hx.fillStyle = 'rgba(10,9,8,0.9)'; hx.fillRect(0,0,340,44); hx.fillStyle = '#eac46b'; hx.font = '700 21px Instrument Sans, sans-serif'; hx.textBaseline='middle'; hx.fillText((name||'').toUpperCase(), 16, 24);
+  hx.fillStyle = 'rgba(10,9,8,0.9)'; hx.fillRect(0,0,340,44); hx.fillStyle = '#eac46b'; hx.font = '700 21px "Articulat V3", Inter, sans-serif'; hx.textBaseline='middle'; hx.fillText((name||'').toUpperCase(), 16, 24);
   hx.fillStyle = '#ff7a45'; hx.beginPath(); hx.arc(320,22,6,0,7); hx.fill();
   const htex = new THREE.CanvasTexture(hc); htex.colorSpace = THREE.SRGBColorSpace; htex.anisotropy = 8;
   const header = new THREE.Mesh(new THREE.PlaneGeometry(w, h*0.16), new THREE.MeshStandardMaterial({ map: htex, emissive: 0xffffff, emissiveMap: htex, emissiveIntensity: 0.7, transparent: true, roughness: 0.4 }));
@@ -1120,7 +1120,7 @@ function drawIdentity(ctx, w, h, t) {
   ctx.fillStyle = '#cf5138'; [[mx-R*0.5,my-R*0.8],[mx-R*0.5,my+R*0.8]].forEach(p=>ctx.fillRect(p[0]-4,p[1]-4,8,8));
   // wordmark with wipe reveal
   const rev = (t*0.35)%1.6; const word = 'BUYUE';
-  ctx.font = '800 30px Instrument Sans, sans-serif'; ctx.textBaseline = 'alphabetic';
+  ctx.font = '800 30px "Articulat V3", Inter, sans-serif'; ctx.textBaseline = 'alphabetic';
   const wx = w*0.5, wy = h*0.34;
   ctx.fillStyle = 'rgba(245,247,249,0.12)'; ctx.fillText(word, wx, wy);
   ctx.save(); ctx.beginPath(); ctx.rect(wx, wy-32, Math.min(1,rev)* (w-wx-14), 40); ctx.clip();
@@ -1130,16 +1130,16 @@ function drawIdentity(ctx, w, h, t) {
   cols.forEach((c,i)=>{ const ap = clamp01(rev*2 - i*0.25); const bx = wx + i*((w-wx-14)/5); ctx.globalAlpha = ap; ctx.fillStyle = c; ctx.fillRect(bx, h*0.46, (w-wx-14)/5 - 4, h*0.12); });
   ctx.globalAlpha = 1;
   // type specimen
-  ctx.fillStyle = '#f5f7f9'; ctx.font = '800 30px Instrument Sans, sans-serif'; ctx.fillText('Aa', wx, h*0.78);
-  ctx.fillStyle = 'rgba(245,247,249,0.45)'; ctx.font = '600 11px Instrument Sans, sans-serif'; ctx.fillText('MANROPE · NASKH', wx+56, h*0.76);
-  ctx.fillStyle = 'rgba(187,207,179,0.8)'; ctx.font = '600 10px Instrument Sans, sans-serif'; ctx.fillText('BRAND SYSTEM ●', wx+56, h*0.86);
+  ctx.fillStyle = '#f5f7f9'; ctx.font = '800 30px "Articulat V3", Inter, sans-serif'; ctx.fillText('Aa', wx, h*0.78);
+  ctx.fillStyle = 'rgba(245,247,249,0.45)'; ctx.font = '600 11px "Articulat V3", Inter, sans-serif'; ctx.fillText('ARTICULAT · ZARID', wx+56, h*0.76);
+  ctx.fillStyle = 'rgba(187,207,179,0.8)'; ctx.font = '600 10px "Articulat V3", Inter, sans-serif'; ctx.fillText('BRAND SYSTEM ●', wx+56, h*0.86);
 }
 function drawAnalytics(ctx, w, h, t) {
   bg(ctx, w, h, '#0f1a22', '#080d12');
   const reach = (32.7 + Math.sin(t*0.8)*0.6);
-  ctx.fillStyle = 'rgba(245,247,249,0.5)'; ctx.font = '600 12px Instrument Sans, sans-serif'; ctx.fillText('TOTAL REACH', 16, h*0.28);
-  ctx.fillStyle = GOLD; ctx.font = '800 44px Instrument Sans, sans-serif'; ctx.fillText(reach.toFixed(1)+'M', 14, h*0.5);
-  ctx.fillStyle = '#bbcfb3'; ctx.font = '700 14px Instrument Sans, sans-serif'; ctx.fillText('\u25B2 +207%', 16, h*0.62);
+  ctx.fillStyle = 'rgba(245,247,249,0.5)'; ctx.font = '600 12px "Articulat V3", Inter, sans-serif'; ctx.fillText('TOTAL REACH', 16, h*0.28);
+  ctx.fillStyle = GOLD; ctx.font = '800 44px "Articulat V3", Inter, sans-serif'; ctx.fillText(reach.toFixed(1)+'M', 14, h*0.5);
+  ctx.fillStyle = '#bbcfb3'; ctx.font = '700 14px "Articulat V3", Inter, sans-serif'; ctx.fillText('\u25B2 +207%', 16, h*0.62);
   const gy = h*0.66, gh = h*0.28;
   ctx.strokeStyle = RED; ctx.lineWidth = 3; ctx.beginPath();
   for (let i = 0; i <= 22; i++) { const x = 16+(w-32)*i/22, v = (Math.sin(i*0.5+t*1.2)*0.25+0.5+i*0.02), y = gy+gh - v*gh; i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
@@ -1155,7 +1155,7 @@ function drawPhoto(ctx, w, h, t) {
   const sx = (t*80)%(w+80)-40; const lg = ctx.createLinearGradient(sx-30,0,sx+30,0); lg.addColorStop(0,'rgba(255,255,255,0)'); lg.addColorStop(0.5,'rgba(255,255,255,0.25)'); lg.addColorStop(1,'rgba(255,255,255,0)'); ctx.fillStyle = lg; ctx.fillRect(sx-30,0,60,h);
   ctx.strokeStyle = 'rgba(245,247,249,0.7)'; ctx.lineWidth = 2;
   [[10,10],[w-10,10],[10,h-10],[w-10,h-10]].forEach((p,i)=>{ ctx.beginPath(); const dx=i%2?-14:14, dy=i<2?14:-14; ctx.moveTo(p[0],p[1]); ctx.lineTo(p[0]+dx,p[1]); ctx.moveTo(p[0],p[1]); ctx.lineTo(p[0],p[1]+dy); ctx.stroke(); });
-  ctx.fillStyle = INK; ctx.font = '700 13px Instrument Sans, sans-serif'; ctx.fillText('● PHOTOGRAPHY', 16, h-16);
+  ctx.fillStyle = INK; ctx.font = '700 13px "Articulat V3", Inter, sans-serif'; ctx.fillText('● PHOTOGRAPHY', 16, h-16);
 }
 function drawVideo(ctx, w, h, t) {
   bg(ctx, w, h, '#141814', '#080a08');
@@ -1164,29 +1164,29 @@ function drawVideo(ctx, w, h, t) {
   ctx.fillStyle = 'rgba(245,247,249,0.5)'; for (let i = 0; i < 10; i++) { const x = (i*(w/9)-scroll*0.6+w)%w; ctx.fillRect(x, 10, 12, 8); ctx.fillRect(x, h-18, 12, 8); }
   ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(16, h-30, w-32, 4);
   ctx.fillStyle = RED; ctx.fillRect(16, h-30, (w-32)*((t*0.15)%1), 4);
-  ctx.fillStyle = INK; ctx.font = '700 13px Instrument Sans, sans-serif'; ctx.fillText('00:'+String(Math.floor(t*3)%60).padStart(2,'0'), 16, 26);
+  ctx.fillStyle = INK; ctx.font = '700 13px "Articulat V3", Inter, sans-serif'; ctx.fillText('00:'+String(Math.floor(t*3)%60).padStart(2,'0'), 16, 26);
 }
 let likes = 1240;
 function drawCampaign(ctx, w, h, t) {
   bg(ctx, w, h, '#efe7de', '#ddd1c4');
   ctx.fillStyle = '#e0a94f'; ctx.beginPath(); ctx.arc(28, 26, 12, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = 'rgba(47,47,45,0.85)'; ctx.font = '700 13px Instrument Sans, sans-serif'; ctx.fillText('buyue.studio', 48, 24);
-  ctx.fillStyle = 'rgba(47,47,45,0.4)'; ctx.font = '500 11px Instrument Sans, sans-serif'; ctx.fillText('Sponsored', 48, 38);
+  ctx.fillStyle = 'rgba(47,47,45,0.85)'; ctx.font = '700 13px "Articulat V3", Inter, sans-serif'; ctx.fillText('buyue.studio', 48, 24);
+  ctx.fillStyle = 'rgba(47,47,45,0.4)'; ctx.font = '500 11px "Articulat V3", Inter, sans-serif'; ctx.fillText('Sponsored', 48, 38);
   const ig = ctx.createLinearGradient(0,46,w,h*0.72); ig.addColorStop(0,'#cf5138'); ig.addColorStop(1,'#eac46b'); ctx.fillStyle = ig; ctx.fillRect(16, 46, w-32, h*0.5);
-  ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.font = '800 22px Instrument Sans, sans-serif'; ctx.fillText('NEW DROP', 32, 46+h*0.28);
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.font = '800 22px "Articulat V3", Inter, sans-serif'; ctx.fillText('NEW DROP', 32, 46+h*0.28);
   const beat = 1+Math.sin(t*4)*0.12; ctx.save(); ctx.translate(30, h-26); ctx.scale(beat,beat); ctx.fillStyle = '#cf5138'; ctx.font = '20px sans-serif'; ctx.fillText('♥', -8, 7); ctx.restore();
   likes += Math.random() < 0.3 ? 1 : 0;
-  ctx.fillStyle = 'rgba(47,47,45,0.9)'; ctx.font = '700 14px Instrument Sans, sans-serif'; ctx.fillText(likes.toLocaleString()+' likes', 50, h-20);
+  ctx.fillStyle = 'rgba(47,47,45,0.9)'; ctx.font = '700 14px "Articulat V3", Inter, sans-serif'; ctx.fillText(likes.toLocaleString()+' likes', 50, h-20);
 }
 function drawMood(ctx, w, h, t) {
   bg(ctx, w, h, '#16130f', '#0b0908');
   const cols = ['#cf5138','#eac46b','#bbcfb3','#2f2f2d','#f5f7f9'];
   cols.forEach((c,i)=>{ ctx.fillStyle = c; ctx.fillRect(16+i*(w-32)/5, 16, (w-32)/5-6, h*0.22); });
-  ctx.fillStyle = 'rgba(245,247,249,0.9)'; ctx.font = '800 30px Instrument Sans, sans-serif'; ctx.fillText('Aa', 20, h*0.62);
-  ctx.font = '400 13px Instrument Sans, sans-serif'; ctx.fillStyle = 'rgba(245,247,249,0.5)'; ctx.fillText('Manrope · Naskh', 80, h*0.55);
+  ctx.fillStyle = 'rgba(245,247,249,0.9)'; ctx.font = '800 30px "Articulat V3", Inter, sans-serif'; ctx.fillText('Aa', 20, h*0.62);
+  ctx.font = '400 13px "Articulat V3", Inter, sans-serif'; ctx.fillStyle = 'rgba(245,247,249,0.5)'; ctx.fillText('Articulat · Zarid', 80, h*0.55);
   for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(40+i*46, h*0.82, 18, 0, Math.PI*2); ctx.fillStyle = ['#cfd2d6','#e6bd6a','#bbcfb3'][i]; ctx.fill(); }
   ctx.strokeStyle = 'rgba(234,196,107,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(w*0.62, h*0.5, w*0.32, h*0.4);
-  ctx.fillStyle = 'rgba(245,247,249,0.6)'; ctx.font = '700 12px Manrope'; ctx.fillText('DIRECTION', 16, h-14);
+  ctx.fillStyle = 'rgba(245,247,249,0.6)'; ctx.font = '700 12px "Articulat V3", Inter, sans-serif'; ctx.fillText('DIRECTION', 16, h-14);
 }
 const cardImgs = {};
 function loadCardImg(key, src){ const im = new Image(); im.crossOrigin = 'anonymous'; im.src = src; cardImgs[key] = im; }
