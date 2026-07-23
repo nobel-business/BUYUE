@@ -1,0 +1,92 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Spinning "?" — the bridge between the final CTA and the FAQ. A large serif
+   glyph that revolves around its own vertical axis (3D rotateY), lit by a soft
+   bonfire glow. Colour roles are inherited so it follows the mode; the accent is
+   the shared Bonfire Flame. Ornamental only — hidden from AT, motion-safe.
+   ─────────────────────────────────────────────────────────────────────────── */
+.band {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding-block: clamp(0.25rem, 0.1rem + 0.5vw, 0.6rem);
+  /* Give the 3D turn depth so the glyph reads as revolving, not just shearing. */
+  perspective: 900px;
+  pointer-events: none;
+}
+
+/* Soft breathing glow behind the glyph — echoes the FAQ scene's bloom. */
+.glow {
+  position: absolute;
+  inset-block-start: 50%;
+  left: 50%;
+  z-index: 0;
+  inline-size: min(58vw, 28rem);
+  block-size: min(58vw, 28rem);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--color-bonfire-flame) 34%, transparent),
+    transparent 70%
+  );
+  filter: blur(64px);
+  transform: translate(-50%, -50%);
+  animation: qm-breathe 9s ease-in-out infinite;
+}
+
+.stage {
+  position: relative;
+  z-index: 1;
+  transform-style: preserve-3d;
+  animation: qm-spin 7s linear infinite;
+}
+
+.mark {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 1.75rem + 4vw, 5rem);
+  line-height: 1;
+  color: var(--text-primary);
+  /* Warm accent edge + a little bloom, so the turn catches light. */
+  text-shadow:
+    0 0 48px color-mix(in srgb, var(--color-bonfire-flame) 65%, transparent),
+    0 0 20px color-mix(in srgb, var(--color-bonfire-flame) 50%, transparent),
+    0 0 2px color-mix(in srgb, var(--color-bonfire-flame) 70%, transparent);
+  /* Backface visible so the glyph stays lit as it turns edge-on and around. */
+  backface-visibility: visible;
+}
+
+@keyframes qm-spin {
+  from {
+    transform: rotateY(0deg);
+  }
+
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes qm-breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+/* Motion-safe: hold the glyph still (front-facing) and calm the glow. */
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    animation: none;
+    transform: none;
+  }
+
+  .glow {
+    animation: none;
+  }
+}

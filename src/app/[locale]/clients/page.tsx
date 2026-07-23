@@ -8,6 +8,7 @@ import { Stack } from '@/components/layout/Stack';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import type { AccordionItem } from '@/components/ui/Accordion';
 import { FaqSection } from '@/components/sections/faq/FaqSection';
+import { SpinningQuestionMark } from '@/components/sections/faq/SpinningQuestionMark';
 import { ClientsHero } from '@/components/sections/clients/ClientsHero';
 import { ClientLogoMosaic } from '@/components/sections/clients/ClientLogoMosaic';
 import { ProjectGallery } from '@/components/sections/clients/ProjectGallery';
@@ -99,6 +100,10 @@ export default async function ClientsPage({ params }: PageParams) {
           </Stack>
         </Container>
       </Section>
+
+      {/* Bridge — a serif "?" revolving around its own axis fills the empty band
+          between the CTA and the FAQ. Decorative, motion-safe (SpinningQuestionMark). */}
+      <SpinningQuestionMark />
 
       {/* FAQ — premium art-directed dark scene (replaces plain accordion) */}
       <FaqSection
