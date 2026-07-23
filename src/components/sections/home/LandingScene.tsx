@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/navigation';
 import { isLandingSceneCapable } from '@/lib/motion/landing-capable';
 import {
@@ -33,6 +34,11 @@ export function LandingScene() {
   const sceneRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   const [pastHero, setPastHero] = useState(false);
+  // First-visit intro in progress → show the Skip pill. Latched off once skipped/torn down.
+  const [introActive, setIntroActive] = useState(false);
+  // Set by the Skip handler so the intro's navbar rAF loop bails instead of fighting it.
+  const skipRequestedRef = useRef(false);
+  const t = useTranslations('ui');
 
   // NOTE: LandingScene lives in the (persistent) layout — it renders null off-home but
   // NEVER unmounts on client navigation, so "is this a return visit?" must be read fresh
@@ -95,6 +101,9 @@ export function LandingScene() {
       // state is `.armed` (HomeHero), whose CSS default is SHOWN, so any gap flashes the
       // whole hero over the intro. A genuine load failure below un-arms it.
       setLandingSceneRunning(true);
+      // Offer the Skip pill for this intro; clear any stale skip request from a prior mount.
+      skipRequestedRef.current = false;
+      setIntroActive(true);
 
       // Drive the navbar like the design's header: OFF through the intro, slid in TOGETHER
       // with the copy — keyed to the scene's OWN reveal flag window.__textShown (set the
@@ -109,6 +118,12 @@ export function LandingScene() {
       setLandingNavState('hide');
       let navRaf = 0;
       const tickNav = () => {
+        // Skip pressed: the navbar is now normal — stop driving it and let it be.
+        if (skipRequestedRef.current) {
+          setLandingNavState(null);
+          navRaf = 0;
+          return;
+        }
         if (!revealed && sceneWin.__textShown) revealed = true;
         if (!entered && window.scrollY > ENTER_AT()) entered = true;
         // entered wins: once into the content the navbar is fully normal, even if a very
@@ -181,10 +196,27 @@ export function LandingScene() {
       setLandingNavState(null);
       offPreloader();
       setActive(false);
+      setIntroActive(false);
       setLandingSceneRunning(false);
       destroy?.();
     };
   }, [isHome]);
+
+  // Skip the intro: settle the scene to its finished state and drop the visitor on the
+  // settled hero at the top — exactly the state a returning visitor gets. Un-arm the hero
+  // (→ static 100vh copy), release the navbar, mark the intro played so it won't replay,
+  // and reset scroll. skipRequestedRef stops the intro's navbar rAF loop (see tickNav).
+  const handleSkip = () => {
+    const win = window as Window & { __skipIntro?: () => void };
+    skipRequestedRef.current = true;
+    win.__skipIntro?.();
+    setLandingSceneRunning(false);
+    setLandingNavState(null);
+    markIntroPlayed();
+    markLandingSceneReady();
+    window.scrollTo(0, 0);
+    setIntroActive(false);
+  };
 
   if (!isHome) return null;
 
@@ -241,6 +273,18 @@ export function LandingScene() {
         </div>
         <div id="tip" />
       </div>
+
+      {/* Skip the intro — a discreet pill, live only during the first-visit cinematic
+          (motion + WebGL only, so it never shows for reduced-motion / return visits).
+          Real focusable button OUTSIDE the aria-hidden HUD layers. */}
+      {introActive && active && !pastHero && (
+        <button type="button" className={styles.skip} onClick={handleSkip}>
+          {t('skipIntro')}
+          <span className={styles.skipArrow} aria-hidden="true">
+            →
+          </span>
+        </button>
+      )}
     </>
   );
 }

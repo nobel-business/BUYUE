@@ -321,10 +321,102 @@
   border-color: rgba(26, 22, 19, 0.25);
 }
 
+/* ── Skip-intro pill ── */
+/* A discreet HUD-styled control, bottom-right. It is a real interactive button (its own
+   fixed layer with pointer-events), NOT part of the pointer-events:none HUD layers. */
+.skip {
+  position: fixed;
+  z-index: var(--z-sticky);
+  inset-block-end: 30px;
+  inset-inline-end: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 17px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 247, 249, 0.22);
+  background: rgba(14, 11, 9, 0.55);
+  backdrop-filter: blur(8px);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(245, 247, 249, 0.7);
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease,
+    background-color 0.3s ease;
+  animation: ls-skip-in 0.6s ease 0.3s both;
+}
+
+.skip:hover {
+  color: #eac46b;
+  border-color: rgba(234, 196, 107, 0.55);
+  background: rgba(14, 11, 9, 0.72);
+}
+
+.skip:focus-visible {
+  outline: 2px solid #eac46b;
+  outline-offset: 3px;
+}
+
+.skipArrow {
+  font-size: 13px;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.skip:hover .skipArrow {
+  transform: translateX(3px);
+}
+
+/* The arrow follows the reading direction (points left in RTL). */
+:global(html[dir='rtl']) .skipArrow {
+  transform: scaleX(-1);
+}
+
+:global(html[dir='rtl']) .skip:hover .skipArrow {
+  transform: scaleX(-1) translateX(3px);
+}
+
+@keyframes ls-skip-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+:global(html[data-theme='light']) .skip {
+  border-color: rgba(26, 22, 19, 0.24);
+  background: rgba(247, 242, 233, 0.62);
+  color: rgba(26, 22, 19, 0.7);
+}
+
+:global(html[data-theme='light']) .skip:hover {
+  color: #cf5138;
+  border-color: rgba(207, 81, 56, 0.5);
+  background: rgba(247, 242, 233, 0.82);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .layer :global(#keylight),
   .layer :global(.rec i),
   .layer :global(.scrollcue .chev i) {
     animation: none;
+  }
+
+  .skip {
+    animation: none;
+  }
+
+  .skipArrow {
+    transition: none;
   }
 }
