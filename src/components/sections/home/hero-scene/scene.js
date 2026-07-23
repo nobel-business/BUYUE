@@ -939,6 +939,9 @@ studio.visible = false;
 }
 
 const streams = [];
+// Scratch vectors reused every frame in updateStreams (was 2 clones × 46 seeds × streams
+// per frame — heavy GC churn during the burst). Same math, zero allocation.
+const _streamA = new THREE.Vector3(), _streamB = new THREE.Vector3();
 function spawnStream(target, color) {
   const n = 46; const g = new THREE.BufferGeometry(); const pos = new Float32Array(n*3);
   const from = new THREE.Vector3(0, 1.15, 1.3);
@@ -955,7 +958,7 @@ function updateStreams(dt) {
     for (let k = 0; k < s.n; k++) {
       const a = clamp01((s.t - s.seeds[k].d) / (s.life - s.seeds[k].d));
       const e = a*a*(3-2*a);
-      const cur = s.from.clone().lerp(s.target, e).add(s.seeds[k].off.clone().multiplyScalar(Math.sin(a*Math.PI)));
+      const cur = _streamA.copy(s.from).lerp(s.target, e).add(_streamB.copy(s.seeds[k].off).multiplyScalar(Math.sin(a*Math.PI)));
       gp[k*3]=cur.x; gp[k*3+1]=cur.y; gp[k*3+2]=cur.z;
     }
     s.p.geometry.attributes.position.needsUpdate = true;
@@ -1276,7 +1279,7 @@ addEventListener('mousemove', e => {
   magnet(cta1, r1); magnet(cta2, r2);
 }, { signal: __sig });
 let scrollTarget = 0, scrollP = 0, captured = false;
-addEventListener('scroll', () => { scrollTarget = Math.min(1, scrollY / (innerHeight * 2.4)); }, { signal: __sig });
+addEventListener('scroll', () => { scrollTarget = Math.min(1, scrollY / (innerHeight * 2.4)); }, { signal: __sig, passive: true });
 
 // ---------- headline ----------
 const HEAD = { en: [['We',0],['Sell',0],['Results,',1],['Not',0],['Promises.',0]], sub: 'Buyue is a full-service marketing and advertising agency, and one of the operating brands of Noble Business Group. We help brands build a powerful market presence through clear strategy, content that resonates, smart campaigns, and creative execution that connects the idea to the result.' };
@@ -1301,6 +1304,7 @@ function easeInOutCubic(x){ return x<0.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2,3)/2; }
 function easeOutExpo(x){ return x===1?1:1-Math.pow(2,-10*x); }
 function smoothstep(x){ x=clamp01(x); return x*x*(3-2*x); }
 const _eA = new THREE.Euler(), _q1 = new THREE.Quaternion(), _q2 = new THREE.Quaternion();
+const _slot = new THREE.Vector3(); // reused per card/frame for the artifact slot target (was new Vector3)
 
 function stepFrame() {
   window.__frame = (window.__frame||0) + 1;
@@ -1391,8 +1395,8 @@ function stepFrame() {
     const ampZ = (0.022 + (A.ord % 2) * 0.006) * breath;
     const fx = Math.sin(t*fFreqY + A.phase) * ampY;
     const fz = Math.sin(t*fFreqZ + A.phase*1.3) * ampZ;
-    const slot = new THREE.Vector3(A.col*2.6 + (A.xAdj||0) + fx, A.tier*1.72 + (A.yAdj||0), 0.55 + fz).add(pivot);
-    A.grp.position.lerpVectors(pivot, slot, settle);
+    _slot.set(A.col*2.6 + (A.xAdj||0) + fx, A.tier*1.72 + (A.yAdj||0), 0.55 + fz).add(pivot);
+    A.grp.position.lerpVectors(pivot, _slot, settle);
     // tiny handcrafted roll (~0.5–1.2°), never mirrored between neighbours
     A.grp.rotation.z = Math.sin(t*fFreqY*0.7 + A.phase) * (0.005 + (A.ord % 3) * 0.0025) * settle;
     if (!A.streamed && lb >= 0.3) { A.streamed = true; try { spawnBurst(A); } catch(e){ window.__berr = 'spawn: '+(e.stack||e.message); } }
