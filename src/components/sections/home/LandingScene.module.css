@@ -112,6 +112,7 @@
   align-items: center;
   gap: 10px;
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 11px;
   letter-spacing: 0.24em;
   color: rgba(245, 247, 249, 0.5);
@@ -149,6 +150,7 @@
   align-items: center;
   gap: 8px;
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 11px;
   letter-spacing: 0.24em;
   color: rgba(245, 247, 249, 0.55);
@@ -338,6 +340,7 @@
   background: rgba(14, 11, 9, 0.55);
   backdrop-filter: blur(8px);
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 11px;
   letter-spacing: 0.24em;
   text-transform: uppercase;

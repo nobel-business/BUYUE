@@ -100,26 +100,46 @@
   --z-modal: 1100;
   --z-toast: 1200;
 
-  /* ── 4e. Typography — the Claude Design system (loaded via next/font, see
-     src/lib/utils/fonts.ts). Role fonts are Latin-first with the LOADED Noto Naskh
-     Arabic appended, so mixed script renders per glyph: Latin uses the role face;
-     Arabic (no glyphs in the Latin faces) falls through to Noto Naskh Arabic.
-     Instrument Serif is WEIGHT 400 ONLY — headings must not be faux-bolded
-     (globals.css sets font-synthesis: none on h1–h6). ─────────────────────────── */
-  --font-arabic: var(--font-noto-naskh), 'Noto Naskh Arabic', 'Segoe UI', Tahoma, sans-serif;
+  /* ── 4e. Typography — the BRAND typefaces (Doc 03 §4) ───────────────────────
+     Exactly two families, per Doc 03 §4 and Doc 07 §184 ("no third font"):
+       Latin  → 'Articulat V3'    (aka Articulat CF)        — Doc 03 §4.2
+       Arabic → '29LT Zarid' (display) / '29LT Zarid Text' (body) — Doc 03 §4.1
+
+     Both are commercial and self-hosted from public/fonts/; @font-face is emitted
+     at build time by src/lib/utils/brand-fonts.ts for whichever licensed files are
+     present. The families are named FIRST here unconditionally, so dropping the
+     files in converts the whole site with no further edit. Until then the stack
+     falls through to the Doc 03 §4.3 fallbacks — Inter (Latin) and Noto Naskh
+     Arabic (Arabic), both loaded via next/font in src/lib/utils/fonts.ts.
+
+     Every stack is Latin-first with the Arabic family appended, so mixed script
+     renders per glyph: Latin takes the Latin face, Arabic (absent from it) falls
+     through to Zarid. ──────────────────────────────────────────────────────── */
+  --font-latin: 'Articulat V3', var(--font-inter), inter, 'Helvetica Neue', arial, sans-serif;
+  --font-arabic:
+    '29LT Zarid Text', '29LT Zarid', var(--font-noto-naskh), 'Noto Naskh Arabic', 'Segoe UI',
+    tahoma, sans-serif;
+
+  /* Display / headings — Zarid (display cut) carries Arabic headlines. */
   --font-display:
-    var(--font-instrument-serif), var(--font-noto-naskh), 'Noto Naskh Arabic', Georgia,
-    'Times New Roman', serif;
+    'Articulat V3', '29LT Zarid', var(--font-inter), var(--font-noto-naskh), 'Noto Naskh Arabic',
+    inter, 'Helvetica Neue', arial, sans-serif;
+
+  /* Body / UI — Zarid Text is the long-form Arabic cut (Doc 03 §4.1). */
   --font-body:
-    var(--font-instrument-sans), var(--font-noto-naskh), 'Noto Naskh Arabic', 'Segoe UI', system-ui,
-    sans-serif;
+    'Articulat V3', '29LT Zarid Text', '29LT Zarid', var(--font-inter), var(--font-noto-naskh),
+    'Noto Naskh Arabic', inter, 'Helvetica Neue', arial, sans-serif;
+
+  /* HUD / overline / numeric labels. Doc 07 §184 forbids a third family, so this
+     is the brand Latin face with tabular figures (see globals.css) rather than a
+     separate mono. ui-monospace remains only as a last-resort rung. */
   --font-mono:
-    var(--font-jetbrains-mono), ui-monospace, sfmono-regular, var(--font-noto-naskh),
-    'Noto Naskh Arabic', monospace;
+    'Articulat V3', var(--font-inter), inter, 'Helvetica Neue', arial, ui-monospace, monospace;
 
   --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
+  --font-weight-demibold: 600;
   --font-weight-bold: 700;
 
   /* Fluid sizes clamp(min, preferred, max) — responsive per Doc 03 §25 */
