@@ -1,0 +1,58 @@
+/* The falling "like" — an in-flow band whose sticky pin holds the icon in view while GSAP
+ * scrubs it down out of the hero and into the landing zone (see HomeThumb.tsx). No
+ * `position: fixed` anywhere — everything resolves against in-flow ancestors, so the
+ * page-transition template's transform can't break it.
+ *
+ * `.band` is 160vh with a negative top margin (the seam's own `-…vh` trick) so its top edge
+ * reaches UP into the hero tail — the fall visually originates from the hero — and the extra
+ * height gives the scrub its scroll distance before Services. Net flow added ≈ 100vh. */
+.band {
+  --thumb: clamp(88px, 12vw, 148px);
+  position: relative;
+  block-size: 160vh;
+  margin-block-start: -60vh;
+  pointer-events: none;
+}
+
+/* Sticky (NOT ScrollTrigger pin:true — the codebase rule) so there's no pin-jump. z just
+   under the navbar so the thumb rides above the sections/seam but never over the nav. */
+.pin {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100vh;
+  pointer-events: none;
+  z-index: calc(var(--z-sticky) - 1);
+}
+
+/* Icon box, centred horizontally, sitting at its LANDED vertical spot. GSAP owns its
+   transform (arc x, tumble rotateX/Y/Z, depth scale, fall y); the CSS position IS the
+   resting pose, so a GSAP bail (reduced motion / no-JS) leaves the thumb landed here. */
+.fall {
+  position: absolute;
+  inset-block-start: 58vh;
+  inset-inline-start: 50%;
+  inline-size: var(--thumb);
+  block-size: var(--thumb);
+  margin-inline-start: calc(var(--thumb) / -2);
+  will-change: transform;
+}
+
+/* Rest self-rotation lives on this nested node ONLY — a separate transform channel from
+   `.fall`, so the scrubbed tumble and the infinite spin can never collide. */
+.spin {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.spin svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  /* Floating contact shadow + a warm ember glow, matching the hero's light. */
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 26px rgba(207, 81, 56, 0.32));
+}
+
+:global(html[data-theme='light']) .spin svg {
+  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.22)) drop-shadow(0 0 20px rgba(207, 81, 56, 0.2));
+}

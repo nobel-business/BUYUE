@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { HomeHero } from '@/components/sections/home/HomeHero';
+import { HomeThumb } from '@/components/sections/home/HomeThumb';
 import { WhyBuyue, type WhyItem } from '@/components/sections/home/WhyBuyue';
 import { Section } from '@/components/layout/Section';
 import { Container } from '@/components/layout/Container';
@@ -59,6 +60,10 @@ export default async function Home({ params }: PageParams) {
       {/* Handoff — a warm gradient that occludes the fixed scene as the sections scroll
           up (design's #chapter top-fade), so the landing dissolves into the page. */}
       <div className={styles.seam} aria-hidden="true" />
+
+      {/* Falling reaction — a 3D "like" that drops out of the hero (scroll-scrubbed) and
+          settles into the band before Services, turning on its own axis. In-flow only. */}
+      <HomeThumb rtl={locale === 'ar'} />
 
       {/* Services teaser — identity: word-by-word heading reveal + clip-wipe list */}
       <Section tone="page">
