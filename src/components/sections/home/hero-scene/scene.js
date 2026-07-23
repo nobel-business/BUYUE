@@ -1214,7 +1214,9 @@ function drawCard6(ctx, w, h, t){ drawImageCover(ctx, w, h, cardImgs.card6); }
 // bare photo plane — no glass/frame/header chrome, floats naturally from the lens
 function imgPanelMesh(cw, ch, drawFn, name, hero){
   const c = document.createElement('canvas');
-  const RES = 2048; c.width = RES; c.height = Math.round(RES*ch/cw);
+  // RES kept >= the 1448px card source, so no real pixels are downsampled — the old 2048
+  // upscaled interpolated headroom, costing ~40% more VRAM + mip build for zero visible gain.
+  const RES = 1536; c.width = RES; c.height = Math.round(RES*ch/cw);
   const ctx = c.getContext('2d'); ctx.scale(c.width/cw, c.height/ch);
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 16; tex.minFilter = THREE.LinearMipmapLinearFilter;
   const w = 1.18, h = w * (ch/cw);
@@ -1261,9 +1263,14 @@ addEventListener('mousemove', e => {
   tmx = e.clientX / innerWidth - 0.5; tmy = e.clientY / innerHeight - 0.5;
   const dxm = tmx - (window.__pmx||0), dym = tmy - (window.__pmy||0); window.__pmx = tmx; window.__pmy = tmy;
   window.__mEnergy = Math.min(1, (window.__mEnergy||0) + Math.hypot(dxm,dym)*6);
-  reticle.style.opacity = '1'; reticle.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
   mouse.set((e.clientX/innerWidth)*2-1, -(e.clientY/innerHeight)*2+1);
-  [cta1, cta2].forEach(b => { if(!b) return; const r = b.getBoundingClientRect(); const dx = e.clientX-(r.left+r.width/2), dy = e.clientY-(r.top+r.height/2); const dist = Math.hypot(dx,dy); b.style.transform = dist<150 ? `translate(${dx*0.2}px,${dy*0.26}px)` : 'translate(0,0)'; });
+  // READ both CTA rects up-front, THEN do every style write — so a transform write never
+  // sits between two getBoundingClientRect() reads (which forces a second sync layout). Still
+  // reads the LIVE (transformed) rect, so the magnetic feedback is byte-identical.
+  const r1 = cta1 && cta1.getBoundingClientRect(), r2 = cta2 && cta2.getBoundingClientRect();
+  reticle.style.opacity = '1'; reticle.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
+  const magnet = (b, r) => { if(!b || !r) return; const dx = e.clientX-(r.left+r.width/2), dy = e.clientY-(r.top+r.height/2); const dist = Math.hypot(dx,dy); b.style.transform = dist<150 ? `translate(${dx*0.2}px,${dy*0.26}px)` : 'translate(0,0)'; };
+  magnet(cta1, r1); magnet(cta2, r2);
 }, { signal: __sig });
 let scrollTarget = 0, scrollP = 0, captured = false;
 addEventListener('scroll', () => { scrollTarget = Math.min(1, scrollY / (innerHeight * 2.4)); }, { signal: __sig });
@@ -1415,8 +1422,11 @@ function stepFrame() {
   tip.style.opacity='0';
 
   // particles
-  const sp = stars.geometry.attributes.position.array; for (let i=0;i<sp.length;i+=3){ sp[i]+=0.0004; if(sp[i]>21)sp[i]-=42; } stars.geometry.attributes.position.needsUpdate = true; stars.rotation.y += 0.0002;
-  const ep = embers2.geometry.attributes.position.array; for (let i=0;i<emberV.length;i++){ ep[i*3]+=emberV[i].sx; ep[i*3+1]+=emberV[i].sy; ep[i*3+2]+=emberV[i].sz; if(ep[i*3+1]>8){ ep[i*3+1]=-8; ep[i*3]=(Math.random()-0.5)*16; } } embers2.geometry.attributes.position.needsUpdate = true;
+  // stars/embers2 are never added to the scene (orphaned) — only simulate + re-upload their
+  // buffers if they are actually in the graph, so we don't re-upload ~490 points/frame for
+  // nothing. Behaviour identical when they ARE parented.
+  if (stars.parent) { const sp = stars.geometry.attributes.position.array; for (let i=0;i<sp.length;i+=3){ sp[i]+=0.0004; if(sp[i]>21)sp[i]-=42; } stars.geometry.attributes.position.needsUpdate = true; stars.rotation.y += 0.0002; }
+  if (embers2.parent) { const ep = embers2.geometry.attributes.position.array; for (let i=0;i<emberV.length;i++){ ep[i*3]+=emberV[i].sx; ep[i*3+1]+=emberV[i].sy; ep[i*3+2]+=emberV[i].sz; if(ep[i*3+1]>8){ ep[i*3+1]=-8; ep[i*3]=(Math.random()-0.5)*16; } } embers2.geometry.attributes.position.needsUpdate = true; }
   fogSprites.forEach(f=>{ f.s.position.x += Math.sin(t*0.1+f.ph)*0.001; f.s.material.opacity = 0.08 + Math.sin(t*0.3+f.ph)*0.03; });
   updateStreams(dt);
   flare.position.set(0, cam.position.y+0.3, 1.4);
@@ -1434,13 +1444,15 @@ function stepFrame() {
       const dirV = view.position.clone().sub(viewTarget).normalize();
       const front = viewTarget.clone().add(dirV.multiplyScalar(2.5)); front.y += 0.05;
       logoGrp.position.lerp(front, 0.12); logoGrp.scale.setScalar(1.05 + cp*0.35);
+      // swarm formation — only while capturing (cp>0). Skipping avoids a full logo
+      // position-buffer re-upload every frame for an always opacity-0 (invisible) cloud.
+      const lp = logoPts.geometry.attributes.position.array; const k = 0.06 + cp*0.06;
+      for (let i = 0; i < logoN; i++) { lp[i*3]=lerp(lp[i*3],logoTargets[i*3],k); lp[i*3+1]=lerp(lp[i*3+1],logoTargets[i*3+1],k); lp[i*3+2]=lerp(lp[i*3+2],logoTargets[i*3+2],k); }
+      logoPts.geometry.attributes.position.needsUpdate = true;
+      logoPts.material.opacity = Math.min(1, cp*1.4);
+      logoGlow.material.opacity = cp*0.55;
+      logoGrp.lookAt(view.position); logoGrp.rotation.z = Math.sin(t*0.3)*0.05;
     }
-    const lp = logoPts.geometry.attributes.position.array; const k = 0.06 + cp*0.06;
-    for (let i = 0; i < logoN; i++) { lp[i*3]=lerp(lp[i*3],logoTargets[i*3],k); lp[i*3+1]=lerp(lp[i*3+1],logoTargets[i*3+1],k); lp[i*3+2]=lerp(lp[i*3+2],logoTargets[i*3+2],k); }
-    logoPts.geometry.attributes.position.needsUpdate = true;
-    logoPts.material.opacity = Math.min(1, cp*1.4);
-    logoGlow.material.opacity = cp*0.55;
-    logoGrp.lookAt(view.position); logoGrp.rotation.z = Math.sin(t*0.3)*0.05;
     stars.material.opacity = 0; embers2.material.opacity = 0;
     const cp0 = document.getElementById('copy'); if (cp0) cp0.style.opacity = String(1 - smoothstep(cp));
   }
@@ -1602,7 +1614,7 @@ function stepFrame() {
   renderer.render(scene, view);
   window.__T = T;
 }
-function tick(){ if(!__running) return; try{ stepFrame(); }catch(e){ if(!window.__err) window.__err=(e&&e.message)||String(e); } __raf1 = requestAnimationFrame(tick); }
+function tick(){ if(!__running) return; if(!(document.hidden || window.__heroPaused)){ try{ stepFrame(); }catch(e){ if(!window.__err) window.__err=(e&&e.message)||String(e); } } __raf1 = requestAnimationFrame(tick); }
 window.__seekRender = (tt, n) => { T = tt; for(let i=0;i<(n||1);i++){ try{ stepFrame(); }catch(e){ window.__err=(e&&e.message)||String(e); } } };
 // Return visit (window.__heroSkipIntro, set by LandingScene when the intro already played
 // this session): open directly on the finished hero — timeline settled, cards gone, camera
@@ -1742,6 +1754,10 @@ window.__setTheme = (light) => {
   function star(px,py,r,rot){ x.beginPath(); for(let i=0;i<10;i++){ const rr=i%2?r:r*0.45, a=rot+i*Math.PI/5; const sx=px+Math.cos(a)*rr, sy=py+Math.sin(a)*rr; i?x.lineTo(sx,sy):x.moveTo(sx,sy);} x.closePath(); x.fill(); }
   function loop(){
     if(!__running) return;
+    // Skip the whole sparkle pass (clear + sim + draw) while the layer is hidden past the
+    // hero or the tab is backgrounded — but keep the rAF alive so scroll-back-up resumes
+    // on the very next frame. Same output: nothing is on screen in either state.
+    if(document.hidden || window.__heroPaused){ __raf2 = requestAnimationFrame(loop); return; }
     x.clearRect(0,0,W,H);
     // branded reaction icons: fade in, hold ~5s, fade out in place — then a new one elsewhere
     if (window.__textShown && !iconsSeeded) { iconsSeeded = true; for(let i=0;i<22;i++){ spawnIcon(); ps[ps.length-1].age = i*14; } }
@@ -1782,11 +1798,26 @@ window.__setTheme = (light) => {
     cancelAnimationFrame(__raf2);
     try { __ac.abort(); } catch (_e) {}
     try { if (__themeObs) __themeObs.disconnect(); } catch (_e) {}
+    // Free the GPU + JS graph. renderer.dispose() alone frees NEITHER the geometries/
+    // materials/textures NOR the PMREM target — without this the whole studio (tens of MB
+    // of VRAM) leaks on every teardown/re-init. Runs only after the last painted frame.
+    const __disposeMat = (m) => { if(!m) return; for (const k in m){ const v = m[k]; if (v && v.isTexture) { try { v.dispose(); } catch (_e) {} } } try { m.dispose(); } catch (_e) {} };
+    const __disposeTree = (o) => { try { o && o.traverse((n) => { if (n.geometry) { try { n.geometry.dispose(); } catch (_e) {} } const mm = n.material; if (Array.isArray(mm)) mm.forEach(__disposeMat); else if (mm) __disposeMat(mm); }); } catch (_e) {} };
+    try { __disposeTree(scene); } catch (_e) {}
+    try { __disposeTree(studio); } catch (_e) {}
+    try { if (scene.environment && scene.environment.dispose) scene.environment.dispose(); } catch (_e) {}
+    try { stars.geometry.dispose(); __disposeMat(stars.material); } catch (_e) {}
+    try { embers2.geometry.dispose(); __disposeMat(embers2.material); } catch (_e) {}
+    try { pmrem.dispose(); } catch (_e) {}
     try { renderer.dispose(); } catch (_e) {}
+    try { renderer.forceContextLoss(); } catch (_e) {}
     try {
       const el = renderer.domElement;
       if (el && el.parentNode) el.parentNode.removeChild(el);
     } catch (_e) {}
+    // Drop scene-owned globals that pin the graph — the function refs close over the whole
+    // closure (renderer/scene), so they must go too or nothing above can be GC'd.
+    ['__revealed','__textShown','__hudOn','__light','__mEnergy','__frame','__textRects','__T','__err','__pmx','__pmy','__camAimX','__camAimY','__iris','__halo','__brandMeshes','__brandLights','__brandFx','__seek','__scroll','__seekRender','__setTheme'].forEach((k) => { try { delete window[k]; } catch (_e) {} });
   }
   return __destroy;
 }
