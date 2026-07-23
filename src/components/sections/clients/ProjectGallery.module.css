@@ -32,7 +32,8 @@
   background-color: var(--scene-surface-deep);
 }
 
-/* Real project media fills the tile; the label sits on top of it. */
+/* Real project media fills the tile; the label sits on top of it. The slow
+   cinematic ease makes the hover push-in feel like a camera move, not a snap. */
 .media {
   position: absolute;
   inset: 0;
@@ -40,6 +41,9 @@
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
+  transition:
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 620ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Warm-dark legibility scrim so the label reads over any frame, brightest at the
@@ -66,6 +70,41 @@
   /* Always light: the label rides the dark scrim over the media, not the tile ink. */
   color: #f5f2ee;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+}
+
+/* Hover push-in — only where a real pointer exists, so a tap never leaves a
+   touch tile stuck zoomed. The frame scales up inside the clipped tile and
+   brightens a touch so it reads clearer, while the tile lifts with a warm ember
+   edge + glow that echoes the hero's firelight. */
+@media (hover: hover) {
+  .tile {
+    transition:
+      border-color 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .tile:hover {
+    border-color: color-mix(in srgb, var(--color-bonfire-flame) 42%, var(--border-default));
+    box-shadow: 0 22px 50px -30px color-mix(in srgb, var(--color-bonfire-flame) 60%, transparent);
+  }
+
+  .tile:hover .media {
+    transform: scale(1.07);
+    filter: brightness(1.06) saturate(1.05);
+  }
+}
+
+/* Reduced motion: keep the warm edge cue, drop every animation and the zoom. */
+@media (prefers-reduced-motion: reduce) {
+  .media,
+  .tile {
+    transition: none;
+  }
+
+  .tile:hover .media {
+    transform: none;
+    filter: none;
+  }
 }
 
 /* Glass tiles, each with a faint brand tint so categories still read apart. The
