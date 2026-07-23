@@ -20,10 +20,11 @@ import styles from './ProjectGallery.module.css';
  */
 type Media = { type: 'image'; src: string } | { type: 'video'; src: string; poster: string };
 
+// Order = a repeating photo · video · video rhythm (photos lead each desktop row).
 const MEDIA: (Media | null)[] = [
-  { type: 'video', src: '/projects/exhibition.mp4', poster: '/projects/exhibition-poster.webp' }, // Exhibition stand
   { type: 'image', src: '/projects/campaign.webp' }, // Campaign
-  { type: 'image', src: '/projects/product.webp' }, // Product photography
+  { type: 'video', src: '/projects/exhibition.mp4', poster: '/projects/exhibition-poster.webp' }, // Exhibition stand
+  { type: 'video', src: '/projects/product.mp4', poster: '/projects/product-poster.webp' }, // Product photography
   { type: 'image', src: '/projects/event.webp' }, // Event
   { type: 'video', src: '/projects/promotional.mp4', poster: '/projects/promotional-poster.webp' }, // Promotional material
   { type: 'video', src: '/projects/outdoor.mp4', poster: '/projects/outdoor-poster.webp' }, // Outdoor execution
