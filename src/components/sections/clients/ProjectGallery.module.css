@@ -18,19 +18,54 @@
 }
 
 .tile {
+  position: relative;
   display: flex;
   align-items: flex-end;
+  aspect-ratio: 16 / 10;
   min-block-size: 12rem;
   padding: var(--space-5);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-default);
   overflow: hidden;
-  backdrop-filter: blur(10px);
+  isolation: isolate;
+  /* Base under the media so a still-loading video/image never flashes transparent. */
+  background-color: var(--scene-surface-deep);
+}
+
+/* Real project media fills the tile; the label sits on top of it. */
+.media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+/* Warm-dark legibility scrim so the label reads over any frame, brightest at the
+   bottom where the label sits and clearing by mid-tile so the media stays vivid. */
+.tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(6, 4, 3, 0.82) 0%,
+    rgba(6, 4, 3, 0.34) 32%,
+    rgba(6, 4, 3, 0) 62%
+  );
 }
 
 .label {
+  position: relative;
+  z-index: 2;
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-body-l);
+  /* Always light: the label rides the dark scrim over the media, not the tile ink. */
+  color: #f5f2ee;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
 }
 
 /* Glass tiles, each with a faint brand tint so categories still read apart. The
