@@ -16,72 +16,47 @@ import styles from './Header.module.css';
 /**
  * Floating premium navbar (Linear / Vercel / Stripe language). A dark glass
  * "pill" centred over the page. On scroll it condenses, grows more transparent
- * and more blurred, and hides on scroll-down / reappears on scroll-up. The outer
- * <header> stays sticky (in-flow) so there is no overlap or layout shift; only
- * the pill inside is the visible surface.
+ * and more blurred, but stays pinned at the top of every page — it never hides on
+ * scroll. The outer <header> is sticky (in-flow) so there is no overlap or layout
+ * shift; only the pill inside is the visible surface. The one exception is the
+ * landing intro, where the WebGL hero drives it off-screen and slides it in on the
+ * capture (via the landing nav signal).
  *
  * Motion: interactive/layout animation via Framer Motion (active pill, language
  * indicator, CTA); MotionConfig reducedMotion="user" makes all of it honour the
- * OS preference. Scroll state is a rAF-throttled scroll listener (works with the
- * Lenis-driven window scroll).
+ * OS preference. Scroll state is a rAF-throttled native-scroll listener.
  */
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   // Landing override: the WebGL hero drives the navbar over its intro/capture (design's
-  // header-on-scroll). null everywhere else → the Header runs its own scroll behaviour.
+  // header-on-scroll). null everywhere else → the navbar is simply always visible.
   const [navOverride, setNavOverride] = useState<LandingNavState>(null);
   const tUi = useTranslations('ui');
 
   useEffect(() => onLandingNavState(setNavOverride), []);
 
+  // Track only the "scrolled" condense state — the navbar stays pinned at all times
+  // (no hide-on-scroll), so there's no scroll-direction bookkeeping here anymore.
   useEffect(() => {
-    let last = window.scrollY;
     let raf = 0;
-    // Accumulate movement in one direction so momentum/settle jitter from the
-    // smooth-scroll engine can't flip hide/show every frame (anti-flicker).
-    let acc = 0;
-    const THRESHOLD = 12; // px of committed travel before toggling
-    const REVEAL_AT = 120; // always show near the top
-
     const onScroll = () => {
       if (raf) return;
       raf = window.requestAnimationFrame(() => {
-        const y = window.scrollY;
-        const delta = y - last;
-        last = y;
         raf = 0;
-
-        setScrolled(y > 8);
-
-        if (y < REVEAL_AT) {
-          setHidden(false);
-          acc = 0;
-          return;
-        }
-        // Reset the accumulator whenever the direction changes.
-        if ((delta > 0 && acc < 0) || (delta < 0 && acc > 0)) acc = 0;
-        acc += delta;
-
-        if (acc > THRESHOLD) {
-          setHidden(true); // committed downward → hide
-          acc = 0;
-        } else if (acc < -THRESHOLD) {
-          setHidden(false); // committed upward → reveal
-          acc = 0;
-        }
+        setScrolled(window.scrollY > 8);
       });
     };
-
     window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
     return () => {
       window.removeEventListener('scroll', onScroll);
       if (raf) window.cancelAnimationFrame(raf);
     };
   }, []);
 
-  // 'hide'/'show' from the landing win over the Header's own scroll state; null yields.
-  const effectiveHidden = navOverride === 'hide' ? true : navOverride === 'show' ? false : hidden;
+  // The navbar is always visible; only the landing intro hides it ('hide' through the
+  // cinematic, 'show' as the hero reveals). A normal scroll-down never hides it.
+  const effectiveHidden = navOverride === 'hide';
 
   return (
     <MotionConfig reducedMotion="user">
