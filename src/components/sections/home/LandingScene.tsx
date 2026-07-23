@@ -45,12 +45,17 @@ export function LandingScene() {
   useEffect(() => {
     if (!isHome) return;
     const threshold = hasIntroPlayed() ? 1.0 : 2.0;
+    const win = window as Window & { __heroPaused?: boolean };
     let raf = 0;
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        setPastHero(window.scrollY > window.innerHeight * threshold);
+        const past = window.scrollY > window.innerHeight * threshold;
+        // Pause the scene's render + sparkle rAF loops while the layer is hidden past the
+        // hero (same pixels — none — just no wasted GPU/CPU for the whole page body).
+        win.__heroPaused = past;
+        setPastHero(past);
       });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -58,6 +63,7 @@ export function LandingScene() {
     return () => {
       window.removeEventListener('scroll', onScroll);
       if (raf) cancelAnimationFrame(raf);
+      win.__heroPaused = false;
     };
   }, [isHome]);
 

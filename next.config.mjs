@@ -30,7 +30,15 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }];
+    const immutable = [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }];
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      // Stable brand marks + WebGL texture assets (cards). Next serves /public at
+      // max-age=0, so every visit re-fetches them. Cache hard for repeat visits. These
+      // filenames are NOT content-hashed — RENAME (or append ?v=) when replacing an asset.
+      { source: '/assets/:path*', headers: immutable },
+      { source: '/brand/:path*', headers: immutable },
+    ];
   },
 };
 
