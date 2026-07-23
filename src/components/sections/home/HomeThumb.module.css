@@ -9,8 +9,11 @@
 .band {
   --thumb: clamp(88px, 12vw, 148px);
   position: relative;
-  block-size: 160vh;
-  margin-block-start: -60vh;
+  /* 180vh band with a 100vh pin = 80vh of sticky travel: the thumb falls (~55vh, held in
+     view), lands, then rests + spins for the remaining ~25vh before the pin releases and it
+     scrolls away. Negative top margin overlaps the seam so it doesn't add its full height. */
+  block-size: 180vh;
+  margin-block-start: -40vh;
   pointer-events: none;
 }
 
@@ -29,11 +32,14 @@
    resting pose, so a GSAP bail (reduced motion / no-JS) leaves the thumb landed here. */
 .fall {
   position: absolute;
-  inset-block-start: 58vh;
+  inset-block-start: 55vh;
   inset-inline-start: 50%;
   inline-size: var(--thumb);
   block-size: var(--thumb);
   margin-inline-start: calc(var(--thumb) / -2);
+  /* Perspective for the CHILD .spin's rest rotateY, so it turns like a solid disc instead
+     of a flat card (the fall's own tumble carries its own GSAP transformPerspective). */
+  perspective: 800px;
   will-change: transform;
 }
 

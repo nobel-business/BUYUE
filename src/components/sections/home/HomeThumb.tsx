@@ -51,11 +51,17 @@ export function HomeThumb({ rtl = false }: HomeThumbProps) {
       // The fall / tumble / swoop — ONE scrubbed timeline (units 0..100). `ease:'none'` on
       // the descent keeps it 1:1 with scroll; `bounce.out` is confined to the final y drop.
       // All rotations land on multiples of 360 so the thumb rests forward-facing + upright.
+      //
+      // The scrub runs from when the band's top reaches the viewport top (the pin becomes
+      // stuck, so the thumb is held IN VIEW as it falls) over ~0.55 viewport of scroll — so
+      // it LANDS while still pinned, well before the pin releases, leaving a rest window
+      // where it sits and spins. `clamp(...)` keeps the start from resolving to a negative
+      // scroll on the short (settled 100vh) hero, which would pre-materialise it mid-hero.
       const fall = gsap.timeline({
         scrollTrigger: {
           trigger: rootEl,
-          start: 'top bottom',
-          end: 'bottom 55%',
+          start: 'clamp(top top)',
+          end: () => '+=' + Math.round(window.innerHeight * 0.55),
           scrub: 0.6,
           invalidateOnRefresh: true,
         },
@@ -117,7 +123,10 @@ export function HomeThumb({ rtl = false }: HomeThumbProps) {
         );
 
       // Persistent rest self-rotation — its OWN node + channel, so it never fights the
-      // scrubbed tumble. Paused until landed and while the band is off-screen (perf).
+      // scrubbed tumble. It begins JUST AFTER the fall lands (gate start is past the fall's
+      // end) so the two never overlap, plays through the rest window while the thumb sits
+      // in view, and pauses once it scrolls off the top OR the tab is hidden (perf — never
+      // spin an invisible thumb).
       const spin = gsap.to(spinEl, {
         rotateY: '+=360',
         duration: 14,
@@ -125,18 +134,30 @@ export function HomeThumb({ rtl = false }: HomeThumbProps) {
         repeat: -1,
         paused: true,
       });
+      let inView = false;
+      let tabVisible = typeof document === 'undefined' || !document.hidden;
+      const applySpin = () => (inView && tabVisible ? spin.play() : spin.pause());
       const gate = ScrollTrigger.create({
         trigger: rootEl,
-        start: 'bottom 60%',
-        end: 'bottom top',
-        onToggle: (self) => (self.isActive ? spin.play() : spin.pause()),
+        start: () => 'top top-=' + Math.round(window.innerHeight * 0.57), // just past the land
+        end: () => 'top top-=' + Math.round(window.innerHeight * 1.4), // ~when it exits the top
+        onToggle: (self) => {
+          inView = self.isActive;
+          applySpin();
+        },
       });
+      const onVisibility = () => {
+        tabVisible = !document.hidden;
+        applySpin();
+      };
+      document.addEventListener('visibilitychange', onVisibility);
 
       // Reconcile trigger positions once the page-transition wrapper's blur/lift has settled.
       const refresh = window.setTimeout(() => ScrollTrigger.refresh(), 700);
 
       return () => {
         clearTimeout(refresh);
+        document.removeEventListener('visibilitychange', onVisibility);
         gate.kill();
         spin.kill();
         fall.scrollTrigger?.kill();
