@@ -1,6 +1,11 @@
 .detail {
   display: flex;
   flex-direction: column;
+  /* Pin label + values to the column's start edge (right in RTL, left in LTR).
+     Without this the flex items stretch full-width and the LTR-forced phone/email
+     (dir="ltr", needed so digits/@ read correctly) left-align away from their
+     right-aligned Arabic label. */
+  align-items: flex-start;
   gap: var(--space-1);
 }
 
