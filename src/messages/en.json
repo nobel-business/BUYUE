@@ -11,6 +11,7 @@
     "skipToContent": "Skip to content",
     "openMenu": "Menu",
     "closeMenu": "Close",
+    "skipIntro": "Skip intro",
     "language": "Language",
     "switchLanguage": "Switch to {lang}",
     "primaryNav": "Primary navigation",
@@ -27,9 +28,9 @@
       "keywords": "marketing agency Saudi Arabia, marketing agency Al-Khobar, Buyue, marketing and advertising agency, brand building, integrated marketing services, marketing agency Egypt"
     },
     "hero": {
-      "heading": "We Sell Everything — Except Talk",
-      "body": "Buyue is a full-service marketing and advertising agency. We help brands build a powerful market presence through clear strategy, content that resonates, smart campaigns, and creative execution that connects the idea to the result.",
-      "ctaPrimary": "Start Your Project",
+      "heading": "We Sell [[Results,]] Not Promises.",
+      "body": "Buyue is a full-service marketing and advertising agency, and one of the operating brands of Noble Business Group. We help brands build a powerful market presence through clear strategy, content that resonates, smart campaigns, and creative execution that connects the idea to the result.",
+      "ctaPrimary": "Start Your Brand Journey",
       "ctaSecondary": "Explore Our Work"
     },
     "servicesTeaser": {

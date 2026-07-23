@@ -1,0 +1,208 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Clients — logo wall on a light panel.
+
+   The panel is light in BOTH themes, because the logo assets demand it (see
+   ClientWall.tsx). It is therefore a self-contained light island: it re-declares
+   the text role tokens locally rather than inheriting the page's, so its copy is
+   warm ink on ivory whichever canvas surrounds it.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.section {
+  position: relative;
+  padding-block: var(--space-12);
+}
+
+.panel {
+  /* Local ink roles — the panel is always light, so it never follows the page. */
+  --text-primary: var(--color-warm-ink);
+  --text-secondary: rgb(26 22 19 / 66%);
+
+  padding: clamp(var(--space-6), 4vw, var(--space-10));
+  border: 1px solid rgb(26 22 19 / 8%);
+  border-radius: var(--radius-xl);
+
+  /* Warm off-white sheet — ivory family, never a clinical pure white. */
+  background:
+    radial-gradient(120% 90% at 50% -20%, rgb(255 255 255 / 90%), transparent 60%), #fbf7f0;
+  box-shadow: 0 30px 80px rgb(0 0 0 / 26%);
+  color: var(--text-primary);
+}
+
+/* On the ivory canvas the panel and page are near-identical, so the edge does the
+   separating instead of the value difference. */
+:global(html[data-theme='light']) .panel {
+  border-color: rgb(26 22 19 / 12%);
+  box-shadow: 0 18px 50px rgb(60 40 20 / 10%);
+}
+
+/* ── Head ───────────────────────────────────────────────────────────────────── */
+.head {
+  max-inline-size: 62ch;
+  margin-block-end: clamp(var(--space-6), 3vw, var(--space-8));
+}
+
+.heading {
+  margin-block-end: var(--space-3);
+}
+
+.subheading {
+  font-size: var(--font-size-body-l);
+  color: var(--text-primary);
+}
+
+.body {
+  margin-block-start: var(--space-3);
+  font-size: var(--font-size-small);
+  color: var(--text-secondary);
+}
+
+/* ── The wall ───────────────────────────────────────────────────────────────
+   No rules, no tiles, no boxes: the logos sit directly on the sheet and are
+   organised by rhythm alone — a generous, even gap and a shared optical size.
+
+   The gap is what the hairlines used to do. It has to be large enough that two
+   neighbouring marks can never read as one lockup, which is why it scales well
+   past the usual grid gutter. */
+.wall {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(var(--space-6), 3.2vw, var(--space-10)) clamp(var(--space-5), 2.6vw, var(--space-8));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (width <= 75rem) {
+  .wall {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 48rem) {
+  .wall {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 30rem) {
+  .wall {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Every cell is the same fixed height, so all 30 marks share one baseline grid
+   and the rows stay level however the artwork is proportioned. Fixed height also
+   means the wall cannot reflow as the images lazy-load. */
+.cell {
+  display: grid;
+  place-items: center;
+  block-size: clamp(3.25rem, 4.6vw, 4.25rem);
+}
+
+/* The organising constraint: the image box IS the cell, and `contain` scales the
+   artwork inside it — so a tall crest and a wide wordmark occupy the same optical
+   envelope instead of sizing themselves off their own pixels, and nothing is ever
+   stretched.
+ *
+ * `min-*: 0` is load-bearing, not defensive. A grid item's automatic minimum size
+ * is its CONTENT size, which for a replaced element is the intrinsic bitmap — so
+ * `max-block-size: 100%` alone is silently overridden and a 2000px-tall crest
+ * renders at 2000px and collides with the row beneath it. Explicit sizes plus a
+ * zeroed minimum are what actually bind the image to the cell. */
+.logo {
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  object-fit: contain;
+  object-position: center;
+
+  /* Several assets ship an opaque white background instead of transparency, which
+     would show as a pale rectangle on the warm sheet. On a light backdrop
+     `multiply` maps white to nothing and leaves the ink, so those plates
+     disappear without touching the artwork. */
+  mix-blend-mode: multiply;
+
+  /* Rest: desaturated and quiet, so 30 competing brand palettes read as one
+     material. Attention restores the real mark. */
+  filter: grayscale(1) contrast(0.92);
+  opacity: 0.6;
+  transition:
+    filter 320ms var(--ease-standard),
+    opacity 320ms var(--ease-standard),
+    transform 320ms var(--ease-out-soft);
+  user-select: none;
+}
+
+/* Nothing clips the wall, so the lift can overshoot its cell into the gap — the
+   gap is deep enough to absorb it without touching a neighbour. */
+.cell:hover .logo,
+.cell:focus-within .logo {
+  filter: grayscale(0) contrast(1);
+  opacity: 1;
+  transform: scale(1.12);
+}
+
+/* ── Crossfade slot ─────────────────────────────────────────────────────────
+   Two image layers stacked in the same box. The active one sits at rest opacity,
+   the other at zero; a swap flips which is which, so the outgoing mark fades out
+   as the incoming fades in and the slot never blinks to empty.
+
+   The layers are absolutely positioned, which is also what keeps the swap free of
+   layout cost — nothing reflows when a logo changes. */
+.slot {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  object-position: center;
+
+  /* Same material as the static wall: quiet grayscale, white plates blended out. */
+  filter: grayscale(1) contrast(0.92);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition:
+    opacity 620ms var(--ease-standard),
+    filter 320ms var(--ease-standard),
+    transform 320ms var(--ease-out-soft);
+  user-select: none;
+}
+
+.layer[data-active='true'] {
+  opacity: 0.6;
+}
+
+/* Hover lifts only the mark actually on screen; the dormant layer stays hidden. */
+.cell:hover .layer[data-active='true'],
+.cell:focus-within .layer[data-active='true'] {
+  filter: grayscale(0) contrast(1);
+  opacity: 1;
+  transform: scale(1.12);
+}
+
+/* ── Foot ───────────────────────────────────────────────────────────────────── */
+.foot {
+  display: flex;
+  justify-content: flex-start;
+  margin-block-start: clamp(var(--space-6), 3vw, var(--space-8));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo,
+  .cell {
+    transition: none;
+  }
+
+  .cell:hover .logo,
+  .cell:focus-within .logo {
+    transform: none;
+  }
+}

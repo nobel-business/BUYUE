@@ -1,0 +1,250 @@
+/* HomeHero copy — ported verbatim from the Claude Design landing (Buyue Hero.html
+ * #copy / h1 / .hi / #sub / .btn). Server-rendered semantic <h1> inside a 250vh stage;
+ * the WebGL scene (LandingScene, fixed in the layout) plays behind the transparent
+ * stage and reveals this copy on scroll (adds `.in`). `.stage.armed` = the scene is
+ * running → the copy is hidden until revealed and the stage extends to give the scene
+ * its scroll distance; without it, the copy is a visible static hero (no-WebGL /
+ * reduced motion). Theme via production html[data-theme]; typography via role tokens.
+ */
+
+.stage {
+  position: relative;
+  min-block-size: 100vh;
+}
+
+/* Armed: the capture-scroll stage. With a 100vh sticky pin, a 300vh stage keeps the
+   copy pinned for ~200vh — through the whole capture/settle — instead of releasing at
+   ~150vh; the scene deactivates at the same ~200vh (LandingScene) and the last ~100vh
+   is the handoff into the sections. */
+.stage.armed {
+  min-block-size: 0;
+  block-size: 300vh;
+}
+
+/* Pins the copy over the fixed scene for the stage's scroll (design's fixed #copy). */
+.pin {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100vh;
+  pointer-events: none;
+}
+
+.copy {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 9vh;
+  text-align: center;
+  padding: 0 6vw;
+  pointer-events: none;
+}
+
+/* Dark scrim behind the copy for legibility over the studio scene. */
+.copy::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  transform: translate(-50%, -50%);
+  inline-size: 130%;
+  block-size: 230%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(4, 3, 2, 0.82) 0%,
+    rgba(4, 3, 2, 0.5) 42%,
+    transparent 70%
+  );
+}
+
+.head {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(48px, 8.2vw, 120px);
+  line-height: 0.96;
+  letter-spacing: -0.01em;
+  /* Cap the measure so the headline wraps to the design's two lines ("WE SELL RESULTS,
+     NOT" / "PROMISES.") and never stretches edge-to-edge on wide monitors. The design
+     relies on a narrower viewport to wrap; capping in em (scales with the clamped font)
+     forces the same two-line break at every width. Centred within .copy via margin auto.
+     Normal laptops already wrap on their own — this only reins in ultra-wide screens. */
+  max-inline-size: 15em;
+  margin: 0 auto 22px;
+  text-transform: uppercase;
+  color: var(--scene-ink);
+}
+
+/* Arabic head: Naskh (via token), not uppercase, natural tracking. */
+:global(html[lang='ar']) .head {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.head :global(.word) {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.head :global(.ltr) {
+  display: inline-block;
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 0.84, 0.44, 1),
+    transform 0.7s cubic-bezier(0.16, 0.84, 0.44, 1),
+    filter 0.7s ease;
+}
+
+/* Highlighted segment — the design's warm gradient + drop-shadow glow. */
+.head :global(.hi .ltr),
+.head :global(.ltr.hi) {
+  background: linear-gradient(180deg, #f6b48c, #cf5138 52%, #9e2f1d);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.sub {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.5vw, 19px);
+  line-height: 1.65;
+  /* Design's exact dark sub colour (Buyue Hero.html) — a literal, not --scene-ink-soft
+     (0.72), which reads too bright here; the light value is overridden below. */
+  color: rgba(245, 247, 249, 0.62);
+  max-inline-size: 78ch;
+  margin: 0 auto 30px;
+  transition: opacity 1s ease;
+}
+
+.ctas {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  transition:
+    opacity 0.9s ease,
+    transform 0.9s ease;
+}
+
+.btn {
+  position: relative;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 16px;
+  padding: 17px 32px;
+  border-radius: 15px;
+  cursor: pointer;
+  pointer-events: auto;
+  will-change: transform;
+}
+
+.btnP {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(207, 81, 56, 0.96), rgba(160, 54, 35, 0.96));
+  border: 1px solid rgba(255, 170, 140, 0.4);
+  box-shadow:
+    0 12px 34px rgba(207, 81, 56, 0.32),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28);
+  transition: box-shadow 0.4s;
+}
+
+.btnP:hover {
+  box-shadow:
+    0 18px 52px rgba(207, 81, 56, 0.62),
+    0 0 44px rgba(207, 81, 56, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.btnG {
+  color: var(--scene-ink);
+  background: linear-gradient(180deg, rgba(245, 247, 249, 0.08), rgba(245, 247, 249, 0.02));
+  border: 1px solid rgba(245, 247, 249, 0.18);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+  transition:
+    border-color 0.4s,
+    box-shadow 0.4s;
+}
+
+.btnG:hover {
+  border-color: rgba(234, 196, 107, 0.55);
+  box-shadow:
+    0 14px 38px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(234, 196, 107, 0.2);
+}
+
+/* ══════════ Scroll-reveal — armed only (CSS default = SHOWN, the static fallback) ══
+   The scene adds `.in` to #head/#sub/#ctas at the capture beat; until then (armed only)
+   they are hidden. Without the scene the copy shows immediately (no-WebGL / reduced). */
+.armed .head :global(.ltr) {
+  opacity: 0;
+  transform: translateY(40px);
+  filter: blur(14px);
+}
+
+.armed .head:global(.in) :global(.ltr) {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+.armed .head:global(.in) :global(.hi) {
+  animation: hh-glow 4.5s ease-in-out infinite 1s;
+}
+
+@keyframes hh-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 18px rgba(207, 81, 56, 0.5));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 30px rgba(234, 120, 80, 0.7));
+  }
+}
+
+.armed .sub {
+  opacity: 0;
+}
+
+.armed .sub:global(.in) {
+  opacity: 1;
+}
+
+.armed .ctas {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.armed .ctas:global(.in) {
+  opacity: 1;
+  transform: none;
+}
+
+/* ══════════ Light theme (production data-theme) ══════════ */
+:global(html[data-theme='light']) .sub {
+  color: rgba(26, 22, 19, 0.62);
+}
+
+:global(html[data-theme='light']) .copy::before {
+  inline-size: 110%;
+  block-size: 170%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(231, 224, 211, 0.55) 0%,
+    rgba(231, 224, 211, 0.2) 45%,
+    transparent 68%
+  );
+}
+
+:global(html[data-theme='light']) .btnG {
+  color: #1a1613;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
+  border-color: rgba(20, 15, 10, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .armed .head:global(.in) :global(.hi) {
+    animation: none;
+  }
+}

@@ -8,8 +8,10 @@ import { Footer } from '@/components/navigation/Footer';
 import { SmoothScrollProvider } from '@/lib/motion/SmoothScrollProvider';
 import { Preloader } from '@/components/motion/Preloader';
 import { AmbientBackground } from '@/components/motion/AmbientBackground';
+import { LandingScene } from '@/components/sections/home/LandingScene';
 import { THEME_INIT_SCRIPT } from '@/lib/config/theme';
 import { siteUrl } from '@/lib/config/seo';
+import { fontVariables } from '@/lib/utils/fonts';
 // Global styles, imported in cascade order (reset → tokens → globals).
 import '@/styles/reset.css';
 import '@/styles/tokens.css';
@@ -72,7 +74,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const t = await getTranslations('ui');
 
   return (
-    <html lang={locale} dir={dir}>
+    <html lang={locale} dir={dir} className={fontVariables}>
       <body>
         {/* Theme, applied before first paint. Runs synchronously as the parser
             reaches it — ahead of any painted content — so a returning light-mode
@@ -86,7 +88,11 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         <NextIntlClientProvider locale={locale} messages={messages}>
           {/* Ambient decorative wash (behind everything) + intro cover. */}
           <AmbientBackground />
-          {/* Premium intro cover — plays once (first visit), reveals into the hero. */}
+          {/* Landing WebGL scene — a truly-fixed layer OUTSIDE the page-transition
+              template (same escape as AmbientBackground). Route-gates itself to the
+              home route and mounts only when WebGL/motion allow. */}
+          <LandingScene />
+          {/* Minimal intro cover — the mark on the page background, fades out once. */}
           <Preloader />
           {/* Skip-to-content link (Doc 07 §5, Doc 09 §26). */}
           <a className="skip-link" href="#main-content">

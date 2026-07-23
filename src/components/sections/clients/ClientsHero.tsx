@@ -232,14 +232,20 @@ function mountNetwork(
     // Exact design mapping: the canvas spans the whole scene, and the graph sits in a
     // wide box across the right two-thirds — identical composition and (fixed) sizes to
     // the approved mockup. Only the light-theme tint deviates so it reads on ivory.
+    // RTL (Arabic): the copy moves to the right, so mirror the box to the LEFT (reflect
+    // the base X about the canvas centre) — the network never collides with the copy.
+    const rtl = document.documentElement.getAttribute('dir') === 'rtl';
     const bx = W * 0.3;
     const by = H * 0.1;
     const bw = W * 0.66;
     const bh = H * 0.8;
-    const P = (nx: number, ny: number, depth = 1) => ({
-      x: bx + nx * bw + mx * 22 * depth,
-      y: by + ny * bh + my * 16 * depth,
-    });
+    const P = (nx: number, ny: number, depth = 1) => {
+      const baseX = bx + nx * bw;
+      return {
+        x: (rtl ? W - baseX : baseX) + mx * 22 * depth,
+        y: by + ny * bh + my * 16 * depth,
+      };
+    };
     const hub = P(core.x, core.y);
 
     // Hub bloom.

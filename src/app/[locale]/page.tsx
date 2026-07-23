@@ -1,25 +1,22 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { Hero } from '@/components/sections/home/Hero';
+import { HomeHero } from '@/components/sections/home/HomeHero';
+import { WhyBuyue, type WhyItem } from '@/components/sections/home/WhyBuyue';
 import { Section } from '@/components/layout/Section';
 import { Container } from '@/components/layout/Container';
 import { Stack } from '@/components/layout/Stack';
-import { Grid } from '@/components/layout/Grid';
 import { Text } from '@/components/ui/Typography';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { FeatureCard } from '@/components/ui/FeatureCard';
-import { ClientLogoMosaic } from '@/components/sections/clients/ClientLogoMosaic';
+import { ClientWall } from '@/components/sections/home/ClientWall';
 import { buttonClasses } from '@/components/ui/Button';
 import { SceneReveal } from '@/lib/motion/SceneReveal';
 import { TextReveal } from '@/lib/motion/TextReveal';
-import { Stagger, StaggerItem } from '@/lib/motion/Stagger';
 import { Magnetic } from '@/lib/motion/Magnetic';
 import { localeAlternates } from '@/lib/config/seo';
 import styles from './home.module.css';
 
 type PageParams = { params: Promise<{ locale: string }> };
-type WhyItem = { title: string; body: string };
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { locale } = await params;
@@ -46,7 +43,22 @@ export default async function Home({ params }: PageParams) {
 
   return (
     <main id="main-content">
-      <Hero />
+      {/* Landing hero copy — server-rendered over the fixed WebGL scene (LandingScene,
+          in the layout). The 250vh stage gives the scene its capture-scroll; the scene
+          reveals this copy on scroll. No-WebGL / reduced motion → a static hero. */}
+      <HomeHero
+        heading={t('hero.heading')}
+        sub={t('hero.body')}
+        ctaPrimary={t('hero.ctaPrimary')}
+        ctaSecondary={t('hero.ctaSecondary')}
+        ctaPrimaryHref="/contact"
+        ctaSecondaryHref="/clients"
+        rtl={locale === 'ar'}
+      />
+
+      {/* Handoff — a warm gradient that occludes the fixed scene as the sections scroll
+          up (design's #chapter top-fade), so the landing dissolves into the page. */}
+      <div className={styles.seam} aria-hidden="true" />
 
       {/* Services teaser — identity: word-by-word heading reveal + clip-wipe list */}
       <Section tone="page">
@@ -80,34 +92,19 @@ export default async function Home({ params }: PageParams) {
         </Container>
       </Section>
 
-      {/* Why Buyue — identity: calm rise + depth stagger on the cards */}
-      <Section tone="sunken">
-        <Container>
-          <Stack gap="6">
-            <SceneReveal variant="rise">
-              <SectionHeader heading={t('whyBuyue.heading')} level={2} />
-            </SceneReveal>
-            <Stagger>
-              <Grid columns={2} gap="md">
-                {whyItems.map((item, index) => (
-                  <StaggerItem key={index}>
-                    <FeatureCard title={item.title} index={index + 1}>
-                      {item.body}
-                    </FeatureCard>
-                  </StaggerItem>
-                ))}
-              </Grid>
-            </Stagger>
-          </Stack>
-        </Container>
-      </Section>
+      {/* Why Buyue — four ember-headed glass cards over a warm bloom. Renders its
+          own <section>: the bloom needs the full-bleed band to spread across. */}
+      <WhyBuyue heading={t('whyBuyue.heading')} items={whyItems} />
 
-      {/* Our Clients — scroll-driven gallery on a permanently dark band. Renders its
-          own <section>: no Section/Container wrapper, so the band is full-bleed and
-          the logo wall owns a wider stage + its own gutters. */}
-      <ClientLogoMosaic
+      {/* Our Clients — the full roster as a calm logo wall on a light panel. The
+          marks are full-colour artwork drawn for white, so the panel is light in
+          both themes; see ClientWall. The Clients page keeps the scroll-driven
+          mosaic. */}
+      <ClientWall
         heading={t('clientsTeaser.heading')}
         subheading={t('clientsTeaser.subheading')}
+        body={t('clientsTeaser.body')}
+        cta={t('clientsTeaser.cta')}
       />
     </main>
   );
