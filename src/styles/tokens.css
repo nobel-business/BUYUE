@@ -100,41 +100,49 @@
   --z-modal: 1100;
   --z-toast: 1200;
 
-  /* ── 4e. Typography — the BRAND typefaces (Doc 03 §4) ───────────────────────
-     Exactly two families, per Doc 03 §4 and Doc 07 §184 ("no third font"):
-       Latin  → 'Articulat V3'    (aka Articulat CF)        — Doc 03 §4.2
-       Arabic → '29LT Zarid' (display) / '29LT Zarid Text' (body) — Doc 03 §4.1
+  /* ── 4e. Typography — the BRAND typefaces ──────────────────────────────────
+       Latin  → 'Articulat V3' (aka Articulat CF)  — Doc 03 §4.2
+       Arabic → '29LT Bukra'                        — client-supplied, IN USE
+       Arabic → '29LT Zarid' / '29LT Zarid Text'    — Doc 03 §4.1, next rung
 
-     Both are commercial and self-hosted from public/fonts/; @font-face is emitted
+     ⚠ DEVIATION FROM Doc 03 §4.1: the brand guidelines name Zarid for Arabic, but
+     the client supplied Bukra and asked for it — Bold (700) on titles, Regular
+     (400) on everything else. Bukra is therefore named ahead of Zarid in every
+     Arabic slot below. Zarid is kept in the stack so that, if its files are ever
+     added, removing Bukra is the only change needed to return to the doc.
+
+     All are commercial and self-hosted from public/fonts/; @font-face is emitted
      at build time by src/lib/utils/brand-fonts.ts for whichever licensed files are
-     present. The families are named FIRST here unconditionally, so dropping the
-     files in converts the whole site with no further edit. Until then the stack
-     falls through to the Doc 03 §4.3 fallbacks — Inter (Latin) and Noto Naskh
-     Arabic (Arabic), both loaded via next/font in src/lib/utils/fonts.ts.
+     present. Families are named FIRST here unconditionally, so dropping files in
+     converts the site with no further edit. Anything still missing falls through
+     to the Doc 03 §4.3 fallbacks — Inter (Latin) and Noto Naskh Arabic (Arabic),
+     both loaded via next/font in src/lib/utils/fonts.ts.
 
      Every stack is Latin-first with the Arabic family appended, so mixed script
      renders per glyph: Latin takes the Latin face, Arabic (absent from it) falls
-     through to Zarid. ──────────────────────────────────────────────────────── */
+     through to Bukra. ──────────────────────────────────────────────────────── */
   --font-latin: 'Articulat V3', var(--font-inter), inter, 'Helvetica Neue', arial, sans-serif;
   --font-arabic:
-    '29LT Zarid Text', '29LT Zarid', var(--font-noto-naskh), 'Noto Naskh Arabic', 'Segoe UI',
-    tahoma, sans-serif;
+    '29LT Bukra', '29LT Zarid Text', '29LT Zarid', var(--font-noto-naskh), 'Noto Naskh Arabic',
+    'Segoe UI', tahoma, sans-serif;
 
-  /* Display / headings — Zarid (display cut) carries Arabic headlines. */
+  /* Display / headings — 29LT Bukra Bold carries Arabic titles (see globals.css,
+     which pins h1–h6 to 700 on :lang(ar)); Zarid stays as the next rung. */
   --font-display:
-    'Articulat V3', '29LT Zarid', var(--font-inter), var(--font-noto-naskh), 'Noto Naskh Arabic',
-    inter, 'Helvetica Neue', arial, sans-serif;
-
-  /* Body / UI — Zarid Text is the long-form Arabic cut (Doc 03 §4.1). */
-  --font-body:
-    'Articulat V3', '29LT Zarid Text', '29LT Zarid', var(--font-inter), var(--font-noto-naskh),
+    'Articulat V3', '29LT Bukra', '29LT Zarid', var(--font-inter), var(--font-noto-naskh),
     'Noto Naskh Arabic', inter, 'Helvetica Neue', arial, sans-serif;
 
-  /* HUD / overline / numeric labels. Doc 07 §184 forbids a third family, so this
-     is the brand Latin face with tabular figures (see globals.css) rather than a
-     separate mono. ui-monospace remains only as a last-resort rung. */
+  /* Body / UI — 29LT Bukra Regular for all running Arabic text. */
+  --font-body:
+    'Articulat V3', '29LT Bukra', '29LT Zarid Text', '29LT Zarid', var(--font-inter),
+    var(--font-noto-naskh), 'Noto Naskh Arabic', inter, 'Helvetica Neue', arial, sans-serif;
+
+  /* HUD / overline / numeric labels. Doc 07 §184 forbids a separate mono family,
+     so this is the brand faces (Articulat for Latin, Bukra for Arabic) with
+     tabular figures applied at the call sites. ui-monospace is a last-resort rung. */
   --font-mono:
-    'Articulat V3', var(--font-inter), inter, 'Helvetica Neue', arial, ui-monospace, monospace;
+    'Articulat V3', '29LT Bukra', var(--font-inter), var(--font-noto-naskh), inter,
+    'Helvetica Neue', arial, ui-monospace, monospace;
 
   --font-weight-light: 300;
   --font-weight-regular: 400;

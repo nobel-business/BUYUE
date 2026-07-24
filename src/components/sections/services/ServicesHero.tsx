@@ -10,11 +10,16 @@ import { Icon } from '@/components/ui/Icon';
 import { buttonClasses } from '@/components/ui/Button';
 import { Magnetic } from '@/lib/motion/Magnetic';
 import { onPreloaderDone } from '@/lib/motion/preloader-signal';
+import { withSentenceBreaks } from '@/lib/utils/sentences';
 import styles from './ServicesHero.module.css';
 
 type ServicesHeroProps = {
   heading: string;
   paragraphs: string[];
+  /** Approved page eyebrow (the positioning line from the doc's "Title"). */
+  eyebrow?: string;
+  /** Approved page "Description", rendered as a standfirst above the body copy. */
+  standfirst?: string;
   ctaLabel: string;
   ctaHref: string;
 };
@@ -151,7 +156,14 @@ function renderHeadingWords(heading: string): ReactNode[] {
  * entrance, cursor parallax, a scrubbed scroll exit; idle loops are CSS on nested /
  * independent channels. Reduced motion → still, legible scene.
  */
-export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: ServicesHeroProps) {
+export function ServicesHero({
+  heading,
+  paragraphs,
+  ctaLabel,
+  ctaHref,
+  eyebrow,
+  standfirst,
+}: ServicesHeroProps) {
   const root = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
 
@@ -295,10 +307,23 @@ export function ServicesHero({ heading, paragraphs, ctaLabel, ctaHref }: Service
 
             <div className={styles.copy}>
               <h1 className={styles.title}>{renderHeadingWords(heading)}</h1>
+              {/* Sits directly BELOW the headline as a subtitle, in the headline's
+                  own face and colour (see .eyebrow in the CSS module). */}
+              {eyebrow ? (
+                <p className={styles.eyebrow} data-para>
+                  {eyebrow}
+                </p>
+              ) : null}
               <div className={styles.divider} data-divider aria-hidden="true" />
+              {/* Approved page "Description", as a standfirst above the body copy. */}
+              {standfirst ? (
+                <p className={styles.standfirst} data-para>
+                  {withSentenceBreaks(standfirst)}
+                </p>
+              ) : null}
               {paragraphs.map((paragraph, index) => (
                 <p key={index} data-para className={index === 0 ? styles.lead : styles.sub}>
-                  {paragraph}
+                  {withSentenceBreaks(paragraph)}
                 </p>
               ))}
               <div className={styles.cta} data-cta>

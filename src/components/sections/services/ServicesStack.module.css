@@ -628,6 +628,14 @@
   .card {
     grid-area: auto;
     inline-size: min(92vw, 46rem);
+
+    /* The desktop rule caps the card at the viewport so a long service can't
+       overflow the PINNED scene. Reduced motion unpins everything above (.section
+       and .sticky go static, .stage becomes a normal flex column), so the cap has
+       nothing left to protect — and combined with the base `overflow: hidden` it
+       would silently truncate the longest cards instead. Reset it, or a
+       reduced-motion reader loses approved copy with no scrollbar to reveal it. */
+    max-block-size: none;
     transform: none !important;
     opacity: 1 !important;
     filter: none !important;

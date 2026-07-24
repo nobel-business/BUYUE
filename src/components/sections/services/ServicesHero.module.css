@@ -143,6 +143,29 @@
   text-wrap: balance;
 }
 
+/* Approved positioning line, set as a SUBTITLE directly under the headline —
+   same face and same colour as .title, just smaller so the hierarchy holds. No
+   uppercase and no tracking: it reads as a second line of the headline, not an
+   overline (and Doc 03 §4.4 forbids positive letter-spacing on Arabic anyway). */
+.eyebrow {
+  margin: 0.7rem 0 0;
+  max-inline-size: 30ch;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 0.9rem + 0.8vw, 1.6rem);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.25;
+  color: inherit;
+}
+
+/* Approved page "Description" — a standfirst between the divider and the body. */
+.standfirst {
+  margin: 0 0 1.4rem;
+  max-inline-size: 44ch;
+  font-size: clamp(1.05rem, 1rem + 0.35vw, 1.3rem);
+  line-height: 1.55;
+  color: var(--scene-ink);
+}
+
 .word {
   display: inline-block;
   will-change: transform, opacity;

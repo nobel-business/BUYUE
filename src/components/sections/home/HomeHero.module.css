@@ -74,10 +74,23 @@
   color: var(--scene-ink);
 }
 
-/* Arabic head: Naskh (via token), not uppercase, natural tracking. */
+/* Arabic head: not uppercase, natural tracking, and ALWAYS ONE LINE.
+   The 15em cap above exists to force the ENGLISH headline into the design's two
+   lines ("WE SELL RESULTS," / "NOT PROMISES."). Arabic is a single sentence and
+   must not break, so the cap is lifted and wrapping disabled here.
+
+   The size is what makes nowrap safe. Measured against the shipped Bukra Bold
+   metrics, "نبيع كــــــــــل شي... إلا الكلام." is 16.68em wide (summing isolated
+   forms — an upper bound; contextual shaping renders narrower). The copy column
+   is 88vw (.copy is inset-inline:0 with padding: 0 6vw), so the widest safe size
+   is 88 / 16.68 = 5.28vw. 5vw leaves ~5% headroom on top of that. Re-measure if
+   this headline ever changes length. */
 :global(html[lang='ar']) .head {
   text-transform: none;
   letter-spacing: 0;
+  max-inline-size: none;
+  white-space: nowrap;
+  font-size: clamp(16px, 5vw, 96px);
 }
 
 .head :global(.word) {

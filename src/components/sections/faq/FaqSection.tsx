@@ -9,6 +9,7 @@ import { Container } from '@/components/layout/Container';
 import { Icon } from '@/components/ui/Icon';
 import { Magnetic } from '@/lib/motion/Magnetic';
 import type { AccordionItem } from '@/components/ui/Accordion';
+import { endsSentence } from '@/lib/utils/sentences';
 import styles from './FaqSection.module.css';
 
 type FaqSectionProps = {
@@ -175,19 +176,22 @@ export function FaqSection({ heading, items, ctaLabel, ctaHref }: FaqSectionProp
                     <div className={styles.panelInner}>
                       <p className={styles.answer}>
                         {typeof item.answer === 'string'
-                          ? item.answer
-                              .split(/\s+/)
-                              .filter(Boolean)
-                              .map((word, wi) => (
+                          ? (() => {
+                              const words = item.answer.split(/\s+/).filter(Boolean);
+                              return words.map((word, wi) => (
                                 <Fragment key={wi}>
                                   <span
                                     className={styles.word}
                                     style={{ '--wi': wi } as CSSProperties}
                                   >
                                     {word}
-                                  </span>{' '}
+                                  </span>
+                                  {/* One sentence per line: break after a sentence-ending
+                                      word instead of emitting the usual space. */}
+                                  {endsSentence(word) && wi < words.length - 1 ? <br /> : ' '}
                                 </Fragment>
-                              ))
+                              ));
+                            })()
                           : item.answer}
                       </p>
                     </div>

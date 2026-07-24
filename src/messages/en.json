@@ -16,7 +16,7 @@
     "switchLanguage": "Switch to {lang}",
     "primaryNav": "Primary navigation",
     "backToTop": "Back to top",
-    "parentCompany": "Buyue is a specialist operating brand in marketing and brand building, part of Noble Business Group, serving brands across Saudi Arabia and Egypt.",
+    "parentCompany": "Buyue is one of the operating brands of Noble Business Group, offering brand building, digital marketing, advertising campaigns, photography, web design, exhibition stands, and media production.",
     "themeToLight": "Switch to light mode",
     "themeToDark": "Switch to dark mode"
   },
@@ -86,6 +86,8 @@
       "keywords": "Noble Business Group, marketing agency Saudi Arabia, Buyue, about Buyue, marketing and brand building agency"
     },
     "intro": {
+      "eyebrow": "A Specialist Operating Brand in Marketing & Brand Building",
+      "standfirst": "Buyue is one of the operating brands of Noble Business Group. We turn ideas into tangible results through integrated marketing strategies and strong brand building.",
       "heading": "About Us",
       "paragraphs": [
         "Buyue is one of the operating brands of Noble Business Group, offering brand building, digital marketing, advertising campaigns, photography, web design, exhibition stands, and media production.",
@@ -132,7 +134,7 @@
         },
         {
           "q": "Which countries does Buyue operate in?",
-          "a": "Buyue works primarily across the Gulf, North Africa, and Egypt, serving local, regional, and global brands."
+          "a": "Buyue works primarily across the Gulf, Egypt, and North Africa, serving local, regional, and global brands."
         },
         {
           "q": "Is Buyue specialized in a single service or integrated services?",
@@ -168,6 +170,8 @@
       "keywords": "integrated marketing services, social media management, advertising campaigns, exhibition stand design, photography, web design, SEO, media production"
     },
     "intro": {
+      "eyebrow": "From Social Media to Exhibition Stand Design",
+      "standfirst": "Discover Buyue's integrated marketing services: social media management, advertising campaigns, SEO, web design, photography and video, exhibition stands, media production, and printed materials.",
       "heading": "Our Services",
       "paragraphs": [
         "Buyue's services cover your brand's entire journey — from its first digital appearance on social media to a real-world presence at the largest exhibitions and events.",

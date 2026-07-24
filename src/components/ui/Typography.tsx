@@ -1,5 +1,6 @@
 import type { ComponentPropsWithoutRef, ElementType } from 'react';
 import { cn } from '@/lib/utils/cn';
+import { withSentenceBreaks } from '@/lib/utils/sentences';
 import styles from './Typography.module.css';
 
 /* ── Heading ─────────────────────────────────────────────────────────────────
@@ -48,13 +49,18 @@ export function Text({
   size = 'body',
   tone = 'primary',
   className,
+  children,
   ...rest
 }: TextProps) {
   return (
     <Tag
       className={cn(styles.text, styles[`size-${size}`], styles[`tone-${tone}`], className)}
       {...rest}
-    />
+    >
+      {/* One sentence per line (approved-content rule). String children only —
+          element children pass through untouched. */}
+      {withSentenceBreaks(children)}
+    </Tag>
   );
 }
 

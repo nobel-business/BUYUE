@@ -7,39 +7,59 @@ import { gsap, ScrollTrigger } from '@/lib/motion/gsap';
 import { onPreloaderDone } from '@/lib/motion/preloader-signal';
 import { Container } from '@/components/layout/Container';
 import { cn } from '@/lib/utils/cn';
+import { withSentenceBreaks } from '@/lib/utils/sentences';
 import styles from './AboutCinematicIntro.module.css';
 
 type AboutCinematicIntroProps = {
   heading: string;
   paragraphs: string[];
+  /** Approved page eyebrow (the positioning line from the doc's "Title"). */
+  eyebrow?: string;
+  /** Approved page "Description", rendered as a standfirst above the body copy. */
+  standfirst?: string;
 };
 
 const PARTICLE_COUNT = 14;
 
 /** Split an element's text into inline-block word spans (idempotent). Word-level,
  *  never character-level: Arabic is cursive and character splitting would break the
- *  connected letterforms. Whitespace nodes are preserved so wrapping is unchanged. */
+ *  connected letterforms. Whitespace nodes are preserved so wrapping is unchanged.
+ *
+ *  Walks CHILD NODES rather than reading `textContent`: the paragraphs now carry
+ *  <br> elements from `withSentenceBreaks` (one sentence per line), and
+ *  `textContent` would both drop them and silently glue the two sentences
+ *  together ("…التصديق.في بيوع…"). Element children are re-appended untouched; only
+ *  text nodes are split into words. */
 function splitWords(el: HTMLElement): HTMLElement[] {
   if (el.dataset.split === 'true') {
     return Array.from(el.querySelectorAll<HTMLElement>('[data-w]'));
   }
-  const tokens = (el.textContent ?? '').split(/(\s+)/);
+  const source = Array.from(el.childNodes);
   el.textContent = '';
   const out: HTMLElement[] = [];
-  for (const token of tokens) {
-    if (token.length === 0) continue;
-    if (/^\s+$/.test(token)) {
-      el.appendChild(document.createTextNode(token));
+
+  for (const node of source) {
+    // Structural children (the sentence-break <br>s) survive verbatim.
+    if (node.nodeType !== Node.TEXT_NODE) {
+      el.appendChild(node);
       continue;
     }
-    const span = document.createElement('span');
-    span.dataset.w = '';
-    span.textContent = token;
-    span.style.display = 'inline-block';
-    span.style.willChange = 'transform, opacity, filter';
-    el.appendChild(span);
-    out.push(span);
+    for (const token of (node.textContent ?? '').split(/(\s+)/)) {
+      if (token.length === 0) continue;
+      if (/^\s+$/.test(token)) {
+        el.appendChild(document.createTextNode(token));
+        continue;
+      }
+      const span = document.createElement('span');
+      span.dataset.w = '';
+      span.textContent = token;
+      span.style.display = 'inline-block';
+      span.style.willChange = 'transform, opacity, filter';
+      el.appendChild(span);
+      out.push(span);
+    }
   }
+
   el.dataset.split = 'true';
   return out;
 }
@@ -58,7 +78,12 @@ function splitWords(el: HTMLElement): HTMLElement[] {
  * entrance plays on the preloader hand-off; paragraphs reveal word by word. Desktop
  * drives the scroll camera; mobile & reduced motion render a calm static scene.
  */
-export function AboutCinematicIntro({ heading, paragraphs }: AboutCinematicIntroProps) {
+export function AboutCinematicIntro({
+  heading,
+  paragraphs,
+  eyebrow,
+  standfirst,
+}: AboutCinematicIntroProps) {
   const root = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
 
@@ -234,20 +259,38 @@ export function AboutCinematicIntro({ heading, paragraphs }: AboutCinematicIntro
         <div className={styles.grid}>
           {/* ── Text column ─────────────────────────────────────────────── */}
           <div className={styles.left} data-content>
+            {/* Approved page eyebrow (Doc: About page "Title", brand/separator
+                stripped so it reads as a positioning line rather than a <title>).
+                data-para — NOT data-hero-fade: that attribute is set to autoAlpha 0
+                and only [data-rail] is ever animated back, so anything else
+                carrying it would stay invisible forever. */}
             <h1 className={styles.title} data-title>
               {lead ? `${lead} ` : ''}
               <span className={styles.titleAccent}>{accent}</span>
             </h1>
+            {/* Sits directly BELOW the headline as a subtitle, in the headline's own
+                face and colour (see .eyebrow in the CSS module). */}
+            {eyebrow ? (
+              <p className={styles.eyebrow} data-para>
+                {eyebrow}
+              </p>
+            ) : null}
             <span className={styles.divider} data-divider aria-hidden="true" />
 
+            {/* Approved page "Description", shown as a standfirst above the body. */}
+            {standfirst ? (
+              <p className={styles.standfirst} data-para>
+                {withSentenceBreaks(standfirst)}
+              </p>
+            ) : null}
             <p className={styles.lead} data-para>
-              {paragraphs[0]}
+              {withSentenceBreaks(paragraphs[0])}
             </p>
             <ul className={styles.paraList}>
               {paragraphs.slice(1).map((paragraph, index) => (
                 <li key={index} className={styles.paraItem}>
                   <span className={styles.paraDot} aria-hidden="true" />
-                  <span data-para>{paragraph}</span>
+                  <span data-para>{withSentenceBreaks(paragraph)}</span>
                 </li>
               ))}
             </ul>

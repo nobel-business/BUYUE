@@ -5,8 +5,12 @@ import styles from './Logo.module.css';
 /**
  * Brand lockup → home: the real BUYUE geometric mark (public/brand) beside the
  * brand name. `data-nav-logo` marks the mark as the landing target for the intro's
- * FLIP hand-off (see Preloader). The visible name is the link's accessible label,
- * so no separate aria-label is needed; the mark's alt is empty (decorative here).
+ * FLIP hand-off (see Preloader). The name is the link's accessible label, so no
+ * separate aria-label is needed; the mark's alt is empty (decorative here).
+ *
+ * On Arabic the mark already reads «بيوع», so Logo.module.css hides the name
+ * VISUALLY (never `display: none` — it must stay in the a11y tree as the link's
+ * name). Latin still shows it: the mark carries no Latin wordmark.
  */
 export function Logo({ label, className }: { label: string; className?: string }) {
   return (

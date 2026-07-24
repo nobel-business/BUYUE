@@ -53,7 +53,12 @@ export default async function AboutPage({ params }: PageParams) {
     <main id="main-content">
       {/* Intro — cinematic dark 3D hero (reference layout). Copy verbatim; scroll
           label and tagline are additive bilingual strings. */}
-      <AboutCinematicIntro heading={t('intro.heading')} paragraphs={paragraphs} />
+      <AboutCinematicIntro
+        heading={t('intro.heading')}
+        eyebrow={t('intro.eyebrow')}
+        standfirst={t('intro.standfirst')}
+        paragraphs={paragraphs}
+      />
 
       <Container>
         <ScrollDivider />
