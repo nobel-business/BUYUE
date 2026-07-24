@@ -21,9 +21,51 @@ export function initHeroScene(__mountEl) {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const NObj = __mountEl;
 
+// ── RESPONSIVE FRAMING + QUALITY (app addition; kept as one block so the rest of
+//    the file can still be re-synced from the design) ──────────────────────────
+// Q is the quality tier, fixed at init because it sizes buffers that cannot be
+// rebuilt on the fly. Phones get roughly half the particles and a lower pixel-ratio
+// cap; the composition is unchanged, only its density.
+const Q = innerWidth <= 640 ? 0.45 : innerWidth <= 1024 ? 0.7 : 1;
+const EMBER_N = Math.round(150 * Q);
+const STAR_N = Math.round(340 * Q);
+
+// FRAME is re-derived on every resize and read by the per-frame camera block in
+// stepFrame(). three.js FOV is VERTICAL, so a tall phone viewport silently crops the
+// subject at the SIDES — the scene has to be reframed per breakpoint (camera pulled
+// back and brought on-axis so the subject recentres), not merely scaled down.
+const FRAME = { fov: 42, dist: 6.4, xOff: 2.7, xRad: 0.42, y: 1.8 };
+
+function fitView() {
+  const w = innerWidth, h = innerHeight, aspect = w / h;
+  // Per-tier framing. Narrower screens move the camera back AND on-axis (smaller
+  // xOff/xRad), which recentres the subject instead of letting it drift off-frame.
+  const t =
+      w <= 640  ? { fov: 50, dist: 8.2, xOff: 1.35, xRad: 0.26, y: 1.62 }
+    : w <= 1024 ? { fov: 46, dist: 7.4, xOff: 2.00, xRad: 0.34, y: 1.70 }
+    : w <= 1440 ? { fov: 43, dist: 6.8, xOff: 2.50, xRad: 0.40, y: 1.78 }
+    :             { fov: 42, dist: 6.4, xOff: 2.70, xRad: 0.42, y: 1.80 };
+
+  // Hold horizontal coverage by DOLLYING BACK rather than widening the lens (a wide
+  // lens on a phone distorts the product). Bounded — past ~1.7x the subject would be
+  // too small and the fog would eat it, so the per-tier reframing above takes over.
+  const deskHalfW = Math.tan((42 * Math.PI) / 360) * (16 / 9);
+  const halfW = Math.tan((t.fov * Math.PI) / 360) * aspect;
+  const comp = Math.min(Math.max(deskHalfW / halfW, 1), 1.7);
+
+  FRAME.fov = t.fov; FRAME.dist = t.dist * comp;
+  FRAME.xOff = t.xOff; FRAME.xRad = t.xRad; FRAME.y = t.y;
+
+  view.fov = t.fov;
+  view.aspect = aspect;
+  view.updateProjectionMatrix();
+}
+
 // ---------- renderer / scene / view camera ----------
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+const renderer = new THREE.WebGLRenderer({ antialias: Q === 1, alpha: false, powerPreference: 'high-performance' });
+// A 3x-DPR phone rendering this scene at 2x is the single biggest mobile cost; 1.5 is
+// visually indistinguishable here and roughly halves the fragment work.
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, Q === 1 ? 2 : 1.5));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -37,6 +79,7 @@ const view = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 100)
 view.position.set(2.7, 1.8, 6.4);
 const viewTarget = new THREE.Vector3(0, 1.0, 0.7);
 view.lookAt(viewTarget);
+fitView(); // seed FRAME/fov for THIS viewport before the first frame is composed
 
 // ---------- environment map (soft, cheerful reflections) ----------
 const pmrem = new THREE.PMREMGenerator(renderer);
@@ -370,12 +413,12 @@ function points(n, spread, size, col, opacity) {
   const m = new THREE.PointsMaterial({ size, color: col, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending, map: glowTex('rgba(255,255,255,1)'), sizeAttenuation: true });
   return new THREE.Points(g, m);
 }
-const stars = points(340, 42, 0.06, 0xcdd8e4, 0); stars.visible = false;
-const embers2 = points(150, 16, 0.05, 0xf0b070, 0); embers2.visible = false;
-const emberV = []; for (let i = 0; i < 150; i++) emberV.push({ sx:(Math.random()-0.5)*0.0018, sy: Math.random()*0.0038+0.001, sz:(Math.random()-0.5)*0.0018 });
+const stars = points(STAR_N, 42, 0.06, 0xcdd8e4, 0); stars.visible = false;
+const embers2 = points(EMBER_N, 16, 0.05, 0xf0b070, 0); embers2.visible = false;
+const emberV = []; for (let i = 0; i < EMBER_N; i++) emberV.push({ sx:(Math.random()-0.5)*0.0018, sy: Math.random()*0.0038+0.001, sz:(Math.random()-0.5)*0.0018 });
 
 const fogSprites = [];
-for (let i = 0; i < 5; i++) {
+for (let i = 0, fogN = Math.max(2, Math.round(5 * Q)); i < fogN; i++) {
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(130,100,80,1)'), blending: THREE.AdditiveBlending, transparent: true, opacity: 0.10, depthWrite: false }));
   s.scale.set(9+Math.random()*6, 6+Math.random()*4, 1); s.position.set((Math.random()-0.5)*8, (Math.random()-0.5)*3, -3-Math.random()*4);
   scene.add(s); fogSprites.push({ s, ph: Math.random()*6 });
@@ -1612,10 +1655,12 @@ function stepFrame() {
   // smooth parallax camera + dolly
   mx += (tmx - mx) * 0.07; my += (tmy - my) * 0.07;
   const dolly = 0;
-  const camDist = 6.4;
-  view.position.x = Math.cos(-0.15 + mx*0.9) * camDist * 0.42 + 2.7;
+  // Framing comes from FRAME (see fitView) so the camera is composed for the CURRENT
+  // breakpoint every frame, instead of the fixed desktop numbers this used to hold.
+  const camDist = FRAME.dist;
+  view.position.x = Math.cos(-0.15 + mx*0.9) * camDist * FRAME.xRad + FRAME.xOff;
   view.position.z = camDist - Math.abs(mx)*0.4;
-  view.position.y = 1.8 + my*0.28;
+  view.position.y = FRAME.y + my*0.28;
   view.lookAt(viewTarget.x - mx*0.3, viewTarget.y + my*0.14, viewTarget.z);
 
   renderer.render(scene, view);
@@ -1642,7 +1687,9 @@ if (!reduce && window.__heroSkipIntro) {
 try { if (renderer.compile) renderer.compile(scene, view); } catch (_e) {}
 tick();
 
-addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); view.aspect = innerWidth/innerHeight; view.updateProjectionMatrix(); }, { signal: __sig });
+// Rotating a tablet or showing/hiding mobile browser chrome must RECOMPOSE the shot,
+// not just stretch it — fitView() re-derives FOV, distance and off-axis offset.
+addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); fitView(); }, { signal: __sig });
 
 // AR/EN language + copy are owned by the production app: next-intl renders #head/
 // #sub/#ctas per locale (RTL via <html dir>). The scene only reveals them.
@@ -1725,7 +1772,7 @@ window.__setTheme = (light) => {
 // ══ JOY LAYER — colorful cursor spark-trail + click-burst of creative particles ══
 (function sparkles(){
   const cv = document.getElementById('sparkles'); if (!cv) return;
-  const x = cv.getContext('2d'); let W, H, dpr = Math.min(devicePixelRatio||1, 2);
+  const x = cv.getContext('2d'); let W, H, dpr = Math.min(devicePixelRatio||1, Q === 1 ? 2 : 1.5);
   const fit = () => { W = cv.width = innerWidth*dpr; H = cv.height = innerHeight*dpr; x.setTransform(dpr,0,0,dpr,0,0); };
   fit(); addEventListener('resize', fit, { signal: __sig });
   const COLORS = ['#ff7a45','#eac46b','#bbcfb3','#f6b48c','#f5f7f9','#cf5138'];
