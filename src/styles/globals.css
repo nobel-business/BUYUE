@@ -66,6 +66,16 @@ html:lang(en) :is(h1, h2, h3, h4, h5, h6) {
   letter-spacing: -0.01em;
 }
 
+/* Arabic titles are 29LT Bukra BOLD; Arabic running text is Bukra Regular (the
+   --font-body default). Several section headings declare font-weight: medium
+   (500), and Bukra ships no 500 cut — CSS font-matching would resolve those DOWN
+   to Regular 400, so an Arabic h2 would render at body weight. Pinning h1–h6 to
+   700 on :lang(ar) is what actually makes every Arabic title bold. Latin is
+   untouched: Articulat has a real 500, so medium headings stay medium there. */
+html:lang(ar) :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: var(--font-weight-bold);
+}
+
 body {
   font-family: var(--font-body);
   font-size: var(--font-size-body);

@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useRef, useState, type ReactNod
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Icon, type IconName } from '@/components/ui/Icon';
+import { withSentenceBreaks } from '@/lib/utils/sentences';
 import { duration, easing } from '@/lib/motion/tokens';
 import styles from './Toast.module.css';
 
@@ -61,7 +62,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   transition={{ duration: shouldReduce ? 0 : duration.base, ease: easing.outSoft }}
                 >
                   <Icon name={iconFor[toast.variant]} size={20} className={styles.icon} />
-                  <span>{toast.message}</span>
+                  <span>{withSentenceBreaks(toast.message)}</span>
                 </motion.div>
               ))}
             </AnimatePresence>

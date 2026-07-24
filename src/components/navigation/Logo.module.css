@@ -22,3 +22,20 @@
   letter-spacing: 0.01em;
   line-height: 1;
 }
+
+/* Arabic: the mark IS the Arabic wordmark «بيوع», so printing the name beside it
+   sets the brand twice. Hide it VISUALLY ONLY — the span is this link's accessible
+   name (see Logo.tsx), so `display: none` would leave the home link unlabelled for
+   screen readers. Same technique as ui/VisuallyHidden. Latin is unaffected: the
+   mark is Arabic, so the "Buyue" wordmark beside it is doing real work there. */
+:global(html:lang(ar)) .name {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -14,6 +14,22 @@ token edit, no uncommenting.
 Any of `.woff2` (preferred) · `.woff` · `.otf` · `.ttf`. Every file is optional —
 a partial licence loads what it has and falls back for the rest.
 
+**Arabic — 29LT Bukra** → CSS family `29LT Bukra` — ✅ **installed and in use**
+
+Client-supplied, and it takes precedence over Zarid in every Arabic slot: **Bold
+carries titles, Regular carries everything else.** Delete these four files to fall
+back to Zarid / Noto Naskh.
+
+| File                | Weight       |
+| ------------------- | ------------ |
+| `bukra-light`       | 300          |
+| `bukra-regular`     | 400          |
+| `bukra-bold`        | 700          |
+| `bukra-bold-italic` | 700 _italic_ |
+
+> There is no 500/600 cut. `src/styles/globals.css` pins `h1`–`h6` to 700 on
+> `:lang(ar)` so headings that declare `medium` don't resolve down to Regular.
+
 **Latin — Articulat V3 / Articulat CF** (Doc 03 §4.2) → CSS family `Articulat V3`
 
 | File                 | Weight       |

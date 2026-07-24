@@ -59,6 +59,8 @@ export default async function ServicesPage({ params }: PageParams) {
           One beam refracts into a warm brand spectrum = integrated creative services. */}
       <ServicesHero
         heading={t('intro.heading')}
+        eyebrow={t('intro.eyebrow')}
+        standfirst={t('intro.standfirst')}
         paragraphs={introParagraphs}
         ctaLabel={ctaLabel}
         ctaHref="/contact"

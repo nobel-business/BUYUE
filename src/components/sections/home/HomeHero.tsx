@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from '@/i18n/navigation';
 import { onLandingSceneRunning } from '@/lib/motion/landing-signal';
 import { cn } from '@/lib/utils/cn';
+import { withSentenceBreaks } from '@/lib/utils/sentences';
 import styles from './HomeHero.module.css';
 
 type HomeHeroProps = {
@@ -103,7 +104,7 @@ export function HomeHero({
             {renderHead(heading, rtl)}
           </h1>
           <p id="sub" className={styles.sub}>
-            {sub}
+            {withSentenceBreaks(sub)}
           </p>
           <div id="ctas" className={styles.ctas}>
             <Link id="cta1" href={ctaPrimaryHref} className={cn(styles.btn, styles.btnP)}>

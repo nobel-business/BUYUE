@@ -660,13 +660,30 @@
   max-inline-size: 42rem;
 }
 
+/* Approved positioning line, set as a SUBTITLE directly under the headline —
+   same face and same colour as .title, just smaller so the hierarchy holds.
+   No uppercase and no tracking: this reads as a second line of the headline,
+   not as an overline (and Doc 03 §4.4 forbids positive letter-spacing on
+   Arabic regardless). */
 .eyebrow {
-  display: inline-block;
-  margin-block-end: 0.75rem;
-  font-size: 0.85rem;
-  font-weight: var(--font-weight-medium, 600);
-  letter-spacing: 0.04em;
-  color: var(--hero-orange);
+  margin: 0.75rem 0 0;
+  max-inline-size: 34rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 0.9rem + 0.9vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+/* Approved page "Description" — a standfirst between the divider and the body.
+   Deliberately larger and lighter than .lead so the summary-then-detail order
+   reads as intentional. */
+.standfirst {
+  margin: 0 0 1.75rem;
+  max-inline-size: 40rem;
+  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem);
+  line-height: 1.55;
+  color: var(--text-primary);
 }
 
 .title {
