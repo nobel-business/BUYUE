@@ -1,0 +1,511 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SERVICE SHOWCASE — two-column selector, structured after the reference
+   (above-limits.com/service): a tall list of service names (start column) and a
+   PANEL (end column) whose image is anchored top-start at ~half the panel width
+   with the text inset over it — the reference's `.serv-box { background-size:50%;
+   background-position: left top }` + `.serv-content { padding: 27% 0 0 27% }`.
+   Offerings run 2-up, then the CTA. All values are design tokens; logical
+   properties mirror the whole composition for RTL.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.grid {
+  display: grid;
+  /* Reference proportions: col-md-5 (names) | col-md-7 (panel). The wide names
+     column is what lets most service names sit on ONE line. */
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  /* The section heading gets its OWN row, and the panel starts in the second row —
+     so the content begins level with the FIRST SERVICE NAME, never level with the
+     section heading above it. */
+  grid-template-areas:
+    'head .'
+    'list panel';
+  gap: clamp(0.9rem, 1.8vw, 1.6rem) clamp(1.5rem, 4vw, 3.5rem);
+  /* START (never stretch): the panel keeps its NATURAL height, so text + CTA read
+     as one unit and a long service simply runs past the last service name. */
+  align-items: start;
+  padding-block: clamp(2rem, 5vh, 4.5rem);
+  overflow: visible;
+}
+
+/* ── Section head — row 1, names column only. ────────────────────────────── */
+.head {
+  grid-area: head;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.eyebrow {
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-bonfire-flame);
+}
+
+:global(html:lang(en)) .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-heading);
+  color: var(--text-primary);
+}
+
+/* ── The service names (tablist) ─────────────────────────────────────────── */
+/* An inline-size container: the label below sizes in `cqi`, so it scales with the
+   COLUMN's real width rather than the viewport's — which is what keeps the names
+   on one line at every breakpoint instead of only at one. */
+.list {
+  grid-area: list;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  /* Tightly stacked, as in the reference — but with just enough air that ten names
+     read as a list rather than a block of text. */
+  gap: clamp(0.3rem, 0.55vw, 0.5rem);
+}
+
+/* A service name. Muted at rest; full ink when active. A start gutter reserves room
+   for the active dash so the label text never shifts between items. */
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  inline-size: 100%;
+  padding-block: 0.16rem;
+  padding-inline: clamp(1.1rem, 1.4vw, 1.5rem) 0;
+  border: 0;
+  background: none;
+  text-align: start;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--dur-base) var(--ease-standard);
+}
+
+.item:hover {
+  color: var(--text-secondary);
+}
+
+.itemActive,
+.itemActive:hover {
+  color: var(--text-primary);
+}
+
+.itemLabel {
+  min-inline-size: 0;
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  /* Sized off the column width so every name fits on ONE line. Wrapping stays legal
+     as a safety valve — a name is never clipped — but is balanced if it happens. */
+  font-size: clamp(0.95rem, 4.2cqi, 1.4rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  hyphens: none;
+}
+
+:global(html:lang(ar)) .itemLabel {
+  letter-spacing: 0;
+}
+
+/* Active indicator — a short warm dash in the gutter, springs between items. */
+.indicator {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: calc(50% - 1.5px);
+  inline-size: clamp(0.7rem, 1vw, 1rem);
+  block-size: 3px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(to right, var(--color-quilt-gold), var(--color-bonfire-flame));
+}
+
+.item:focus-visible {
+  outline: none;
+}
+
+.item:focus-visible .itemLabel {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── The panel — image top-start, text inset over it (reference `.serv-box`). ── */
+.panel {
+  grid-area: panel;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-inline-size: 0;
+  overflow: visible;
+}
+
+/* The image occupies roughly half the panel, hugging the start edge at the top —
+   the reference's `background-size: 50%; background-position: left top`. Its size
+   is set by the PANEL, never by how much text a service has. */
+.media {
+  justify-self: start;
+  inline-size: clamp(9rem, 52%, 24rem);
+  min-inline-size: 0;
+}
+
+.mediaFrame {
+  position: relative;
+  display: grid;
+  grid-template: 1fr / 1fr;
+  inline-size: 100%;
+  /* Brand chamfer instead of a plain rectangle — same cut language as the CTA. */
+  clip-path: polygon(7% 0, 100% 0, 100% 87%, 93% 100%, 0 100%, 0 13%);
+  filter: drop-shadow(0 18px 38px rgb(0 0 0 / 45%));
+}
+
+/* Scrim: the text overlaps the image's bottom band, so that band fades to the page
+   surface and the first lines stay legible over any photograph, in either theme. */
+.mediaFrame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    transparent 46%,
+    color-mix(in srgb, var(--surface-page) 72%, transparent) 78%,
+    var(--surface-page) 97%
+  );
+  pointer-events: none;
+}
+
+.mediaLayer {
+  grid-area: 1 / 1;
+  min-inline-size: 0;
+}
+
+.image {
+  display: block;
+  inline-size: 100%;
+}
+
+/* ── The content — inset from the start edge, pulled up over the image. ─────
+   The reference's `.serv-content { padding: 27% 0 0 27% }`: text begins a little
+   inside the image's footprint and a little above its bottom edge. */
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  margin-block-start: clamp(-3rem, -3.5vw, -1.25rem);
+  padding-inline-start: 27%;
+  min-inline-size: 0;
+}
+
+.content:focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 6px;
+  border-radius: var(--radius-lg);
+}
+
+/* Grid-stacked crossfade — overlaps without doubling height mid-transition. */
+.contentStack {
+  position: relative;
+  display: grid;
+  grid-template: 1fr / 1fr;
+}
+
+.contentLayer {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 1.5rem);
+  min-inline-size: 0;
+}
+
+/* The CTA sits directly under the text, so the stack's height is what moves the
+   button — only the INCOMING service may set it. AnimatePresence keeps the outgoing
+   layer in the DOM before the incoming one, so lifting every layer but the last out
+   of flow means the button steps once to the new height instead of bouncing to
+   max(old, new) and back for the length of the crossfade. */
+.contentLayer:not(:last-child) {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+}
+
+.lead {
+  margin: 0;
+  font-size: var(--font-size-body-l);
+  line-height: var(--line-height-body);
+  color: var(--text-secondary);
+}
+
+/* Offerings — 2-up, as in the reference (`.serv-childs > .col-6`). `auto-fit` keeps
+   it 2-up wherever there is room and drops to one column when there is not, so the
+   long sentence-length offerings never get squeezed into a cramped ribbon. */
+.offerings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(0.5rem, 1.2vw, 0.9rem) clamp(1rem, 2vw, 1.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.offering {
+  display: flex;
+  align-items: start;
+  gap: 0.6rem;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  color: var(--text-primary);
+}
+
+/* Optically centred on the FIRST line when an offering wraps to several. */
+.offeringMark {
+  flex: none;
+  margin-block-start: 0.25rem;
+  color: var(--color-bonfire-flame);
+}
+
+/* Value — plain block (no card frame): just the red "القيمة" label + the text. */
+.value {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-block-start: 0.5rem;
+}
+
+.valueLabel {
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-bonfire-flame);
+}
+
+:global(html:lang(en)) .valueLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.valueText {
+  margin: 0;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  color: var(--text-secondary);
+}
+
+/* ── CTA — chamfered geometric button (same language as the image frame). ────
+   Two layers give a 1px warm-orange outline around the cut corners: the element
+   background is the orange border; ::before (inset 1px, same chamfer) is the dark
+   glass fill, so 1px of orange shows along every edge — including the diagonals a
+   plain border cannot follow through a clip-path. */
+/* The CTA belongs to the TEXT, not to the column: it follows the value line at a
+   fixed distance, so text + button move together as one unit. Never pinned to the
+   bottom — a short service ends high, a long one pushes the button further down. */
+.cta {
+  margin-block-start: clamp(1rem, 2vw, 1.75rem);
+}
+
+.ctaButton {
+  --cta-cut-lg: 18px;
+  --cta-cut-sm: 10px;
+
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-block-size: 3.5rem; /* ~56px */
+  padding-inline: clamp(1.75rem, 3vw, 2.75rem);
+  clip-path: polygon(
+    var(--cta-cut-lg) 0,
+    100% 0,
+    100% calc(100% - var(--cta-cut-sm)),
+    calc(100% - var(--cta-cut-sm)) 100%,
+    0 100%,
+    0 var(--cta-cut-lg)
+  );
+  background: linear-gradient(
+    150deg,
+    var(--color-bonfire-flame),
+    var(--color-action-primary-active)
+  );
+  color: var(--color-springtime-rain);
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-body);
+  text-decoration: none;
+  filter: drop-shadow(0 8px 20px rgb(0 0 0 / 28%));
+  transition:
+    translate 300ms var(--ease-out-soft),
+    filter 300ms var(--ease-out-soft);
+}
+
+.ctaButton::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  clip-path: polygon(
+    var(--cta-cut-lg) 0,
+    100% 0,
+    100% calc(100% - var(--cta-cut-sm)),
+    calc(100% - var(--cta-cut-sm)) 100%,
+    0 100%,
+    0 var(--cta-cut-lg)
+  );
+  background: linear-gradient(150deg, rgb(24 18 14 / 84%), rgb(38 24 17 / 88%));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    inset 0 0 22px color-mix(in srgb, var(--color-bonfire-flame) 8%, transparent);
+  backdrop-filter: blur(12px);
+  transition: background 300ms var(--ease-out-soft);
+}
+
+.ctaLabel,
+.ctaArrow {
+  position: relative;
+  z-index: 1;
+}
+
+.ctaArrow {
+  color: var(--color-quilt-gold);
+}
+
+.ctaButton:hover {
+  translate: 0 -2px;
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--color-bonfire-flame) 88%, #fff),
+    var(--color-bonfire-flame)
+  );
+  filter: drop-shadow(0 12px 26px color-mix(in srgb, var(--color-bonfire-flame) 30%, transparent));
+}
+
+.ctaButton:hover::before {
+  background: linear-gradient(150deg, rgb(34 22 16 / 86%), rgb(52 30 20 / 90%));
+}
+
+/* Focus ring: an `outline` is clipped by the button's clip-path, so focus shows as
+   a bright inset ring on the glass fill + a brighter border (visible everywhere). */
+.ctaButton:focus-visible {
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--color-bonfire-flame) 88%, #fff),
+    var(--color-bonfire-flame)
+  );
+}
+
+.ctaButton:focus-visible::before {
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--color-springtime-rain) 88%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    inset 0 0 22px color-mix(in srgb, var(--color-bonfire-flame) 8%, transparent);
+}
+
+/* ── Placeholder (only if a service has no image). ────────────────────────── */
+.placeholder {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 3 / 2;
+  inline-size: 100%;
+  background:
+    radial-gradient(
+      120% 90% at 78% 8%,
+      color-mix(in srgb, var(--color-bonfire-flame) 22%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(150deg, var(--surface-sunken), var(--surface-inverse));
+}
+
+.placeholderMark {
+  inline-size: clamp(3.5rem, 9vw, 6rem);
+  aspect-ratio: 1034 / 1320;
+  background: color-mix(in srgb, var(--color-springtime-rain) 80%, transparent);
+  mask: url('/brand/buyue-mark-trim.png') center / contain no-repeat;
+  opacity: 0.42;
+}
+
+/* ── Tablet: same composition, tighter gap. ──────────────────────────────── */
+@media (max-width: 1100px) {
+  .grid {
+    column-gap: clamp(1.25rem, 3vw, 2.25rem);
+  }
+
+  .content {
+    padding-inline-start: 22%;
+  }
+
+  .offerings {
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  }
+}
+
+/* ── Mobile: stack — heading, then the names as a horizontal rail, then the
+      panel (image full width, text under it). ────────────────────────────── */
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'head'
+      'list'
+      'panel';
+    row-gap: 1.5rem;
+  }
+
+  .list {
+    flex-flow: row nowrap;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    margin-inline: calc(-1 * var(--container-gutter-mobile));
+    padding-inline: var(--container-gutter-mobile);
+    scrollbar-width: none;
+  }
+
+  .list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .item {
+    flex: none;
+    scroll-snap-align: start;
+    inline-size: auto;
+    padding-inline-start: 1rem;
+  }
+
+  .itemLabel {
+    font-size: 1.15rem;
+    white-space: nowrap;
+  }
+
+  .indicator {
+    inline-size: 0.75rem;
+  }
+
+  .media {
+    inline-size: 100%;
+  }
+
+  .content {
+    margin-block-start: clamp(-1.5rem, -2.5vw, -0.75rem);
+    padding-inline-start: 0;
+  }
+
+  .offerings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── Reduced motion. ─────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .ctaButton,
+  .ctaButton::before {
+    transition: none;
+  }
+
+  .ctaButton:hover {
+    translate: none;
+  }
+}
